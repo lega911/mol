@@ -241,14 +241,16 @@
     z-index: 2
 }
 [mol_list] {
-    will-change: contents
+    will-change: contents;
+    display: block
 }
 [mol_float] {
     position: relative;
     z-index: 1;
     opacity: 1;
     -webkit-transition: opacity .25s ease-in;
-    transition: opacity .25s ease-in
+    transition: opacity .25s ease-in;
+    display: block
 }
 [mol_float_scrolling] {
     opacity: 0;
@@ -374,7 +376,7 @@
     border-radius: 2px;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1)
 }
-[mol_check_box_icon] + div:not(:empty) {
+[mol_check_box_icon] + [mol_check_box_label]:not(:empty) {
     margin-left: 8px;
     margin-left: .5rem
 }
@@ -835,7 +837,8 @@
             flex-direction: column;
     -webkit-transform: translateZ(0);
             transform: translateZ(0);
-    max-width: 100%
+    max-width: 100%;
+    max-height: 100%
 }
 [mol_demo_header] {
     display: -webkit-box;
@@ -961,9 +964,9 @@
             align-items: flex-start;
     -ms-flex-line-pack: start;
         align-content: flex-start;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -webkit-box-pack: start;
+        -ms-flex-pack: start;
+            justify-content: flex-start;
     box-shadow: none;
     margin: 0
 }
@@ -1191,8 +1194,11 @@
         -ms-flex: 0 1 auto;
             flex: 0 1 auto
 }
-[mol_app_inventory_position_title] {}
+[mol_app_inventory_position_title] {
+    display: block
+}
 [mol_app_inventory_position_description] {
+    display: block;
     color: gray
 }
 [mol_code] {
@@ -1328,6 +1334,7 @@
     border-collapse: collapse
 }
 [mol_app_report_descriptor] {
+    display: block;
     margin: 16px auto;
     margin: 1rem auto;
     white-space: pre-line;
@@ -1901,6 +1908,7 @@
     height: 4rem
 }
 [mol_app_todomvc_title] {
+    display: block;
     padding: 4px;
     padding: .25rem;
     font-size: 112px;

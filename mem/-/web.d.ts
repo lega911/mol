@@ -121,9 +121,10 @@ declare namespace $ {
         get(force?: $mol_atom_force): Value;
         actualize(force?: $mol_atom_force): void;
         pull(force?: $mol_atom_force): any;
-        _next: Value;
+        _next: Value | Error;
         set(next: Value): Value;
-        push(next: Value | Error): Value;
+        normalize(next: Value, prev: Value | Error): Value;
+        push(next_raw: Value | Error): any;
         obsolete_slaves(): void;
         check_slaves(): void;
         check(): void;
@@ -133,7 +134,7 @@ declare namespace $ {
         obey(master: $mol_atom<any>): void;
         disobey(master: $mol_atom<any>): void;
         disobey_all(): void;
-        value(next?: Value, force?: $mol_atom_force): Value;
+        value(next?: Value, force?: $mol_atom_force): any;
         static stack: $mol_atom<any>[];
         static updating: $mol_atom<any>[];
         static reaping: $mol_set<$mol_atom<any>>;

@@ -121,9 +121,10 @@ declare namespace $ {
         get(force?: $mol_atom_force): Value;
         actualize(force?: $mol_atom_force): void;
         pull(force?: $mol_atom_force): any;
-        _next: Value;
+        _next: Value | Error;
         set(next: Value): Value;
-        push(next: Value | Error): Value;
+        normalize(next: Value, prev: Value | Error): Value;
+        push(next_raw: Value | Error): any;
         obsolete_slaves(): void;
         check_slaves(): void;
         check(): void;
@@ -133,7 +134,7 @@ declare namespace $ {
         obey(master: $mol_atom<any>): void;
         disobey(master: $mol_atom<any>): void;
         disobey_all(): void;
-        value(next?: Value, force?: $mol_atom_force): Value;
+        value(next?: Value, force?: $mol_atom_force): any;
         static stack: $mol_atom<any>[];
         static updating: $mol_atom<any>[];
         static reaping: $mol_set<$mol_atom<any>>;
@@ -198,23 +199,23 @@ declare namespace $ {
         dom_node(next?: Element): Element;
         static render_sub(node: Element, sub: ($mol_view | Node | string | number | boolean)[]): void;
         static render_attr(node: Element, attrs: {
-            [key: string]: () => string | number | boolean;
+            [key: string]: string | number | boolean;
         }): void;
         static render_style(node: HTMLElement, styles: {
-            [key: string]: () => string | number;
+            [key: string]: string | number;
         }): void;
         static render_field(node: any, field: {
-            [key: string]: (next?: any) => any;
+            [key: string]: any;
         }): void;
         dom_tree(): HTMLElement;
         attr(): {
-            [key: string]: () => string | number | boolean;
+            [key: string]: string | number | boolean;
         };
         style(): {
-            [key: string]: () => string | number;
+            [key: string]: string | number;
         };
         field(): {
-            [key: string]: (next?: any) => any;
+            [key: string]: any;
         };
         event(): {
             [key: string]: (event: Event) => void;
@@ -228,33 +229,24 @@ interface Window {
 declare namespace $ {
 }
 declare namespace $ {
-    function $mol_merge_dict<Target, Source>(target: Target, source: Source): Target & Source;
-}
-declare namespace $ {
     class $mol_string extends $mol_view {
         dom_name(): string;
         enabled(): boolean;
         hint(): string;
         type(val?: any): any;
         attr(): {
-            [key: string]: () => string | number | boolean;
-        } & {
-            "placeholder": () => any;
-            "type": () => any;
+            "placeholder": any;
+            "type": any;
         };
         disabled(): boolean;
         value(val?: any): any;
         value_changed(val?: any): any;
         field(): {
-            [key: string]: (next?: any) => any;
-        } & {
-            "disabled": () => any;
-            "value": () => any;
+            "disabled": any;
+            "value": any;
         };
         event_change(event?: any): any;
         event(): {
-            [key: string]: (event: Event) => void;
-        } & {
             "input": (event?: any) => any;
         };
     }

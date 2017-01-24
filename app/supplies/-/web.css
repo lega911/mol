@@ -186,7 +186,8 @@
             flex: 1 1 auto
 }
 [mol_list] {
-    will-change: contents
+    will-change: contents;
+    display: block
 }
 [mol_card] {
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
@@ -849,7 +850,7 @@
     border-radius: 2px;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1)
 }
-[mol_check_box_icon] + div:not(:empty) {
+[mol_check_box_icon] + [mol_check_box_label]:not(:empty) {
     margin-left: 8px;
     margin-left: .5rem
 }

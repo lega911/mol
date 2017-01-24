@@ -132,7 +132,7 @@
 	"$mol_row_demo_publishLabel": "Shared",
 	"$mol_row_demo_dropLabel": "Drop",
 	"$mol_page_demo_title": "Sign Up",
-	"$mol_perf_render_runnerLabel": "Run",
+	"$mol_perf_render_run_label": "Run",
 	"$mol_string_demo_hint_hint": "Batman",
 	"$mol_string_demo_disabled_hint": "Jocker",
 	"$mol_suggest_demo_opened_hint": "Name",

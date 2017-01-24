@@ -208,7 +208,8 @@
     }
 }
 [mol_list] {
-    will-change: contents
+    will-change: contents;
+    display: block
 }
 [mol_app_bench_list_mol] {
     padding: 8px;

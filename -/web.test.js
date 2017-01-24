@@ -418,9 +418,9 @@ var $;
                 }
                 $mol_view_test.prototype.attr = function () {
                     return {
-                        'href': function () { return '#haha'; },
-                        'required': function () { return true; },
-                        'hidden': function () { return null; },
+                        'href': '#haha',
+                        'required': true,
+                        'hidden': false,
                     };
                 };
                 return $mol_view_test;
@@ -428,6 +428,7 @@ var $;
             var x = new $mol_view_test();
             var node = x.dom_tree();
             $.$mol_assert_equal(node.getAttribute('href'), '#haha');
+            $.$mol_assert_equal(node.getAttribute('required'), 'true');
             $.$mol_assert_equal(node.getAttribute('hidden'), null);
         },
         'render custom fields': function () {
@@ -438,7 +439,7 @@ var $;
                 }
                 $mol_view_test.prototype.field = function () {
                     return {
-                        'hidden': function () { return true; }
+                        'hidden': true
                     };
                 };
                 return $mol_view_test;

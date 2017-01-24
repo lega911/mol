@@ -178,7 +178,8 @@
     z-index: 1;
     opacity: 1;
     -webkit-transition: opacity .25s ease-in;
-    transition: opacity .25s ease-in
+    transition: opacity .25s ease-in;
+    display: block
 }
 [mol_float_scrolling] {
     opacity: 0;
@@ -304,7 +305,7 @@
     border-radius: 2px;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1)
 }
-[mol_check_box_icon] + div:not(:empty) {
+[mol_check_box_icon] + [mol_check_box_label]:not(:empty) {
     margin-left: 8px;
     margin-left: .5rem
 }

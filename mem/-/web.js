@@ -349,6 +349,31 @@ var $;
 })($ || ($ = {}));
 //stack.js.map
 ;
+if( typeof alert === 'function' ) {
+	let nativeAlert = alert
+	window.alert = function alert( message ) {
+		console.warn( 'Alerts causes atom synchronization problems in IE. Use custom notificator instead.' )
+		return nativeAlert( message )
+	}
+}
+
+if( typeof confirm === 'function' ) {
+	let nativeConfirm = confirm
+	window.confirm = function confirm( question ) {
+		console.warn( 'Confirms causes atom synchronization problems in IE. Use custom dialog instead.' )
+		return nativeConfirm( question )
+	}
+}
+
+if( typeof confirm === 'function' ) {
+	let nativePrompt = prompt
+	window.prompt = function prompt( question , def ) {
+		console.warn( 'Prompts causes atom synchronization problems in IE. Use custom dialog instead.' )
+		return nativePrompt( question , def )
+	}
+}
+
+;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -469,43 +494,52 @@ var $;
             }
         };
         $mol_atom.prototype.set = function (next) {
-            this._next = next;
+            var next_normal = this.normalize(next, this._next);
+            if (next_normal === this._next)
+                return this._next;
+            this._next = next_normal;
             this.obsolete();
             return this.get();
         };
-        $mol_atom.prototype.push = function (next) {
+        $mol_atom.prototype.normalize = function (next, prev) {
+            if (next === prev)
+                return next;
+            if ((next instanceof Array) && (prev instanceof Array) && (next.length === prev.length)) {
+                for (var i = 0; i < next.length; ++i) {
+                    if (next[i] !== prev[i])
+                        return next;
+                }
+                return prev;
+            }
+            return next;
+        };
+        $mol_atom.prototype.push = function (next_raw) {
+            this._next = void null;
+            this.status = $mol_atom_status.actual;
             var host = this.host;
             var prev = host[this.field];
-            if (next === void null)
-                next = prev;
-            comparing: if ((next !== prev) && (next instanceof Array) && (prev instanceof Array) && (next.length === prev.length)) {
-                for (var i = 0; i < next['length']; ++i) {
-                    if (next[i] !== prev[i])
-                        break comparing;
-                }
-                next = prev;
+            if (next_raw === void null)
+                return prev;
+            var next = (next_raw instanceof Error) ? next_raw : this.normalize(next_raw, prev);
+            if (next === prev)
+                return prev;
+            if (next instanceof $.$mol_object) {
+                next.object_field(this.field);
+                next.object_owner(host);
             }
-            if (prev !== next) {
-                if (next instanceof $.$mol_object) {
-                    next['object_field'](this.field);
-                    next['object_owner'](host);
-                }
-                if ((typeof Proxy === 'function') && (next instanceof Error)) {
-                    next = new Proxy(next, {
-                        get: function (target) {
-                            throw target.valueOf();
-                        },
-                        ownKeys: function (target) {
-                            throw target.valueOf();
-                        },
-                    });
-                }
-                host[this.field] = next;
-                this.log(['push', next, prev]);
-                this.obsolete_slaves();
+            if ((typeof Proxy === 'function') && (next instanceof Error)) {
+                next = new Proxy(next, {
+                    get: function (target) {
+                        throw target.valueOf();
+                    },
+                    ownKeys: function (target) {
+                        throw target.valueOf();
+                    },
+                });
             }
-            this.status = $mol_atom_status.actual;
-            this._next = void null;
+            host[this.field] = next;
+            this.log(['push', next, prev]);
+            this.obsolete_slaves();
             return next;
         };
         $mol_atom.prototype.obsolete_slaves = function () {

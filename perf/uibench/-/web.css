@@ -104,7 +104,8 @@
     }
 }
 [mol_list] {
-    will-change: contents
+    will-change: contents;
+    display: block
 }
 
 /*# sourceMappingURL=web.css.map */

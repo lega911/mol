@@ -121,9 +121,10 @@ declare namespace $ {
         get(force?: $mol_atom_force): Value;
         actualize(force?: $mol_atom_force): void;
         pull(force?: $mol_atom_force): any;
-        _next: Value;
+        _next: Value | Error;
         set(next: Value): Value;
-        push(next: Value | Error): Value;
+        normalize(next: Value, prev: Value | Error): Value;
+        push(next_raw: Value | Error): any;
         obsolete_slaves(): void;
         check_slaves(): void;
         check(): void;
@@ -133,7 +134,7 @@ declare namespace $ {
         obey(master: $mol_atom<any>): void;
         disobey(master: $mol_atom<any>): void;
         disobey_all(): void;
-        value(next?: Value, force?: $mol_atom_force): Value;
+        value(next?: Value, force?: $mol_atom_force): any;
         static stack: $mol_atom<any>[];
         static updating: $mol_atom<any>[];
         static reaping: $mol_set<$mol_atom<any>>;
@@ -198,23 +199,23 @@ declare namespace $ {
         dom_node(next?: Element): Element;
         static render_sub(node: Element, sub: ($mol_view | Node | string | number | boolean)[]): void;
         static render_attr(node: Element, attrs: {
-            [key: string]: () => string | number | boolean;
+            [key: string]: string | number | boolean;
         }): void;
         static render_style(node: HTMLElement, styles: {
-            [key: string]: () => string | number;
+            [key: string]: string | number;
         }): void;
         static render_field(node: any, field: {
-            [key: string]: (next?: any) => any;
+            [key: string]: any;
         }): void;
         dom_tree(): HTMLElement;
         attr(): {
-            [key: string]: () => string | number | boolean;
+            [key: string]: string | number | boolean;
         };
         style(): {
-            [key: string]: () => string | number;
+            [key: string]: string | number;
         };
         field(): {
-            [key: string]: (next?: any) => any;
+            [key: string]: any;
         };
         event(): {
             [key: string]: (event: Event) => void;
@@ -228,26 +229,19 @@ interface Window {
 declare namespace $ {
 }
 declare namespace $ {
-    function $mol_merge_dict<Target, Source>(target: Target, source: Source): Target & Source;
-}
-declare namespace $ {
     class $mol_button extends $mol_view {
         enabled(): boolean;
         event_click(event?: any): any;
         event_activate(event?: any): any;
         event(): {
-            [key: string]: (event: Event) => void;
-        } & {
             "click": (event?: any) => any;
         };
         disabled(): boolean;
         tab_index(): string;
         attr(): {
-            [key: string]: () => string | number | boolean;
-        } & {
-            "disabled": () => any;
-            "role": () => any;
-            "tabindex": () => any;
+            "disabled": any;
+            "role": any;
+            "tabindex": any;
         };
     }
 }
@@ -274,15 +268,11 @@ declare namespace $ {
     class $mol_check extends $mol_button {
         checked(val?: any): any;
         attr(): {
-            [key: string]: () => string | number | boolean;
-        } & {
-            "disabled": () => any;
-            "role": () => any;
-            "tabindex": () => any;
-        } & {
-            "mol_check_checked": () => any;
-            "aria-checked": () => any;
-            "role": () => any;
+            "mol_check_checked": any;
+            "aria-checked": any;
+            "role": any;
+            "disabled": any;
+            "tabindex": any;
         };
         Icon(): any;
         label(): any[];
@@ -308,15 +298,11 @@ declare namespace $ {
         scroll_top(val?: any): any;
         scroll_left(val?: any): any;
         field(): {
-            [key: string]: (next?: any) => any;
-        } & {
             "scrollTop": (val?: any) => any;
             "scrollLeft": (val?: any) => any;
         };
         event_scroll(event?: any): any;
         event(): {
-            [key: string]: (event: Event) => void;
-        } & {
             "scroll": (event?: any) => any;
             "overflow": (event?: any) => any;
             "underflow": (event?: any) => any;
@@ -344,9 +330,7 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_list extends $mol_view {
         style(): {
-            [key: string]: () => string | number;
-        } & {
-            "minHeight": () => any;
+            "minHeight": any;
         };
         rows(): any[];
         sub(): any[];
