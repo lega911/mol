@@ -1,0 +1,15 @@
+{
+	"$mol_app_inventory_enter_loginLabel": "User name",
+	"$mol_app_inventory_enter_passwordLabel": "Pass word",
+	"$mol_app_inventory_enter_submitLabel": "Log in",
+	"$mol_app_inventory_enter_messageNoAccess": "Access denied",
+	"$mol_app_inventory_position_status_label_pending": "Pending",
+	"$mol_app_inventory_position_status_label_approved": "Approved",
+	"$mol_app_inventory_position_status_label_rejected": "Rejected",
+	"$mol_app_inventory_controller_submit_label": "Remove confirmed",
+	"$mol_code_scan_label": "Scan",
+	"$mol_app_inventory_keeper_code_new_hint": "Product bar code",
+	"$mol_app_inventory_keeper_submit_label": "Write off",
+	"$mol_app_inventory_head_keeper_label": "Keeper",
+	"$mol_app_inventory_head_control_label": "Controller"
+}
