@@ -349,29 +349,33 @@ var $;
 })($ || ($ = {}));
 //stack.js.map
 ;
-if( typeof alert === 'function' ) {
-	let nativeAlert = alert
-	window.alert = function alert( message ) {
-		console.warn( 'Alerts causes atom synchronization problems in IE. Use custom notificator instead.' )
-		return nativeAlert( message )
-	}
-}
+void function() {
 
-if( typeof confirm === 'function' ) {
-	let nativeConfirm = confirm
-	window.confirm = function confirm( question ) {
-		console.warn( 'Confirms causes atom synchronization problems in IE. Use custom dialog instead.' )
-		return nativeConfirm( question )
+	if( typeof alert === 'function' ) {
+		var nativeAlert = alert
+		window.alert = function alert( message ) {
+			console.warn( 'Alerts causes atom synchronization problems in IE. Use custom notificator instead.' )
+			return nativeAlert( message )
+		}
 	}
-}
 
-if( typeof confirm === 'function' ) {
-	let nativePrompt = prompt
-	window.prompt = function prompt( question , def ) {
-		console.warn( 'Prompts causes atom synchronization problems in IE. Use custom dialog instead.' )
-		return nativePrompt( question , def )
+	if( typeof confirm === 'function' ) {
+		var nativeConfirm = confirm
+		window.confirm = function confirm( question ) {
+			console.warn( 'Confirms causes atom synchronization problems in IE. Use custom dialog instead.' )
+			return nativeConfirm( question )
+		}
 	}
-}
+
+	if( typeof confirm === 'function' ) {
+		var nativePrompt = prompt
+		window.prompt = function prompt( question , def ) {
+			console.warn( 'Prompts causes atom synchronization problems in IE. Use custom dialog instead.' )
+			return nativePrompt( question , def )
+		}
+	}
+
+}()
 
 ;
 var __extends = (this && this.__extends) || function (d, b) {
@@ -10733,9 +10737,6 @@ var $;
             function $mol_app_supplies_list() {
                 return _super.apply(this, arguments) || this;
             }
-            $mol_app_supplies_list.prototype.requests = function () {
-                return [];
-            };
             $mol_app_supplies_list.prototype.supply_rows = function () {
                 var _this = this;
                 return this.supplies().map(function (supply, index) { return _this.Supply_row(index); });
@@ -10745,8 +10746,8 @@ var $;
                 return new $mol.$mol_app_supplies_card().setup(function (obj) {
                     obj.supply = function () { return _this.supplies()[index]; };
                     obj.arg = function () { return ({
-                        supply: function () { return _this.supplies()[index].id(); },
-                        side: function () { return null; }
+                        supply: _this.supplies()[index].id(),
+                        side: null,
                     }); };
                 });
             };

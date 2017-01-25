@@ -965,7 +965,6 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_app_supplies_list extends $.$mol_app_supplies_list {
-        requests(): $mol_app_supplies_domain_supply[];
         supply_rows(): $mol_app_supplies_card[];
         Supply_row(index: number): $mol_app_supplies_card;
     }
