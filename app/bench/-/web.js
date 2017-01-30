@@ -828,6 +828,10 @@ var $;
         $mol_view.state_prefix = function () {
             return '';
         };
+        $mol_view.prototype.focused = function (next) {
+            var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
+            return value.indexOf(this.dom_node()) !== -1;
+        };
         $mol_view.prototype.state_prefix = function () {
             var owner = this.object_owner();
             return owner ? owner.state_prefix() : '';
@@ -860,14 +864,31 @@ var $;
             });
             return sub;
         };
-        $mol_view.prototype.minimal_height = function () {
-            return 0;
-        };
         $mol_view.prototype.minimal_width = function () {
-            return 0;
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_width());
+                }
+            });
+            return min;
+        };
+        $mol_view.prototype.minimal_height = function () {
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_height());
+                }
+            });
+            return min;
         };
         $mol_view.prototype.dom_node = function (next) {
-            var _this = this;
             var path = this.toString();
             var next2 = next;
             if (!next2) {
@@ -905,10 +926,14 @@ var $;
                     break;
                 proto = Object.getPrototypeOf(proto);
             }
-            var events = this.event();
+            $mol_view.bind_event(next2, this.event());
+            return next2;
+        };
+        $mol_view.bind_event = function (node, events) {
+            var _this = this;
             var _loop_1 = function (name_1) {
                 var handle = events[name_1];
-                next2.addEventListener(name_1, function (event) {
+                node.addEventListener(name_1, function (event) {
                     $.$mol_atom_task(_this + ".event()['" + name_1 + "']", function () {
                         handle(event);
                     }).get();
@@ -917,7 +942,6 @@ var $;
             for (var name_1 in events) {
                 _loop_1(name_1);
             }
-            return next2;
         };
         $mol_view.render_sub = function (node, sub) {
             if (sub == null)
@@ -1005,9 +1029,9 @@ var $;
         $mol_view.prototype.dom_tree = function () {
             var node = this.dom_node();
             try {
-                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_attr(node, this.attr());
                 $mol_view.render_style(node, this.style());
+                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_field(node, this.field());
                 return node;
             }
@@ -1044,7 +1068,16 @@ var $;
     }($.$mol_object));
     __decorate([
         $.$mol_mem()
+    ], $mol_view.prototype, "focused", null);
+    __decorate([
+        $.$mol_mem()
     ], $mol_view.prototype, "context", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_width", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_height", null);
     __decorate([
         $.$mol_mem()
     ], $mol_view.prototype, "dom_tree", null);
@@ -1076,6 +1109,145 @@ var $;
     });
 })($ || ($ = {}));
 //view.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_view_selection = (function (_super) {
+        __extends($mol_view_selection, _super);
+        function $mol_view_selection() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_view_selection.focused = function (next, force) {
+            if (next === void 0)
+                return [];
+            if (next.length !== 1)
+                throw new Error('Length must be equals 1');
+            var node = next[0];
+            node.focus();
+        };
+        $mol_view_selection.position = function () {
+            var diff = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                diff[_i] = arguments[_i];
+            }
+            if (diff.length) {
+                if (!diff[0])
+                    return diff[0];
+                var start = diff[0].start;
+                var end = diff[0].end;
+                if (!(start <= end))
+                    throw new Error("Wrong offsets (" + start + "," + end + ")");
+                var root = document.getElementById(diff[0].id);
+                root.focus();
+                var range = new Range;
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= start)
+                            break;
+                        start -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            start = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setStart(cur, start);
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= end)
+                            break;
+                        end -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            end = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setEnd(cur, end);
+                var sel = document.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return diff[0];
+            }
+            else {
+                var sel = document.getSelection();
+                if (sel.rangeCount === 0)
+                    return null;
+                var range = sel.getRangeAt(0);
+                var el = range.commonAncestorContainer;
+                while (el && !el.id)
+                    el = el.parentElement;
+                if (!el)
+                    return { id: null, start: 0, end: 0 };
+                var meter = new Range;
+                meter.selectNodeContents(el);
+                meter.setEnd(range.startContainer, range.startOffset);
+                var startOffset = meter.toString().length;
+                meter.setEnd(range.endContainer, range.endOffset);
+                var endOffset = meter.toString().length;
+                return { id: el.id, start: startOffset, end: endOffset };
+            }
+        };
+        $mol_view_selection.onFocus = function (event) {
+            var parents = [];
+            var element = event.target;
+            while (element) {
+                parents.push(element);
+                element = element.parentElement;
+            }
+            $mol_view_selection.focused(parents, $.$mol_atom_force);
+        };
+        $mol_view_selection.onBlur = function (event) {
+            $mol_view_selection.focused([], $.$mol_atom_force);
+        };
+        return $mol_view_selection;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "focused", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "position", null);
+    $.$mol_view_selection = $mol_view_selection;
+})($ || ($ = {}));
+//selection.js.map
+;
+var $;
+(function ($) {
+    document.addEventListener('selectionchange', function (event) {
+        $.$mol_view_selection.position(void 0);
+    });
+    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
+    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
+    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
+    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
+})($ || ($ = {}));
+//selection.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1153,8 +1325,7 @@ var $;
             return (val !== void 0) ? val : 0;
         };
         $mol_scroll.prototype.field = function () {
-            var _this = this;
-            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": function (val) { return _this.scroll_top(val); }, "scrollLeft": function (val) { return _this.scroll_left(val); } }));
+            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": this.scroll_top(), "scrollLeft": this.scroll_left() }));
         };
         $mol_scroll.prototype.event_scroll = function (event) {
             return (event !== void 0) ? event : null;
@@ -1733,6 +1904,113 @@ var $;
 })($ || ($ = {}));
 //float.view.js.map
 ;
+var $;
+(function ($) {
+    var $mol_keyboard_code;
+    (function ($mol_keyboard_code) {
+        $mol_keyboard_code[$mol_keyboard_code["backspace"] = 8] = "backspace";
+        $mol_keyboard_code[$mol_keyboard_code["tab"] = 9] = "tab";
+        $mol_keyboard_code[$mol_keyboard_code["enter"] = 13] = "enter";
+        $mol_keyboard_code[$mol_keyboard_code["shift"] = 16] = "shift";
+        $mol_keyboard_code[$mol_keyboard_code["ctrl"] = 17] = "ctrl";
+        $mol_keyboard_code[$mol_keyboard_code["alt"] = 18] = "alt";
+        $mol_keyboard_code[$mol_keyboard_code["pause"] = 19] = "pause";
+        $mol_keyboard_code[$mol_keyboard_code["capsLock"] = 20] = "capsLock";
+        $mol_keyboard_code[$mol_keyboard_code["escape"] = 27] = "escape";
+        $mol_keyboard_code[$mol_keyboard_code["space"] = 32] = "space";
+        $mol_keyboard_code[$mol_keyboard_code["pageUp"] = 33] = "pageUp";
+        $mol_keyboard_code[$mol_keyboard_code["pageDown"] = 34] = "pageDown";
+        $mol_keyboard_code[$mol_keyboard_code["end"] = 35] = "end";
+        $mol_keyboard_code[$mol_keyboard_code["home"] = 36] = "home";
+        $mol_keyboard_code[$mol_keyboard_code["left"] = 37] = "left";
+        $mol_keyboard_code[$mol_keyboard_code["up"] = 38] = "up";
+        $mol_keyboard_code[$mol_keyboard_code["right"] = 39] = "right";
+        $mol_keyboard_code[$mol_keyboard_code["down"] = 40] = "down";
+        $mol_keyboard_code[$mol_keyboard_code["insert"] = 45] = "insert";
+        $mol_keyboard_code[$mol_keyboard_code["delete"] = 46] = "delete";
+        $mol_keyboard_code[$mol_keyboard_code["key0"] = 48] = "key0";
+        $mol_keyboard_code[$mol_keyboard_code["key1"] = 49] = "key1";
+        $mol_keyboard_code[$mol_keyboard_code["key2"] = 50] = "key2";
+        $mol_keyboard_code[$mol_keyboard_code["key3"] = 51] = "key3";
+        $mol_keyboard_code[$mol_keyboard_code["key4"] = 52] = "key4";
+        $mol_keyboard_code[$mol_keyboard_code["key5"] = 53] = "key5";
+        $mol_keyboard_code[$mol_keyboard_code["key6"] = 54] = "key6";
+        $mol_keyboard_code[$mol_keyboard_code["key7"] = 55] = "key7";
+        $mol_keyboard_code[$mol_keyboard_code["key8"] = 56] = "key8";
+        $mol_keyboard_code[$mol_keyboard_code["key9"] = 57] = "key9";
+        $mol_keyboard_code[$mol_keyboard_code["A"] = 65] = "A";
+        $mol_keyboard_code[$mol_keyboard_code["B"] = 66] = "B";
+        $mol_keyboard_code[$mol_keyboard_code["C"] = 67] = "C";
+        $mol_keyboard_code[$mol_keyboard_code["D"] = 68] = "D";
+        $mol_keyboard_code[$mol_keyboard_code["E"] = 69] = "E";
+        $mol_keyboard_code[$mol_keyboard_code["F"] = 70] = "F";
+        $mol_keyboard_code[$mol_keyboard_code["G"] = 71] = "G";
+        $mol_keyboard_code[$mol_keyboard_code["H"] = 72] = "H";
+        $mol_keyboard_code[$mol_keyboard_code["I"] = 73] = "I";
+        $mol_keyboard_code[$mol_keyboard_code["J"] = 74] = "J";
+        $mol_keyboard_code[$mol_keyboard_code["K"] = 75] = "K";
+        $mol_keyboard_code[$mol_keyboard_code["L"] = 76] = "L";
+        $mol_keyboard_code[$mol_keyboard_code["M"] = 77] = "M";
+        $mol_keyboard_code[$mol_keyboard_code["N"] = 78] = "N";
+        $mol_keyboard_code[$mol_keyboard_code["O"] = 79] = "O";
+        $mol_keyboard_code[$mol_keyboard_code["P"] = 80] = "P";
+        $mol_keyboard_code[$mol_keyboard_code["Q"] = 81] = "Q";
+        $mol_keyboard_code[$mol_keyboard_code["R"] = 82] = "R";
+        $mol_keyboard_code[$mol_keyboard_code["S"] = 83] = "S";
+        $mol_keyboard_code[$mol_keyboard_code["T"] = 84] = "T";
+        $mol_keyboard_code[$mol_keyboard_code["U"] = 85] = "U";
+        $mol_keyboard_code[$mol_keyboard_code["V"] = 86] = "V";
+        $mol_keyboard_code[$mol_keyboard_code["W"] = 87] = "W";
+        $mol_keyboard_code[$mol_keyboard_code["X"] = 88] = "X";
+        $mol_keyboard_code[$mol_keyboard_code["Y"] = 89] = "Y";
+        $mol_keyboard_code[$mol_keyboard_code["Z"] = 90] = "Z";
+        $mol_keyboard_code[$mol_keyboard_code["metaLeft"] = 91] = "metaLeft";
+        $mol_keyboard_code[$mol_keyboard_code["metaRight"] = 92] = "metaRight";
+        $mol_keyboard_code[$mol_keyboard_code["select"] = 93] = "select";
+        $mol_keyboard_code[$mol_keyboard_code["numpad0"] = 96] = "numpad0";
+        $mol_keyboard_code[$mol_keyboard_code["numpad1"] = 97] = "numpad1";
+        $mol_keyboard_code[$mol_keyboard_code["numpad2"] = 98] = "numpad2";
+        $mol_keyboard_code[$mol_keyboard_code["numpad3"] = 99] = "numpad3";
+        $mol_keyboard_code[$mol_keyboard_code["numpad4"] = 100] = "numpad4";
+        $mol_keyboard_code[$mol_keyboard_code["numpad5"] = 101] = "numpad5";
+        $mol_keyboard_code[$mol_keyboard_code["numpad6"] = 102] = "numpad6";
+        $mol_keyboard_code[$mol_keyboard_code["numpad7"] = 103] = "numpad7";
+        $mol_keyboard_code[$mol_keyboard_code["numpad8"] = 104] = "numpad8";
+        $mol_keyboard_code[$mol_keyboard_code["numpad9"] = 105] = "numpad9";
+        $mol_keyboard_code[$mol_keyboard_code["multiply"] = 106] = "multiply";
+        $mol_keyboard_code[$mol_keyboard_code["add"] = 107] = "add";
+        $mol_keyboard_code[$mol_keyboard_code["subtract"] = 109] = "subtract";
+        $mol_keyboard_code[$mol_keyboard_code["decimal"] = 110] = "decimal";
+        $mol_keyboard_code[$mol_keyboard_code["divide"] = 111] = "divide";
+        $mol_keyboard_code[$mol_keyboard_code["F1"] = 112] = "F1";
+        $mol_keyboard_code[$mol_keyboard_code["F2"] = 113] = "F2";
+        $mol_keyboard_code[$mol_keyboard_code["F3"] = 114] = "F3";
+        $mol_keyboard_code[$mol_keyboard_code["F4"] = 115] = "F4";
+        $mol_keyboard_code[$mol_keyboard_code["F5"] = 116] = "F5";
+        $mol_keyboard_code[$mol_keyboard_code["F6"] = 117] = "F6";
+        $mol_keyboard_code[$mol_keyboard_code["F7"] = 118] = "F7";
+        $mol_keyboard_code[$mol_keyboard_code["F8"] = 119] = "F8";
+        $mol_keyboard_code[$mol_keyboard_code["F9"] = 120] = "F9";
+        $mol_keyboard_code[$mol_keyboard_code["F10"] = 121] = "F10";
+        $mol_keyboard_code[$mol_keyboard_code["F11"] = 122] = "F11";
+        $mol_keyboard_code[$mol_keyboard_code["F12"] = 123] = "F12";
+        $mol_keyboard_code[$mol_keyboard_code["numLock"] = 144] = "numLock";
+        $mol_keyboard_code[$mol_keyboard_code["scrollLock"] = 145] = "scrollLock";
+        $mol_keyboard_code[$mol_keyboard_code["semicolon"] = 186] = "semicolon";
+        $mol_keyboard_code[$mol_keyboard_code["equals"] = 187] = "equals";
+        $mol_keyboard_code[$mol_keyboard_code["comma"] = 188] = "comma";
+        $mol_keyboard_code[$mol_keyboard_code["dash"] = 189] = "dash";
+        $mol_keyboard_code[$mol_keyboard_code["period"] = 190] = "period";
+        $mol_keyboard_code[$mol_keyboard_code["forwardSlash"] = 191] = "forwardSlash";
+        $mol_keyboard_code[$mol_keyboard_code["graveAccent"] = 192] = "graveAccent";
+        $mol_keyboard_code[$mol_keyboard_code["bracketOpen"] = 219] = "bracketOpen";
+        $mol_keyboard_code[$mol_keyboard_code["slashBack"] = 220] = "slashBack";
+        $mol_keyboard_code[$mol_keyboard_code["bracketClose"] = 221] = "bracketClose";
+        $mol_keyboard_code[$mol_keyboard_code["quoteSingle"] = 222] = "quoteSingle";
+    })($mol_keyboard_code = $.$mol_keyboard_code || ($.$mol_keyboard_code = {}));
+})($ || ($ = {}));
+//code.js.map
+;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1768,9 +2046,12 @@ var $;
         $mol_button.prototype.event_activate = function (event) {
             return this.event_click(event);
         };
+        $mol_button.prototype.evenet_key_press = function (event) {
+            return (event !== void 0) ? event : null;
+        };
         $mol_button.prototype.event = function () {
             var _this = this;
-            return (__assign({}, _super.prototype.event.call(this), { "click": function (event) { return _this.event_activate(event); } }));
+            return (__assign({}, _super.prototype.event.call(this), { "click": function (event) { return _this.event_activate(event); }, "keypress": function (event) { return _this.evenet_key_press(event); } }));
         };
         $mol_button.prototype.disabled = function () {
             return false;
@@ -1789,6 +2070,9 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_button.prototype, "event_activate", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_button.prototype, "evenet_key_press", null);
     $.$mol_button = $mol_button;
 })($ || ($ = {}));
 //button.view.tree.js.map
@@ -1814,6 +2098,10 @@ var $;
                 if (!this.enabled())
                     return;
                 this.event_click(next);
+            };
+            $mol_button.prototype.evenet_key_press = function (event) {
+                if (event.keyCode === $.$mol_keyboard_code.enter)
+                    return this.event_activate(event);
             };
             $mol_button.prototype.tab_index = function () {
                 return this.enabled() ? _super.prototype.tab_index.call(this) : null;

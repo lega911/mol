@@ -828,6 +828,10 @@ var $;
         $mol_view.state_prefix = function () {
             return '';
         };
+        $mol_view.prototype.focused = function (next) {
+            var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
+            return value.indexOf(this.dom_node()) !== -1;
+        };
         $mol_view.prototype.state_prefix = function () {
             var owner = this.object_owner();
             return owner ? owner.state_prefix() : '';
@@ -860,14 +864,31 @@ var $;
             });
             return sub;
         };
-        $mol_view.prototype.minimal_height = function () {
-            return 0;
-        };
         $mol_view.prototype.minimal_width = function () {
-            return 0;
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_width());
+                }
+            });
+            return min;
+        };
+        $mol_view.prototype.minimal_height = function () {
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_height());
+                }
+            });
+            return min;
         };
         $mol_view.prototype.dom_node = function (next) {
-            var _this = this;
             var path = this.toString();
             var next2 = next;
             if (!next2) {
@@ -905,10 +926,14 @@ var $;
                     break;
                 proto = Object.getPrototypeOf(proto);
             }
-            var events = this.event();
+            $mol_view.bind_event(next2, this.event());
+            return next2;
+        };
+        $mol_view.bind_event = function (node, events) {
+            var _this = this;
             var _loop_1 = function (name_1) {
                 var handle = events[name_1];
-                next2.addEventListener(name_1, function (event) {
+                node.addEventListener(name_1, function (event) {
                     $.$mol_atom_task(_this + ".event()['" + name_1 + "']", function () {
                         handle(event);
                     }).get();
@@ -917,7 +942,6 @@ var $;
             for (var name_1 in events) {
                 _loop_1(name_1);
             }
-            return next2;
         };
         $mol_view.render_sub = function (node, sub) {
             if (sub == null)
@@ -1005,9 +1029,9 @@ var $;
         $mol_view.prototype.dom_tree = function () {
             var node = this.dom_node();
             try {
-                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_attr(node, this.attr());
                 $mol_view.render_style(node, this.style());
+                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_field(node, this.field());
                 return node;
             }
@@ -1044,7 +1068,16 @@ var $;
     }($.$mol_object));
     __decorate([
         $.$mol_mem()
+    ], $mol_view.prototype, "focused", null);
+    __decorate([
+        $.$mol_mem()
     ], $mol_view.prototype, "context", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_width", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_height", null);
     __decorate([
         $.$mol_mem()
     ], $mol_view.prototype, "dom_tree", null);
@@ -1076,6 +1109,145 @@ var $;
     });
 })($ || ($ = {}));
 //view.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_view_selection = (function (_super) {
+        __extends($mol_view_selection, _super);
+        function $mol_view_selection() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_view_selection.focused = function (next, force) {
+            if (next === void 0)
+                return [];
+            if (next.length !== 1)
+                throw new Error('Length must be equals 1');
+            var node = next[0];
+            node.focus();
+        };
+        $mol_view_selection.position = function () {
+            var diff = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                diff[_i] = arguments[_i];
+            }
+            if (diff.length) {
+                if (!diff[0])
+                    return diff[0];
+                var start = diff[0].start;
+                var end = diff[0].end;
+                if (!(start <= end))
+                    throw new Error("Wrong offsets (" + start + "," + end + ")");
+                var root = document.getElementById(diff[0].id);
+                root.focus();
+                var range = new Range;
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= start)
+                            break;
+                        start -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            start = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setStart(cur, start);
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= end)
+                            break;
+                        end -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            end = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setEnd(cur, end);
+                var sel = document.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return diff[0];
+            }
+            else {
+                var sel = document.getSelection();
+                if (sel.rangeCount === 0)
+                    return null;
+                var range = sel.getRangeAt(0);
+                var el = range.commonAncestorContainer;
+                while (el && !el.id)
+                    el = el.parentElement;
+                if (!el)
+                    return { id: null, start: 0, end: 0 };
+                var meter = new Range;
+                meter.selectNodeContents(el);
+                meter.setEnd(range.startContainer, range.startOffset);
+                var startOffset = meter.toString().length;
+                meter.setEnd(range.endContainer, range.endOffset);
+                var endOffset = meter.toString().length;
+                return { id: el.id, start: startOffset, end: endOffset };
+            }
+        };
+        $mol_view_selection.onFocus = function (event) {
+            var parents = [];
+            var element = event.target;
+            while (element) {
+                parents.push(element);
+                element = element.parentElement;
+            }
+            $mol_view_selection.focused(parents, $.$mol_atom_force);
+        };
+        $mol_view_selection.onBlur = function (event) {
+            $mol_view_selection.focused([], $.$mol_atom_force);
+        };
+        return $mol_view_selection;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "focused", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "position", null);
+    $.$mol_view_selection = $mol_view_selection;
+})($ || ($ = {}));
+//selection.js.map
+;
+var $;
+(function ($) {
+    document.addEventListener('selectionchange', function (event) {
+        $.$mol_view_selection.position(void 0);
+    });
+    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
+    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
+    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
+    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
+})($ || ($ = {}));
+//selection.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1153,8 +1325,7 @@ var $;
             return (val !== void 0) ? val : 0;
         };
         $mol_scroll.prototype.field = function () {
-            var _this = this;
-            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": function (val) { return _this.scroll_top(val); }, "scrollLeft": function (val) { return _this.scroll_left(val); } }));
+            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": this.scroll_top(), "scrollLeft": this.scroll_left() }));
         };
         $mol_scroll.prototype.event_scroll = function (event) {
             return (event !== void 0) ? event : null;
@@ -1733,6 +1904,113 @@ var $;
 })($ || ($ = {}));
 //float.view.js.map
 ;
+var $;
+(function ($) {
+    var $mol_keyboard_code;
+    (function ($mol_keyboard_code) {
+        $mol_keyboard_code[$mol_keyboard_code["backspace"] = 8] = "backspace";
+        $mol_keyboard_code[$mol_keyboard_code["tab"] = 9] = "tab";
+        $mol_keyboard_code[$mol_keyboard_code["enter"] = 13] = "enter";
+        $mol_keyboard_code[$mol_keyboard_code["shift"] = 16] = "shift";
+        $mol_keyboard_code[$mol_keyboard_code["ctrl"] = 17] = "ctrl";
+        $mol_keyboard_code[$mol_keyboard_code["alt"] = 18] = "alt";
+        $mol_keyboard_code[$mol_keyboard_code["pause"] = 19] = "pause";
+        $mol_keyboard_code[$mol_keyboard_code["capsLock"] = 20] = "capsLock";
+        $mol_keyboard_code[$mol_keyboard_code["escape"] = 27] = "escape";
+        $mol_keyboard_code[$mol_keyboard_code["space"] = 32] = "space";
+        $mol_keyboard_code[$mol_keyboard_code["pageUp"] = 33] = "pageUp";
+        $mol_keyboard_code[$mol_keyboard_code["pageDown"] = 34] = "pageDown";
+        $mol_keyboard_code[$mol_keyboard_code["end"] = 35] = "end";
+        $mol_keyboard_code[$mol_keyboard_code["home"] = 36] = "home";
+        $mol_keyboard_code[$mol_keyboard_code["left"] = 37] = "left";
+        $mol_keyboard_code[$mol_keyboard_code["up"] = 38] = "up";
+        $mol_keyboard_code[$mol_keyboard_code["right"] = 39] = "right";
+        $mol_keyboard_code[$mol_keyboard_code["down"] = 40] = "down";
+        $mol_keyboard_code[$mol_keyboard_code["insert"] = 45] = "insert";
+        $mol_keyboard_code[$mol_keyboard_code["delete"] = 46] = "delete";
+        $mol_keyboard_code[$mol_keyboard_code["key0"] = 48] = "key0";
+        $mol_keyboard_code[$mol_keyboard_code["key1"] = 49] = "key1";
+        $mol_keyboard_code[$mol_keyboard_code["key2"] = 50] = "key2";
+        $mol_keyboard_code[$mol_keyboard_code["key3"] = 51] = "key3";
+        $mol_keyboard_code[$mol_keyboard_code["key4"] = 52] = "key4";
+        $mol_keyboard_code[$mol_keyboard_code["key5"] = 53] = "key5";
+        $mol_keyboard_code[$mol_keyboard_code["key6"] = 54] = "key6";
+        $mol_keyboard_code[$mol_keyboard_code["key7"] = 55] = "key7";
+        $mol_keyboard_code[$mol_keyboard_code["key8"] = 56] = "key8";
+        $mol_keyboard_code[$mol_keyboard_code["key9"] = 57] = "key9";
+        $mol_keyboard_code[$mol_keyboard_code["A"] = 65] = "A";
+        $mol_keyboard_code[$mol_keyboard_code["B"] = 66] = "B";
+        $mol_keyboard_code[$mol_keyboard_code["C"] = 67] = "C";
+        $mol_keyboard_code[$mol_keyboard_code["D"] = 68] = "D";
+        $mol_keyboard_code[$mol_keyboard_code["E"] = 69] = "E";
+        $mol_keyboard_code[$mol_keyboard_code["F"] = 70] = "F";
+        $mol_keyboard_code[$mol_keyboard_code["G"] = 71] = "G";
+        $mol_keyboard_code[$mol_keyboard_code["H"] = 72] = "H";
+        $mol_keyboard_code[$mol_keyboard_code["I"] = 73] = "I";
+        $mol_keyboard_code[$mol_keyboard_code["J"] = 74] = "J";
+        $mol_keyboard_code[$mol_keyboard_code["K"] = 75] = "K";
+        $mol_keyboard_code[$mol_keyboard_code["L"] = 76] = "L";
+        $mol_keyboard_code[$mol_keyboard_code["M"] = 77] = "M";
+        $mol_keyboard_code[$mol_keyboard_code["N"] = 78] = "N";
+        $mol_keyboard_code[$mol_keyboard_code["O"] = 79] = "O";
+        $mol_keyboard_code[$mol_keyboard_code["P"] = 80] = "P";
+        $mol_keyboard_code[$mol_keyboard_code["Q"] = 81] = "Q";
+        $mol_keyboard_code[$mol_keyboard_code["R"] = 82] = "R";
+        $mol_keyboard_code[$mol_keyboard_code["S"] = 83] = "S";
+        $mol_keyboard_code[$mol_keyboard_code["T"] = 84] = "T";
+        $mol_keyboard_code[$mol_keyboard_code["U"] = 85] = "U";
+        $mol_keyboard_code[$mol_keyboard_code["V"] = 86] = "V";
+        $mol_keyboard_code[$mol_keyboard_code["W"] = 87] = "W";
+        $mol_keyboard_code[$mol_keyboard_code["X"] = 88] = "X";
+        $mol_keyboard_code[$mol_keyboard_code["Y"] = 89] = "Y";
+        $mol_keyboard_code[$mol_keyboard_code["Z"] = 90] = "Z";
+        $mol_keyboard_code[$mol_keyboard_code["metaLeft"] = 91] = "metaLeft";
+        $mol_keyboard_code[$mol_keyboard_code["metaRight"] = 92] = "metaRight";
+        $mol_keyboard_code[$mol_keyboard_code["select"] = 93] = "select";
+        $mol_keyboard_code[$mol_keyboard_code["numpad0"] = 96] = "numpad0";
+        $mol_keyboard_code[$mol_keyboard_code["numpad1"] = 97] = "numpad1";
+        $mol_keyboard_code[$mol_keyboard_code["numpad2"] = 98] = "numpad2";
+        $mol_keyboard_code[$mol_keyboard_code["numpad3"] = 99] = "numpad3";
+        $mol_keyboard_code[$mol_keyboard_code["numpad4"] = 100] = "numpad4";
+        $mol_keyboard_code[$mol_keyboard_code["numpad5"] = 101] = "numpad5";
+        $mol_keyboard_code[$mol_keyboard_code["numpad6"] = 102] = "numpad6";
+        $mol_keyboard_code[$mol_keyboard_code["numpad7"] = 103] = "numpad7";
+        $mol_keyboard_code[$mol_keyboard_code["numpad8"] = 104] = "numpad8";
+        $mol_keyboard_code[$mol_keyboard_code["numpad9"] = 105] = "numpad9";
+        $mol_keyboard_code[$mol_keyboard_code["multiply"] = 106] = "multiply";
+        $mol_keyboard_code[$mol_keyboard_code["add"] = 107] = "add";
+        $mol_keyboard_code[$mol_keyboard_code["subtract"] = 109] = "subtract";
+        $mol_keyboard_code[$mol_keyboard_code["decimal"] = 110] = "decimal";
+        $mol_keyboard_code[$mol_keyboard_code["divide"] = 111] = "divide";
+        $mol_keyboard_code[$mol_keyboard_code["F1"] = 112] = "F1";
+        $mol_keyboard_code[$mol_keyboard_code["F2"] = 113] = "F2";
+        $mol_keyboard_code[$mol_keyboard_code["F3"] = 114] = "F3";
+        $mol_keyboard_code[$mol_keyboard_code["F4"] = 115] = "F4";
+        $mol_keyboard_code[$mol_keyboard_code["F5"] = 116] = "F5";
+        $mol_keyboard_code[$mol_keyboard_code["F6"] = 117] = "F6";
+        $mol_keyboard_code[$mol_keyboard_code["F7"] = 118] = "F7";
+        $mol_keyboard_code[$mol_keyboard_code["F8"] = 119] = "F8";
+        $mol_keyboard_code[$mol_keyboard_code["F9"] = 120] = "F9";
+        $mol_keyboard_code[$mol_keyboard_code["F10"] = 121] = "F10";
+        $mol_keyboard_code[$mol_keyboard_code["F11"] = 122] = "F11";
+        $mol_keyboard_code[$mol_keyboard_code["F12"] = 123] = "F12";
+        $mol_keyboard_code[$mol_keyboard_code["numLock"] = 144] = "numLock";
+        $mol_keyboard_code[$mol_keyboard_code["scrollLock"] = 145] = "scrollLock";
+        $mol_keyboard_code[$mol_keyboard_code["semicolon"] = 186] = "semicolon";
+        $mol_keyboard_code[$mol_keyboard_code["equals"] = 187] = "equals";
+        $mol_keyboard_code[$mol_keyboard_code["comma"] = 188] = "comma";
+        $mol_keyboard_code[$mol_keyboard_code["dash"] = 189] = "dash";
+        $mol_keyboard_code[$mol_keyboard_code["period"] = 190] = "period";
+        $mol_keyboard_code[$mol_keyboard_code["forwardSlash"] = 191] = "forwardSlash";
+        $mol_keyboard_code[$mol_keyboard_code["graveAccent"] = 192] = "graveAccent";
+        $mol_keyboard_code[$mol_keyboard_code["bracketOpen"] = 219] = "bracketOpen";
+        $mol_keyboard_code[$mol_keyboard_code["slashBack"] = 220] = "slashBack";
+        $mol_keyboard_code[$mol_keyboard_code["bracketClose"] = 221] = "bracketClose";
+        $mol_keyboard_code[$mol_keyboard_code["quoteSingle"] = 222] = "quoteSingle";
+    })($mol_keyboard_code = $.$mol_keyboard_code || ($.$mol_keyboard_code = {}));
+})($ || ($ = {}));
+//code.js.map
+;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1768,9 +2046,12 @@ var $;
         $mol_button.prototype.event_activate = function (event) {
             return this.event_click(event);
         };
+        $mol_button.prototype.evenet_key_press = function (event) {
+            return (event !== void 0) ? event : null;
+        };
         $mol_button.prototype.event = function () {
             var _this = this;
-            return (__assign({}, _super.prototype.event.call(this), { "click": function (event) { return _this.event_activate(event); } }));
+            return (__assign({}, _super.prototype.event.call(this), { "click": function (event) { return _this.event_activate(event); }, "keypress": function (event) { return _this.evenet_key_press(event); } }));
         };
         $mol_button.prototype.disabled = function () {
             return false;
@@ -1789,6 +2070,9 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_button.prototype, "event_activate", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_button.prototype, "evenet_key_press", null);
     $.$mol_button = $mol_button;
 })($ || ($ = {}));
 //button.view.tree.js.map
@@ -1814,6 +2098,10 @@ var $;
                 if (!this.enabled())
                     return;
                 this.event_click(next);
+            };
+            $mol_button.prototype.evenet_key_press = function (event) {
+                if (event.keyCode === $.$mol_keyboard_code.enter)
+                    return this.event_activate(event);
             };
             $mol_button.prototype.tab_index = function () {
                 return this.enabled() ? _super.prototype.tab_index.call(this) : null;
@@ -4638,8 +4926,11 @@ var $;
         $mol_string.prototype.value_changed = function (val) {
             return this.value(val);
         };
+        $mol_string.prototype.autofocus = function (val) {
+            return (val !== void 0) ? val : false;
+        };
         $mol_string.prototype.field = function () {
-            return (__assign({}, _super.prototype.field.call(this), { "disabled": this.disabled(), "value": this.value_changed() }));
+            return (__assign({}, _super.prototype.field.call(this), { "disabled": this.disabled(), "value": this.value_changed(), "autofocus": this.autofocus() }));
         };
         $mol_string.prototype.event_change = function (event) {
             return (event !== void 0) ? event : null;
@@ -4659,6 +4950,9 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_string.prototype, "value_changed", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_string.prototype, "autofocus", null);
     __decorate([
         $.$mol_mem()
     ], $mol_string.prototype, "event_change", null);
@@ -5070,26 +5364,68 @@ var $;
         function $mol_demo_small() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_demo_small.prototype.minimal_height = function () {
+        $mol_demo_small.prototype.height = function () {
             return 240;
         };
-        $mol_demo_small.prototype.minimal_width = function () {
+        $mol_demo_small.prototype.minimal_height = function () {
+            return this.height();
+        };
+        $mol_demo_small.prototype.width = function () {
             return 440;
+        };
+        $mol_demo_small.prototype.minimal_width = function () {
+            return this.width();
         };
         return $mol_demo_small;
     }($.$mol_demo));
     $.$mol_demo_small = $mol_demo_small;
 })($ || ($ = {}));
+//small.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
 (function ($) {
-    var $mol_demo_medium = (function (_super) {
-        __extends($mol_demo_medium, _super);
-        function $mol_demo_medium() {
-            return _super.apply(this, arguments) || this;
-        }
-        return $mol_demo_medium;
-    }($.$mol_demo));
-    $.$mol_demo_medium = $mol_demo_medium;
+    var $mol;
+    (function ($mol) {
+        var $mol_demo_small = (function (_super) {
+            __extends($mol_demo_small, _super);
+            function $mol_demo_small() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_demo_small.prototype.context_sub = function () {
+                var _this = this;
+                var context = this.context();
+                var subContext = Object.create(context);
+                subContext.$mol_view_visible_height = function () { return _this.height(); };
+                subContext.$mol_view_visible_width = function () { return _this.width(); };
+                return subContext;
+            };
+            return $mol_demo_small;
+        }($.$mol_demo_small));
+        __decorate([
+            $.$mol_mem()
+        ], $mol_demo_small.prototype, "context_sub", null);
+        $mol.$mol_demo_small = $mol_demo_small;
+    })($mol = $.$mol || ($.$mol = {}));
 })($ || ($ = {}));
+//small.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
 (function ($) {
     var $mol_demo_large = (function (_super) {
         __extends($mol_demo_large, _super);
@@ -5100,7 +5436,7 @@ var $;
     }($.$mol_demo));
     $.$mol_demo_large = $mol_demo_large;
 })($ || ($ = {}));
-//demo_types.view.tree.js.map
+//large.view.tree.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -5460,7 +5796,7 @@ var $;
                 return this.names_demo().map(function (name) { return _this.Sample_small(name); });
             };
             $mol_app_demo.prototype.Sample_small = function (name) {
-                var sample = new $.$mol_demo_small;
+                var sample = new $mol.$mol_demo_small;
                 sample.name = function () { return name; };
                 return sample;
             };
@@ -12639,113 +12975,6 @@ var $;
 })($ || ($ = {}));
 //demo.view.js.map
 ;
-var $;
-(function ($) {
-    var $mol_keyboard_code;
-    (function ($mol_keyboard_code) {
-        $mol_keyboard_code[$mol_keyboard_code["backspace"] = 8] = "backspace";
-        $mol_keyboard_code[$mol_keyboard_code["tab"] = 9] = "tab";
-        $mol_keyboard_code[$mol_keyboard_code["enter"] = 13] = "enter";
-        $mol_keyboard_code[$mol_keyboard_code["shift"] = 16] = "shift";
-        $mol_keyboard_code[$mol_keyboard_code["ctrl"] = 17] = "ctrl";
-        $mol_keyboard_code[$mol_keyboard_code["alt"] = 18] = "alt";
-        $mol_keyboard_code[$mol_keyboard_code["pause"] = 19] = "pause";
-        $mol_keyboard_code[$mol_keyboard_code["capsLock"] = 20] = "capsLock";
-        $mol_keyboard_code[$mol_keyboard_code["escape"] = 27] = "escape";
-        $mol_keyboard_code[$mol_keyboard_code["space"] = 32] = "space";
-        $mol_keyboard_code[$mol_keyboard_code["pageUp"] = 33] = "pageUp";
-        $mol_keyboard_code[$mol_keyboard_code["pageDown"] = 34] = "pageDown";
-        $mol_keyboard_code[$mol_keyboard_code["end"] = 35] = "end";
-        $mol_keyboard_code[$mol_keyboard_code["home"] = 36] = "home";
-        $mol_keyboard_code[$mol_keyboard_code["left"] = 37] = "left";
-        $mol_keyboard_code[$mol_keyboard_code["up"] = 38] = "up";
-        $mol_keyboard_code[$mol_keyboard_code["right"] = 39] = "right";
-        $mol_keyboard_code[$mol_keyboard_code["down"] = 40] = "down";
-        $mol_keyboard_code[$mol_keyboard_code["insert"] = 45] = "insert";
-        $mol_keyboard_code[$mol_keyboard_code["delete"] = 46] = "delete";
-        $mol_keyboard_code[$mol_keyboard_code["key0"] = 48] = "key0";
-        $mol_keyboard_code[$mol_keyboard_code["key1"] = 49] = "key1";
-        $mol_keyboard_code[$mol_keyboard_code["key2"] = 50] = "key2";
-        $mol_keyboard_code[$mol_keyboard_code["key3"] = 51] = "key3";
-        $mol_keyboard_code[$mol_keyboard_code["key4"] = 52] = "key4";
-        $mol_keyboard_code[$mol_keyboard_code["key5"] = 53] = "key5";
-        $mol_keyboard_code[$mol_keyboard_code["key6"] = 54] = "key6";
-        $mol_keyboard_code[$mol_keyboard_code["key7"] = 55] = "key7";
-        $mol_keyboard_code[$mol_keyboard_code["key8"] = 56] = "key8";
-        $mol_keyboard_code[$mol_keyboard_code["key9"] = 57] = "key9";
-        $mol_keyboard_code[$mol_keyboard_code["A"] = 65] = "A";
-        $mol_keyboard_code[$mol_keyboard_code["B"] = 66] = "B";
-        $mol_keyboard_code[$mol_keyboard_code["C"] = 67] = "C";
-        $mol_keyboard_code[$mol_keyboard_code["D"] = 68] = "D";
-        $mol_keyboard_code[$mol_keyboard_code["E"] = 69] = "E";
-        $mol_keyboard_code[$mol_keyboard_code["F"] = 70] = "F";
-        $mol_keyboard_code[$mol_keyboard_code["G"] = 71] = "G";
-        $mol_keyboard_code[$mol_keyboard_code["H"] = 72] = "H";
-        $mol_keyboard_code[$mol_keyboard_code["I"] = 73] = "I";
-        $mol_keyboard_code[$mol_keyboard_code["J"] = 74] = "J";
-        $mol_keyboard_code[$mol_keyboard_code["K"] = 75] = "K";
-        $mol_keyboard_code[$mol_keyboard_code["L"] = 76] = "L";
-        $mol_keyboard_code[$mol_keyboard_code["M"] = 77] = "M";
-        $mol_keyboard_code[$mol_keyboard_code["N"] = 78] = "N";
-        $mol_keyboard_code[$mol_keyboard_code["O"] = 79] = "O";
-        $mol_keyboard_code[$mol_keyboard_code["P"] = 80] = "P";
-        $mol_keyboard_code[$mol_keyboard_code["Q"] = 81] = "Q";
-        $mol_keyboard_code[$mol_keyboard_code["R"] = 82] = "R";
-        $mol_keyboard_code[$mol_keyboard_code["S"] = 83] = "S";
-        $mol_keyboard_code[$mol_keyboard_code["T"] = 84] = "T";
-        $mol_keyboard_code[$mol_keyboard_code["U"] = 85] = "U";
-        $mol_keyboard_code[$mol_keyboard_code["V"] = 86] = "V";
-        $mol_keyboard_code[$mol_keyboard_code["W"] = 87] = "W";
-        $mol_keyboard_code[$mol_keyboard_code["X"] = 88] = "X";
-        $mol_keyboard_code[$mol_keyboard_code["Y"] = 89] = "Y";
-        $mol_keyboard_code[$mol_keyboard_code["Z"] = 90] = "Z";
-        $mol_keyboard_code[$mol_keyboard_code["metaLeft"] = 91] = "metaLeft";
-        $mol_keyboard_code[$mol_keyboard_code["metaRight"] = 92] = "metaRight";
-        $mol_keyboard_code[$mol_keyboard_code["select"] = 93] = "select";
-        $mol_keyboard_code[$mol_keyboard_code["numpad0"] = 96] = "numpad0";
-        $mol_keyboard_code[$mol_keyboard_code["numpad1"] = 97] = "numpad1";
-        $mol_keyboard_code[$mol_keyboard_code["numpad2"] = 98] = "numpad2";
-        $mol_keyboard_code[$mol_keyboard_code["numpad3"] = 99] = "numpad3";
-        $mol_keyboard_code[$mol_keyboard_code["numpad4"] = 100] = "numpad4";
-        $mol_keyboard_code[$mol_keyboard_code["numpad5"] = 101] = "numpad5";
-        $mol_keyboard_code[$mol_keyboard_code["numpad6"] = 102] = "numpad6";
-        $mol_keyboard_code[$mol_keyboard_code["numpad7"] = 103] = "numpad7";
-        $mol_keyboard_code[$mol_keyboard_code["numpad8"] = 104] = "numpad8";
-        $mol_keyboard_code[$mol_keyboard_code["numpad9"] = 105] = "numpad9";
-        $mol_keyboard_code[$mol_keyboard_code["multiply"] = 106] = "multiply";
-        $mol_keyboard_code[$mol_keyboard_code["add"] = 107] = "add";
-        $mol_keyboard_code[$mol_keyboard_code["subtract"] = 109] = "subtract";
-        $mol_keyboard_code[$mol_keyboard_code["decimal"] = 110] = "decimal";
-        $mol_keyboard_code[$mol_keyboard_code["divide"] = 111] = "divide";
-        $mol_keyboard_code[$mol_keyboard_code["F1"] = 112] = "F1";
-        $mol_keyboard_code[$mol_keyboard_code["F2"] = 113] = "F2";
-        $mol_keyboard_code[$mol_keyboard_code["F3"] = 114] = "F3";
-        $mol_keyboard_code[$mol_keyboard_code["F4"] = 115] = "F4";
-        $mol_keyboard_code[$mol_keyboard_code["F5"] = 116] = "F5";
-        $mol_keyboard_code[$mol_keyboard_code["F6"] = 117] = "F6";
-        $mol_keyboard_code[$mol_keyboard_code["F7"] = 118] = "F7";
-        $mol_keyboard_code[$mol_keyboard_code["F8"] = 119] = "F8";
-        $mol_keyboard_code[$mol_keyboard_code["F9"] = 120] = "F9";
-        $mol_keyboard_code[$mol_keyboard_code["F10"] = 121] = "F10";
-        $mol_keyboard_code[$mol_keyboard_code["F11"] = 122] = "F11";
-        $mol_keyboard_code[$mol_keyboard_code["F12"] = 123] = "F12";
-        $mol_keyboard_code[$mol_keyboard_code["numLock"] = 144] = "numLock";
-        $mol_keyboard_code[$mol_keyboard_code["scrollLock"] = 145] = "scrollLock";
-        $mol_keyboard_code[$mol_keyboard_code["semicolon"] = 186] = "semicolon";
-        $mol_keyboard_code[$mol_keyboard_code["equals"] = 187] = "equals";
-        $mol_keyboard_code[$mol_keyboard_code["comma"] = 188] = "comma";
-        $mol_keyboard_code[$mol_keyboard_code["dash"] = 189] = "dash";
-        $mol_keyboard_code[$mol_keyboard_code["period"] = 190] = "period";
-        $mol_keyboard_code[$mol_keyboard_code["forwardSlash"] = 191] = "forwardSlash";
-        $mol_keyboard_code[$mol_keyboard_code["graveAccent"] = 192] = "graveAccent";
-        $mol_keyboard_code[$mol_keyboard_code["bracketOpen"] = 219] = "bracketOpen";
-        $mol_keyboard_code[$mol_keyboard_code["slashBack"] = 220] = "slashBack";
-        $mol_keyboard_code[$mol_keyboard_code["bracketClose"] = 221] = "bracketClose";
-        $mol_keyboard_code[$mol_keyboard_code["quoteSingle"] = 222] = "quoteSingle";
-    })($mol_keyboard_code = $.$mol_keyboard_code || ($.$mol_keyboard_code = {}));
-})($ || ($ = {}));
-//code.js.map
-;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -14426,6 +14655,160 @@ var $;
 ;
 var $;
 (function ($) {
+    $.$mol_colors = {
+        aliceblue: "#f0f8ff",
+        antiquewhite: "#faebd7",
+        aqua: "#00ffff",
+        aquamarine: "#7fffd4",
+        azure: "#f0ffff",
+        beige: "#f5f5dc",
+        bisque: "#ffe4c4",
+        black: "#000000",
+        blanchedalmond: "#ffebcd",
+        blue: "#0000ff",
+        blueviolet: "#8a2be2",
+        brown: "#a52a2a",
+        burlywood: "#deb887",
+        cadetblue: "#5f9ea0",
+        chartreuse: "#7fff00",
+        chocolate: "#d2691e",
+        coral: "#ff7f50",
+        cornflowerblue: "#6495ed",
+        cornsilk: "#fff8dc",
+        crimson: "#dc143c",
+        cyan: "#00ffff",
+        darkblue: "#00008b",
+        darkcyan: "#008b8b",
+        darkgoldenrod: "#b8860b",
+        darkgray: "#a9a9a9",
+        darkgreen: "#006400",
+        darkgrey: "#a9a9a9",
+        darkkhaki: "#bdb76b",
+        darkmagenta: "#8b008b",
+        darkolivegreen: "#556b2f",
+        darkorange: "#ff8c00",
+        darkorchid: "#9932cc",
+        darkred: "#8b0000",
+        darksalmon: "#e9967a",
+        darkseagreen: "#8fbc8f",
+        darkslateblue: "#483d8b",
+        darkslategrey: "#2f4f4f",
+        darkturquoise: "#00ced1",
+        darkviolet: "#9400d3",
+        deeppink: "#ff1493",
+        deepskyblue: "#00bfff",
+        dimgray: "#696969",
+        dimgrey: "#696969",
+        dodgerblue: "#1e90ff",
+        firebrick: "#b22222",
+        floralwhite: "#fffaf0",
+        forestgreen: "#228b22",
+        fuchsia: "#ff00ff",
+        gainsboro: "#dcdcdc",
+        ghostwhite: "#f8f8ff",
+        gold: "#ffd700",
+        goldenrod: "#daa520",
+        gray: "#808080",
+        green: "#008000",
+        greenyellow: "#adff2f",
+        grey: "#808080",
+        honeydew: "#f0fff0",
+        hotpink: "#ff69b4",
+        indianred: "#cd5c5c",
+        indigo: "#4b0082",
+        ivory: "#fffff0",
+        khaki: "#f0e68c",
+        lavender: "#e6e6fa",
+        lavenderblush: "#fff0f5",
+        lawngreen: "#7cfc00",
+        lemonchiffon: "#fffacd",
+        lightblue: "#add8e6",
+        lightcoral: "#f08080",
+        lightcyan: "#e0ffff",
+        lightgoldenrodyellow: "#fafad2",
+        lightgray: "#d3d3d3",
+        lightgreen: "#90ee90",
+        lightgrey: "#d3d3d3",
+        lightpink: "#ffb6c1",
+        lightsalmon: "#ffa07a",
+        lightseagreen: "#20b2aa",
+        lightskyblue: "#87cefa",
+        lightslategray: "#778899",
+        lightslategrey: "#778899",
+        lightsteelblue: "#b0c4de",
+        lightyellow: "#ffffe0",
+        lime: "#00ff00",
+        limegreen: "#32cd32",
+        linen: "#faf0e6",
+        magenta: "#ff00ff",
+        maroon: "#800000",
+        mediumaquamarine: "#66cdaa",
+        mediumblue: "#0000cd",
+        mediumorchid: "#ba55d3",
+        mediumpurple: "#9370db",
+        mediumseagreen: "#3cb371",
+        mediumslateblue: "#7b68ee",
+        mediumspringgreen: "#00fa9a",
+        mediumturquoise: "#48d1cc",
+        mediumvioletred: "#c71585",
+        midnightblue: "#191970",
+        mintcream: "#f5fffa",
+        mistyrose: "#ffe4e1",
+        moccasin: "#ffe4b5",
+        navajowhite: "#ffdead",
+        navy: "#000080",
+        oldlace: "#fdf5e6",
+        olive: "#808000",
+        olivedrab: "#6b8e23",
+        orange: "#ffa500",
+        orangered: "#ff4500",
+        orchid: "#da70d6",
+        palegoldenrod: "#eee8aa",
+        palegreen: "#98fb98",
+        paleturquoise: "#afeeee",
+        palevioletred: "#db7093",
+        papayawhip: "#ffefd5",
+        peachpuff: "#ffdab9",
+        peru: "#cd853f",
+        pink: "#ffc0cb",
+        plum: "#dda0dd",
+        powderblue: "#b0e0e6",
+        purple: "#800080",
+        rebeccapurple: "#663399",
+        red: "#ff0000",
+        rosybrown: "#bc8f8f",
+        royalblue: "#4169e1",
+        saddlebrown: "#8b4513",
+        salmon: "#fa8072",
+        sandybrown: "#f4a460",
+        seagreen: "#2e8b57",
+        seashell: "#fff5ee",
+        sienna: "#a0522d",
+        silver: "#c0c0c0",
+        skyblue: "#87ceeb",
+        slateblue: "#6a5acd",
+        slategray: "#708090",
+        slategrey: "#708090",
+        snow: "#fffafa",
+        springgreen: "#00ff7f",
+        steelblue: "#4682b4",
+        tan: "#d2b48c",
+        teal: "#008080",
+        thistle: "#d8bfd8",
+        tomato: "#ff6347",
+        turquoise: "#40e0d0",
+        violet: "#ee82ee",
+        wheat: "#f5deb3",
+        white: "#ffffff",
+        whitesmoke: "#f5f5f5",
+        yellow: "#ffff00",
+        yellowgreen: "#9acd32",
+    };
+})($ || ($ = {}));
+//colors.js.map
+;
+var $;
+(function ($) {
     function $mol_csv_parse(text, delimiter) {
         if (delimiter === void 0) { delimiter = ';'; }
         var lines = text.split(/\r?\n/g);
@@ -14574,6 +14957,24 @@ var $;
     $.$mol_deck_demo = $mol_deck_demo;
 })($ || ($ = {}));
 //demo.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol_demo_medium = (function (_super) {
+        __extends($mol_demo_medium, _super);
+        function $mol_demo_medium() {
+            return _super.apply(this, arguments) || this;
+        }
+        return $mol_demo_medium;
+    }($.$mol_demo));
+    $.$mol_demo_medium = $mol_demo_medium;
+})($ || ($ = {}));
+//medium.view.tree.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -15303,6 +15704,27 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var $;
 (function ($) {
+    var $mol_icon_cross = (function (_super) {
+        __extends($mol_icon_cross, _super);
+        function $mol_icon_cross() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_icon_cross.prototype.path = function () {
+            return "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z";
+        };
+        return $mol_icon_cross;
+    }($.$mol_icon));
+    $.$mol_icon_cross = $mol_icon_cross;
+})($ || ($ = {}));
+//cross.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
     var $mol_icon_demo = (function (_super) {
         __extends($mol_icon_demo, _super);
         function $mol_icon_demo() {
@@ -15519,140 +15941,6 @@ var $;
     $.$mol_link_demo = $mol_link_demo;
 })($ || ($ = {}));
 //demo.view.tree.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_view_selection = (function (_super) {
-        __extends($mol_view_selection, _super);
-        function $mol_view_selection() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_view_selection.focused = function (next) {
-            return next || [];
-        };
-        $mol_view_selection.position = function () {
-            var diff = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                diff[_i] = arguments[_i];
-            }
-            if (diff.length) {
-                if (!diff[0])
-                    return diff[0];
-                var start = diff[0].start;
-                var end = diff[0].end;
-                if (!(start <= end))
-                    throw new Error("Wrong offsets (" + start + "," + end + ")");
-                var root = document.getElementById(diff[0].id);
-                root.focus();
-                var range = new Range;
-                var cur = root.firstChild;
-                while (cur !== root) {
-                    while (cur.firstChild)
-                        cur = cur.firstChild;
-                    if (cur.nodeValue) {
-                        var length = cur.nodeValue.length;
-                        if (length >= start)
-                            break;
-                        start -= length;
-                    }
-                    while (!cur.nextSibling) {
-                        cur = cur.parentNode;
-                        if (cur === root) {
-                            start = root.childNodes.length;
-                            break;
-                        }
-                    }
-                }
-                range.setStart(cur, start);
-                var cur = root.firstChild;
-                while (cur !== root) {
-                    while (cur.firstChild)
-                        cur = cur.firstChild;
-                    if (cur.nodeValue) {
-                        var length = cur.nodeValue.length;
-                        if (length >= end)
-                            break;
-                        end -= length;
-                    }
-                    while (!cur.nextSibling) {
-                        cur = cur.parentNode;
-                        if (cur === root) {
-                            end = root.childNodes.length;
-                            break;
-                        }
-                    }
-                }
-                range.setEnd(cur, end);
-                var sel = document.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-                return diff[0];
-            }
-            else {
-                var sel = document.getSelection();
-                if (sel.rangeCount === 0)
-                    return null;
-                var range = sel.getRangeAt(0);
-                var el = range.commonAncestorContainer;
-                while (el && !el.id)
-                    el = el.parentElement;
-                if (!el)
-                    return { id: null, start: 0, end: 0 };
-                var meter = new Range;
-                meter.selectNodeContents(el);
-                meter.setEnd(range.startContainer, range.startOffset);
-                var startOffset = meter.toString().length;
-                meter.setEnd(range.endContainer, range.endOffset);
-                var endOffset = meter.toString().length;
-                return { id: el.id, start: startOffset, end: endOffset };
-            }
-        };
-        $mol_view_selection.onFocus = function (event) {
-            var parents = [];
-            var element = event.target;
-            while (element) {
-                parents.push(element);
-                element = element.parentElement;
-            }
-            $mol_view_selection.focused(parents);
-        };
-        $mol_view_selection.onBlur = function (event) {
-            $mol_view_selection.focused([]);
-        };
-        return $mol_view_selection;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_view_selection, "focused", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_view_selection, "position", null);
-    $.$mol_view_selection = $mol_view_selection;
-})($ || ($ = {}));
-//selection.js.map
-;
-var $;
-(function ($) {
-    document.addEventListener('selectionchange', function (event) {
-        $.$mol_view_selection.position(void 0);
-    });
-    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
-    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
-    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
-    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
-})($ || ($ = {}));
-//selection.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -16118,6 +16406,244 @@ var $;
     $.$mol_maybe = $mol_maybe;
 })($ || ($ = {}));
 //maybe.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol_view_ghost = (function (_super) {
+        __extends($mol_view_ghost, _super);
+        function $mol_view_ghost() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_view_ghost.prototype.Sub = function () {
+            return null;
+        };
+        return $mol_view_ghost;
+    }($.$mol_view));
+    $.$mol_view_ghost = $mol_view_ghost;
+})($ || ($ = {}));
+//ghost.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_view_ghost = (function (_super) {
+            __extends($mol_view_ghost, _super);
+            function $mol_view_ghost() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_view_ghost.prototype.dom_node = function (next) {
+                var next2 = this['dom_node()'];
+                if (next2)
+                    return next2;
+                var node = this.Sub().dom_node();
+                $.$mol_view.bind_event(node, this.event());
+                return this['dom_node()'] = node;
+            };
+            $mol_view_ghost.prototype.dom_tree = function () {
+                _super.prototype.dom_tree.call(this);
+                var sub = this.Sub();
+                sub.context(this.context_sub());
+                return sub.dom_tree();
+            };
+            return $mol_view_ghost;
+        }($.$mol_view_ghost));
+        $mol.$mol_view_ghost = $mol_view_ghost;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//ghost.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_nav = (function (_super) {
+        __extends($mol_nav, _super);
+        function $mol_nav() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_nav.prototype.cycle = function (val) {
+            return (val !== void 0) ? val : false;
+        };
+        $mol_nav.prototype.keys_x = function (val) {
+            return (val !== void 0) ? val : [];
+        };
+        $mol_nav.prototype.keys_y = function (val) {
+            return (val !== void 0) ? val : [];
+        };
+        $mol_nav.prototype.current_x = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_nav.prototype.current_y = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_nav.prototype.event_up = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_nav.prototype.event_down = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_nav.prototype.event_left = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_nav.prototype.event_right = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_nav.prototype.event_key = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_nav.prototype.event = function () {
+            var _this = this;
+            return (__assign({}, _super.prototype.event.call(this), { "keydown": function (event) { return _this.event_key(event); } }));
+        };
+        $mol_nav.prototype.attr = function () {
+            return (__assign({}, _super.prototype.attr.call(this), { "mol_nav_x": this.current_x(), "mol_nav_y": this.current_y() }));
+        };
+        return $mol_nav;
+    }($.$mol_view_ghost));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "cycle", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "keys_x", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "keys_y", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "current_x", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "current_y", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "event_up", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "event_down", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "event_left", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "event_right", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_nav.prototype, "event_key", null);
+    $.$mol_nav = $mol_nav;
+})($ || ($ = {}));
+//nav.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_nav = (function (_super) {
+            __extends($mol_nav, _super);
+            function $mol_nav() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_nav.prototype.event_key = function (event) {
+                if (event.defaultPrevented)
+                    return;
+                switch (event.keyCode) {
+                    case $.$mol_keyboard_code.up: return this.event_up(event);
+                    case $.$mol_keyboard_code.down: return this.event_down(event);
+                    case $.$mol_keyboard_code.left: return this.event_left(event);
+                    case $.$mol_keyboard_code.right: return this.event_right(event);
+                }
+            };
+            $mol_nav.prototype.event_up = function (event) {
+                var keys = this.keys_y();
+                var index_y = this.index_y();
+                var index_old = index_y === null ? 0 : index_y;
+                var index_new = (index_old + keys.length - 1) % keys.length;
+                if (index_old === 0 && !this.cycle())
+                    return;
+                event.preventDefault();
+                this.current_y(this.keys_y()[index_new]);
+            };
+            $mol_nav.prototype.event_down = function (event) {
+                var keys = this.keys_y();
+                var index_y = this.index_y();
+                var index_old = index_y === null ? keys.length - 1 : index_y;
+                var index_new = (index_old + 1) % keys.length;
+                if (index_new === keys.length && !this.cycle())
+                    return;
+                event.preventDefault();
+                this.current_y(this.keys_y()[index_new]);
+            };
+            $mol_nav.prototype.event_left = function (event) {
+                var keys = this.keys_x();
+                var index_x = this.index_x();
+                var index_old = index_x === null ? 0 : index_x;
+                var index_new = (index_old + keys.length - 1) % keys.length;
+                if (index_old === 0 && !this.cycle())
+                    return;
+                event.preventDefault();
+                this.current_x(this.keys_x()[index_new]);
+            };
+            $mol_nav.prototype.event_right = function (event) {
+                var keys = this.keys_x();
+                var index_x = this.index_x();
+                var index_old = index_x === null ? keys.length - 1 : index_x;
+                var index_new = (index_old + 1) % keys.length;
+                if (index_new === keys.length && !this.cycle())
+                    return;
+                event.preventDefault();
+                this.current_x(this.keys_x()[index_new]);
+            };
+            $mol_nav.prototype.index_y = function () {
+                var index = this.keys_y().indexOf(this.current_y());
+                if (index < 0)
+                    return null;
+                return index;
+            };
+            $mol_nav.prototype.index_x = function () {
+                var index = this.keys_x().indexOf(this.current_x());
+                if (index < 0)
+                    return null;
+                return index;
+            };
+            return $mol_nav;
+        }($.$mol_nav));
+        $mol.$mol_nav = $mol_nav;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//nav.view.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -17067,6 +17593,372 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_pop = (function (_super) {
+        __extends($mol_pop, _super);
+        function $mol_pop() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_pop.prototype.showed = function (val) {
+            return (val !== void 0) ? val : false;
+        };
+        $mol_pop.prototype.Anchor = function () {
+            return null;
+        };
+        $mol_pop.prototype.align = function () {
+            return "bottom_center";
+        };
+        $mol_pop.prototype.bubble_content = function () {
+            return [];
+        };
+        $mol_pop.prototype.height_max = function () {
+            return 9999;
+        };
+        $mol_pop.prototype.Bubble = function () {
+            var _this = this;
+            return new $.$mol_pop_tip().setup(function (obj) {
+                obj.align = function () { return _this.align(); };
+                obj.content = function () { return _this.bubble_content(); };
+                obj.height_max = function () { return _this.height_max(); };
+            });
+        };
+        $mol_pop.prototype.sub = function () {
+            return [].concat(this.Anchor(), this.Bubble());
+        };
+        return $mol_pop;
+    }($.$mol_view));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop.prototype, "showed", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop.prototype, "Bubble", null);
+    $.$mol_pop = $mol_pop;
+})($ || ($ = {}));
+(function ($) {
+    var $mol_pop_tip = (function (_super) {
+        __extends($mol_pop_tip, _super);
+        function $mol_pop_tip() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_pop_tip.prototype.content = function () {
+            return [];
+        };
+        $mol_pop_tip.prototype.sub = function () {
+            return this.content();
+        };
+        $mol_pop_tip.prototype.height_max = function () {
+            return 9999;
+        };
+        $mol_pop_tip.prototype.style = function () {
+            return (__assign({}, _super.prototype.style.call(this), { "maxHeight": this.height_max() }));
+        };
+        $mol_pop_tip.prototype.align = function () {
+            return "";
+        };
+        $mol_pop_tip.prototype.attr = function () {
+            return (__assign({}, _super.prototype.attr.call(this), { "mol_pop_align": this.align() }));
+        };
+        return $mol_pop_tip;
+    }($.$mol_scroll));
+    $.$mol_pop_tip = $mol_pop_tip;
+})($ || ($ = {}));
+//pop.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_pop = (function (_super) {
+            __extends($mol_pop, _super);
+            function $mol_pop() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_pop.prototype.sub = function () {
+                return [
+                    this.Anchor(),
+                    this.showed() ? this.Bubble() : null,
+                ];
+            };
+            $mol_pop.prototype.height_max = function () {
+                return this.context().$mol_view_visible_height() * 0.3;
+            };
+            return $mol_pop;
+        }($.$mol_pop));
+        $mol.$mol_pop = $mol_pop;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//pop.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_pop_demo = (function (_super) {
+        __extends($mol_pop_demo, _super);
+        function $mol_pop_demo() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_pop_demo.prototype.value = function (val) {
+            return (val !== void 0) ? val : false;
+        };
+        $mol_pop_demo.prototype.Checkbox = function () {
+            var _this = this;
+            return new $.$mol_check_box().setup(function (obj) {
+                obj.checked = function (val) { return _this.value(val); };
+            });
+        };
+        $mol_pop_demo.prototype.Anchor = function () {
+            return this.Checkbox();
+        };
+        $mol_pop_demo.prototype.event_hide = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_pop_demo.prototype.Button = function () {
+            var _this = this;
+            return new $.$mol_button().setup(function (obj) {
+                obj.event_click = function (event) { return _this.event_hide(event); };
+                obj.sub = function () { return [].concat("Close"); };
+            });
+        };
+        $mol_pop_demo.prototype.Content = function () {
+            var _this = this;
+            return new $.$mol_view().setup(function (obj) {
+                obj.sub = function () { return [].concat(" I'm bubble, i showed when you want", _this.Button()); };
+            });
+        };
+        $mol_pop_demo.prototype.bubble_content = function () {
+            return [].concat(this.Content());
+        };
+        $mol_pop_demo.prototype.showed = function (val) {
+            return this.value(val);
+        };
+        $mol_pop_demo.prototype.align = function () {
+            return "center";
+        };
+        return $mol_pop_demo;
+    }($.$mol_pop));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "value", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "Checkbox", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "event_hide", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "Button", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "Content", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_demo.prototype, "showed", null);
+    $.$mol_pop_demo = $mol_pop_demo;
+})($ || ($ = {}));
+//demo.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_pop_demo = (function (_super) {
+            __extends($mol_pop_demo, _super);
+            function $mol_pop_demo() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_pop_demo.prototype.event_hide = function (event) {
+                this.showed(!this.showed());
+            };
+            return $mol_pop_demo;
+        }($.$mol_pop_demo));
+        $mol.$mol_pop_demo = $mol_pop_demo;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//demo.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_pop_over = (function (_super) {
+        __extends($mol_pop_over, _super);
+        function $mol_pop_over() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_pop_over.prototype.event_show = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_pop_over.prototype.event_hide = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_pop_over.prototype.event = function () {
+            var _this = this;
+            return (__assign({}, _super.prototype.event.call(this), { "mouseover": function (event) { return _this.event_show(event); }, "mouseout": function (event) { return _this.event_hide(event); } }));
+        };
+        return $mol_pop_over;
+    }($.$mol_pop));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over.prototype, "event_show", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over.prototype, "event_hide", null);
+    $.$mol_pop_over = $mol_pop_over;
+})($ || ($ = {}));
+//over.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_pop_over = (function (_super) {
+            __extends($mol_pop_over, _super);
+            function $mol_pop_over() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_pop_over.prototype.event_show = function (event) {
+                this.showed(true);
+            };
+            $mol_pop_over.prototype.event_hide = function (event) {
+                this.showed(false);
+            };
+            return $mol_pop_over;
+        }($.$mol_pop_over));
+        $mol.$mol_pop_over = $mol_pop_over;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//over.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_pop_over_demo = (function (_super) {
+        __extends($mol_pop_over_demo, _super);
+        function $mol_pop_over_demo() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_pop_over_demo.prototype.align = function () {
+            return "bottom_right";
+        };
+        $mol_pop_over_demo.prototype.Anchor = function () {
+            return "File";
+        };
+        $mol_pop_over_demo.prototype.Open = function () {
+            return new $.$mol_row().setup(function (obj) {
+                obj.sub = function () { return [].concat("Open"); };
+            });
+        };
+        $mol_pop_over_demo.prototype.Export = function () {
+            return new $.$mol_row().setup(function (obj) {
+                obj.sub = function () { return [].concat("Export"); };
+            });
+        };
+        $mol_pop_over_demo.prototype.Save = function () {
+            return new $.$mol_row().setup(function (obj) {
+                obj.sub = function () { return [].concat("Save"); };
+            });
+        };
+        $mol_pop_over_demo.prototype.Menu = function () {
+            var _this = this;
+            return new $.$mol_list().setup(function (obj) {
+                obj.rows = function () { return [].concat(_this.Open(), _this.Export(), _this.Save()); };
+            });
+        };
+        $mol_pop_over_demo.prototype.bubble_content = function () {
+            return [].concat(this.Menu());
+        };
+        return $mol_pop_over_demo;
+    }($.$mol_pop_over));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over_demo.prototype, "Open", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over_demo.prototype, "Export", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over_demo.prototype, "Save", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_pop_over_demo.prototype, "Menu", null);
+    $.$mol_pop_over_demo = $mol_pop_over_demo;
+})($ || ($ = {}));
+//demo.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var $;
 (function ($) {
     var $mol_portion_demo_empty = (function (_super) {
@@ -17198,6 +18090,576 @@ var $;
     $.$mol_section_demo = $mol_section_demo;
 })($ || ($ = {}));
 //demo.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_select = (function (_super) {
+        __extends($mol_select, _super);
+        function $mol_select() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_select.prototype.dictionary = function () {
+            return ({});
+        };
+        $mol_select.prototype.options = function () {
+            return [];
+        };
+        $mol_select.prototype.value = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_select.prototype.search_breakpoint = function () {
+            return 7;
+        };
+        $mol_select.prototype.clearable = function () {
+            return true;
+        };
+        $mol_select.prototype.event_select = function (id, event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_select.prototype.option_label = function (id) {
+            return "";
+        };
+        $mol_select.prototype.filter_pattern = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_select.prototype.Option_label = function (id) {
+            var _this = this;
+            return new $.$mol_dimmer().setup(function (obj) {
+                obj.haystack = function () { return _this.option_label(id); };
+                obj.needle = function () { return _this.filter_pattern(); };
+            });
+        };
+        $mol_select.prototype.option_content = function (id) {
+            return [].concat(this.Option_label(id));
+        };
+        $mol_select.prototype.option_content_super = function (id) {
+            return this.option_content(id);
+        };
+        $mol_select.prototype.Option_row = function (id) {
+            var _this = this;
+            return new $.$mol_button().setup(function (obj) {
+                obj.event_click = function (event) { return _this.event_select(id, event); };
+                obj.sub = function () { return _this.option_content_super(id); };
+            });
+        };
+        $mol_select.prototype.no_options_message = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "no_options_message");
+        };
+        $mol_select.prototype.No_options = function () {
+            var _this = this;
+            return new $.$mol_view().setup(function (obj) {
+                obj.sub = function () { return [].concat(_this.no_options_message()); };
+            });
+        };
+        $mol_select.prototype.clear_option_message = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "clear_option_message");
+        };
+        $mol_select.prototype.Clear_icon = function () {
+            return new $.$mol_icon_cross();
+        };
+        $mol_select.prototype.clear_option_content = function () {
+            return [].concat(this.clear_option_message(), this.Clear_icon());
+        };
+        $mol_select.prototype.Сlear_option_content = function () {
+            var _this = this;
+            return new $.$mol_view().setup(function (obj) {
+                obj.sub = function () { return _this.clear_option_content(); };
+            });
+        };
+        $mol_select.prototype.nav_components = function () {
+            return [].concat(this.Filter_string(), this.option_rows());
+        };
+        $mol_select.prototype.option_focused = function (key) {
+            return (key !== void 0) ? key : "";
+        };
+        $mol_select.prototype.nav_cycle = function (val) {
+            return (val !== void 0) ? val : true;
+        };
+        $mol_select.prototype.options_showed = function (val) {
+            return (val !== void 0) ? val : false;
+        };
+        $mol_select.prototype.options_align = function (val) {
+            return (val !== void 0) ? val : "bottom_right";
+        };
+        $mol_select.prototype.event_showed_toggle = function (event) {
+            return (event !== void 0) ? event : null;
+        };
+        $mol_select.prototype.value_content = function () {
+            return [];
+        };
+        $mol_select.prototype.Trigger_icon = function () {
+            return new $.$mol_icon_chevron();
+        };
+        $mol_select.prototype.Trigger = function () {
+            var _this = this;
+            return new $.$mol_button().setup(function (obj) {
+                obj.event_click = function (event) { return _this.event_showed_toggle(event); };
+                obj.sub = function () { return [].concat(_this.value_content(), _this.Trigger_icon()); };
+            });
+        };
+        $mol_select.prototype.filter_hint = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "filter_hint");
+        };
+        $mol_select.prototype.Filter_string = function () {
+            var _this = this;
+            return new $.$mol_string().setup(function (obj) {
+                obj.autofocus = function () { return true; };
+                obj.value = function (val) { return _this.filter_pattern(val); };
+                obj.hint = function () { return _this.filter_hint(); };
+            });
+        };
+        $mol_select.prototype.filter_content = function () {
+            return [].concat(this.Filter_string());
+        };
+        $mol_select.prototype.option_rows = function () {
+            return [];
+        };
+        $mol_select.prototype.Bubble_content = function () {
+            var _this = this;
+            return new $.$mol_list().setup(function (obj) {
+                obj.rows = function () { return [].concat(_this.filter_content(), _this.option_rows()); };
+            });
+        };
+        $mol_select.prototype.bubble_content = function () {
+            return [].concat(this.Bubble_content());
+        };
+        $mol_select.prototype.Pop = function () {
+            var _this = this;
+            return new $.$mol_pop().setup(function (obj) {
+                obj.showed = function (val) { return _this.options_showed(val); };
+                obj.align = function (val) { return _this.options_align(val); };
+                obj.Anchor = function () { return _this.Trigger(); };
+                obj.bubble_content = function () { return _this.bubble_content(); };
+            });
+        };
+        $mol_select.prototype.Nav = function () {
+            var _this = this;
+            return new $.$mol_nav().setup(function (obj) {
+                obj.keys_y = function () { return _this.nav_components(); };
+                obj.current_y = function (key) { return _this.option_focused(key); };
+                obj.cycle = function (val) { return _this.nav_cycle(val); };
+                obj.Sub = function () { return _this.Pop(); };
+            });
+        };
+        $mol_select.prototype.sub = function () {
+            return [].concat(this.Nav());
+        };
+        return $mol_select;
+    }($.$mol_view));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "value", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_select.prototype, "event_select", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "filter_pattern", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_select.prototype, "Option_label", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_select.prototype, "Option_row", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "No_options", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Clear_icon", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "\u0421lear_option_content", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "option_focused", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "nav_cycle", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "options_showed", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "options_align", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "event_showed_toggle", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Trigger_icon", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Trigger", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Filter_string", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Bubble_content", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Pop", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select.prototype, "Nav", null);
+    $.$mol_select = $mol_select;
+})($ || ($ = {}));
+//select.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_select = (function (_super) {
+            __extends($mol_select, _super);
+            function $mol_select() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_select.prototype.filter_pattern = function (next) {
+                if (!this.focused())
+                    return '';
+                return next || '';
+            };
+            $mol_select.prototype.options_showed = function (val) {
+                if (!this.focused())
+                    return false;
+                if (val !== void 0)
+                    return val;
+                if (this.filter_pattern())
+                    return true;
+                return false;
+            };
+            $mol_select.prototype.options = function () {
+                return Object.keys(this.dictionary());
+            };
+            $mol_select.prototype.options_filtered = function () {
+                var _this = this;
+                var filter = this.filter_pattern();
+                var value = this.value();
+                return this.options().filter(function (id) {
+                    if (id === value)
+                        return false;
+                    return _this.option_label(id).toLowerCase().match(filter);
+                });
+            };
+            $mol_select.prototype.option_label = function (id) {
+                var value = this.dictionary()[id];
+                return value == null ? id : value;
+            };
+            $mol_select.prototype.option_rows = function () {
+                var _this = this;
+                if (this.options_filtered().length === 0)
+                    return [this.No_options()];
+                var options = this.options_filtered().map(function (option) { return _this.Option_row(option); });
+                if (this.clearable() && this.value())
+                    options = [this.Option_row('')].concat(options);
+                return options;
+            };
+            $mol_select.prototype.option_content_super = function (id) {
+                if (id === '')
+                    return [this.Сlear_option_content()];
+                else
+                    return this.option_content(id);
+            };
+            $mol_select.prototype.option_focused = function (component) {
+                if (component === void 0)
+                    return "";
+                if (this.options_showed()) {
+                    component.focused(true);
+                }
+                return component;
+            };
+            $mol_select.prototype.event_showed_toggle = function (event) {
+                this.options_showed(!this.options_showed());
+            };
+            $mol_select.prototype.event_select = function (id, event) {
+                this.value(id);
+                this.options_showed(false);
+            };
+            $mol_select.prototype.searchable = function () {
+                return this.options().length >= this.search_breakpoint();
+            };
+            $mol_select.prototype.select_bubble_content = function () {
+                return (this.searchable() ? this.filter_content() : []).slice().concat(this.option_rows());
+            };
+            $mol_select.prototype.value_content = function () {
+                return this.value() ? this.option_content(this.value()) : null;
+            };
+            return $mol_select;
+        }($.$mol_select));
+        __decorate([
+            $.$mol_mem()
+        ], $mol_select.prototype, "filter_pattern", null);
+        __decorate([
+            $.$mol_mem()
+        ], $mol_select.prototype, "options_showed", null);
+        __decorate([
+            $.$mol_mem()
+        ], $mol_select.prototype, "options", null);
+        __decorate([
+            $.$mol_mem()
+        ], $mol_select.prototype, "option_focused", null);
+        $mol.$mol_select = $mol_select;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//select.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_select_demo_colors = (function (_super) {
+        __extends($mol_select_demo_colors, _super);
+        function $mol_select_demo_colors() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_select_demo_colors.prototype.title = function () {
+            return "Prefer color";
+        };
+        $mol_select_demo_colors.prototype.color = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_select_demo_colors.prototype.colors = function () {
+            return ({});
+        };
+        $mol_select_demo_colors.prototype.color_name = function (id) {
+            return "";
+        };
+        $mol_select_demo_colors.prototype.option_color = function (id) {
+            return "";
+        };
+        $mol_select_demo_colors.prototype.Color_preview = function (id) {
+            var _this = this;
+            return new $.$mol_select_colors_color_preview().setup(function (obj) {
+                obj.color = function () { return _this.option_color(id); };
+            });
+        };
+        $mol_select_demo_colors.prototype.Color_row = function (id) {
+            var _this = this;
+            return new $.$mol_row().setup(function (obj) {
+                obj.sub = function () { return [].concat(_this.Color_preview(id), _this.color_name(id)); };
+                obj.minimal_height = function () { return 40; };
+            });
+        };
+        $mol_select_demo_colors.prototype.option_content = function (id) {
+            return [].concat(this.Color_row(id));
+        };
+        $mol_select_demo_colors.prototype.Content = function () {
+            var _this = this;
+            return new $.$mol_select().setup(function (obj) {
+                obj.value = function (val) { return _this.color(val); };
+                obj.dictionary = function () { return _this.colors(); };
+                obj.option_label = function (id) { return _this.color_name(id); };
+                obj.option_content = function (id) { return _this.option_content(id); };
+            });
+        };
+        return $mol_select_demo_colors;
+    }($.$mol_labeler));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_colors.prototype, "color", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_select_demo_colors.prototype, "Color_preview", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_select_demo_colors.prototype, "Color_row", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_colors.prototype, "Content", null);
+    $.$mol_select_demo_colors = $mol_select_demo_colors;
+})($ || ($ = {}));
+(function ($) {
+    var $mol_select_colors_color_preview = (function (_super) {
+        __extends($mol_select_colors_color_preview, _super);
+        function $mol_select_colors_color_preview() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_select_colors_color_preview.prototype.color = function () {
+            return "";
+        };
+        $mol_select_colors_color_preview.prototype.style = function () {
+            return (__assign({}, _super.prototype.style.call(this), { "background": this.color() }));
+        };
+        return $mol_select_colors_color_preview;
+    }($.$mol_view));
+    $.$mol_select_colors_color_preview = $mol_select_colors_color_preview;
+})($ || ($ = {}));
+//colors.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var $;
+(function ($) {
+    var $mol;
+    (function ($mol) {
+        var $mol_select_demo_colors = (function (_super) {
+            __extends($mol_select_demo_colors, _super);
+            function $mol_select_demo_colors() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_select_demo_colors.prototype.color_name = function (id) {
+                return id;
+            };
+            $mol_select_demo_colors.prototype.option_color = function (id) {
+                return this.colors()[id];
+            };
+            $mol_select_demo_colors.prototype.colors = function () {
+                return $.$mol_colors;
+            };
+            return $mol_select_demo_colors;
+        }($.$mol_select_demo_colors));
+        $mol.$mol_select_demo_colors = $mol_select_demo_colors;
+    })($mol = $.$mol || ($.$mol = {}));
+})($ || ($ = {}));
+//colors.view.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_select_demo_search = (function (_super) {
+        __extends($mol_select_demo_search, _super);
+        function $mol_select_demo_search() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_select_demo_search.prototype.title = function () {
+            return "Month";
+        };
+        $mol_select_demo_search.prototype.month = function (val) {
+            return (val !== void 0) ? val : "";
+        };
+        $mol_select_demo_search.prototype.months = function () {
+            return ({
+                "jan": "January",
+                "feb": "February",
+                "mar": "March",
+                "apr": "April",
+                "may": "May",
+                "jun": "June",
+                "jul": "July",
+                "aug": "August",
+                "sep": "September",
+                "oct": "October",
+                "nov": "November",
+                "dec": "December",
+            });
+        };
+        $mol_select_demo_search.prototype.Content = function () {
+            var _this = this;
+            return new $.$mol_select().setup(function (obj) {
+                obj.no_options_message = function () { return "Not found"; };
+                obj.value = function (val) { return _this.month(val); };
+                obj.dictionary = function () { return _this.months(); };
+            });
+        };
+        return $mol_select_demo_search;
+    }($.$mol_labeler));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_search.prototype, "month", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_search.prototype, "Content", null);
+    $.$mol_select_demo_search = $mol_select_demo_search;
+})($ || ($ = {}));
+//search.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_select_demo_strings = (function (_super) {
+        __extends($mol_select_demo_strings, _super);
+        function $mol_select_demo_strings() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_select_demo_strings.prototype.title = function () {
+            return "Priority";
+        };
+        $mol_select_demo_strings.prototype.priority = function (val) {
+            return (val !== void 0) ? val : "Lowest";
+        };
+        $mol_select_demo_strings.prototype.Content = function () {
+            var _this = this;
+            return new $.$mol_select().setup(function (obj) {
+                obj.value = function (val) { return _this.priority(val); };
+                obj.options = function () { return [].concat("Highest ", "High", "Medium", "Low", "Lowest"); };
+                obj.clearable = function () { return false; };
+            });
+        };
+        return $mol_select_demo_strings;
+    }($.$mol_labeler));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_strings.prototype, "priority", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_select_demo_strings.prototype, "Content", null);
+    $.$mol_select_demo_strings = $mol_select_demo_strings;
+})($ || ($ = {}));
+//strings.view.tree.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];

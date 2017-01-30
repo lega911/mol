@@ -828,6 +828,10 @@ var $;
         $mol_view.state_prefix = function () {
             return '';
         };
+        $mol_view.prototype.focused = function (next) {
+            var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
+            return value.indexOf(this.dom_node()) !== -1;
+        };
         $mol_view.prototype.state_prefix = function () {
             var owner = this.object_owner();
             return owner ? owner.state_prefix() : '';
@@ -860,14 +864,31 @@ var $;
             });
             return sub;
         };
-        $mol_view.prototype.minimal_height = function () {
-            return 0;
-        };
         $mol_view.prototype.minimal_width = function () {
-            return 0;
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_width());
+                }
+            });
+            return min;
+        };
+        $mol_view.prototype.minimal_height = function () {
+            var sub = this.sub();
+            if (!sub)
+                return 0;
+            var min = 0;
+            sub.forEach(function (view) {
+                if (view instanceof $mol_view) {
+                    min = Math.max(min, view.minimal_height());
+                }
+            });
+            return min;
         };
         $mol_view.prototype.dom_node = function (next) {
-            var _this = this;
             var path = this.toString();
             var next2 = next;
             if (!next2) {
@@ -905,10 +926,14 @@ var $;
                     break;
                 proto = Object.getPrototypeOf(proto);
             }
-            var events = this.event();
+            $mol_view.bind_event(next2, this.event());
+            return next2;
+        };
+        $mol_view.bind_event = function (node, events) {
+            var _this = this;
             var _loop_1 = function (name_1) {
                 var handle = events[name_1];
-                next2.addEventListener(name_1, function (event) {
+                node.addEventListener(name_1, function (event) {
                     $.$mol_atom_task(_this + ".event()['" + name_1 + "']", function () {
                         handle(event);
                     }).get();
@@ -917,7 +942,6 @@ var $;
             for (var name_1 in events) {
                 _loop_1(name_1);
             }
-            return next2;
         };
         $mol_view.render_sub = function (node, sub) {
             if (sub == null)
@@ -1005,9 +1029,9 @@ var $;
         $mol_view.prototype.dom_tree = function () {
             var node = this.dom_node();
             try {
-                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_attr(node, this.attr());
                 $mol_view.render_style(node, this.style());
+                $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_field(node, this.field());
                 return node;
             }
@@ -1044,7 +1068,16 @@ var $;
     }($.$mol_object));
     __decorate([
         $.$mol_mem()
+    ], $mol_view.prototype, "focused", null);
+    __decorate([
+        $.$mol_mem()
     ], $mol_view.prototype, "context", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_width", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view.prototype, "minimal_height", null);
     __decorate([
         $.$mol_mem()
     ], $mol_view.prototype, "dom_tree", null);
@@ -1076,6 +1109,145 @@ var $;
     });
 })($ || ($ = {}));
 //view.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_view_selection = (function (_super) {
+        __extends($mol_view_selection, _super);
+        function $mol_view_selection() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_view_selection.focused = function (next, force) {
+            if (next === void 0)
+                return [];
+            if (next.length !== 1)
+                throw new Error('Length must be equals 1');
+            var node = next[0];
+            node.focus();
+        };
+        $mol_view_selection.position = function () {
+            var diff = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                diff[_i] = arguments[_i];
+            }
+            if (diff.length) {
+                if (!diff[0])
+                    return diff[0];
+                var start = diff[0].start;
+                var end = diff[0].end;
+                if (!(start <= end))
+                    throw new Error("Wrong offsets (" + start + "," + end + ")");
+                var root = document.getElementById(diff[0].id);
+                root.focus();
+                var range = new Range;
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= start)
+                            break;
+                        start -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            start = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setStart(cur, start);
+                var cur = root.firstChild;
+                while (cur !== root) {
+                    while (cur.firstChild)
+                        cur = cur.firstChild;
+                    if (cur.nodeValue) {
+                        var length = cur.nodeValue.length;
+                        if (length >= end)
+                            break;
+                        end -= length;
+                    }
+                    while (!cur.nextSibling) {
+                        cur = cur.parentNode;
+                        if (cur === root) {
+                            end = root.childNodes.length;
+                            break;
+                        }
+                    }
+                }
+                range.setEnd(cur, end);
+                var sel = document.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return diff[0];
+            }
+            else {
+                var sel = document.getSelection();
+                if (sel.rangeCount === 0)
+                    return null;
+                var range = sel.getRangeAt(0);
+                var el = range.commonAncestorContainer;
+                while (el && !el.id)
+                    el = el.parentElement;
+                if (!el)
+                    return { id: null, start: 0, end: 0 };
+                var meter = new Range;
+                meter.selectNodeContents(el);
+                meter.setEnd(range.startContainer, range.startOffset);
+                var startOffset = meter.toString().length;
+                meter.setEnd(range.endContainer, range.endOffset);
+                var endOffset = meter.toString().length;
+                return { id: el.id, start: startOffset, end: endOffset };
+            }
+        };
+        $mol_view_selection.onFocus = function (event) {
+            var parents = [];
+            var element = event.target;
+            while (element) {
+                parents.push(element);
+                element = element.parentElement;
+            }
+            $mol_view_selection.focused(parents, $.$mol_atom_force);
+        };
+        $mol_view_selection.onBlur = function (event) {
+            $mol_view_selection.focused([], $.$mol_atom_force);
+        };
+        return $mol_view_selection;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "focused", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_view_selection, "position", null);
+    $.$mol_view_selection = $mol_view_selection;
+})($ || ($ = {}));
+//selection.js.map
+;
+var $;
+(function ($) {
+    document.addEventListener('selectionchange', function (event) {
+        $.$mol_view_selection.position(void 0);
+    });
+    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
+    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
+    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
+    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
+})($ || ($ = {}));
+//selection.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1153,8 +1325,7 @@ var $;
             return (val !== void 0) ? val : 0;
         };
         $mol_scroll.prototype.field = function () {
-            var _this = this;
-            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": function (val) { return _this.scroll_top(val); }, "scrollLeft": function (val) { return _this.scroll_left(val); } }));
+            return (__assign({}, _super.prototype.field.call(this), { "scrollTop": this.scroll_top(), "scrollLeft": this.scroll_left() }));
         };
         $mol_scroll.prototype.event_scroll = function (event) {
             return (event !== void 0) ? event : null;

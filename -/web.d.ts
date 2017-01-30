@@ -185,6 +185,7 @@ declare namespace $ {
         static Root(id: number): $mol_view;
         title(): string;
         static state_prefix(): string;
+        focused(next?: boolean): boolean;
         state_prefix(): any;
         state_key(postfix: string): string;
         context(next?: $mol_view_context): $mol_view_context;
@@ -193,10 +194,13 @@ declare namespace $ {
         dom_name_space(): string;
         sub(): (string | number | boolean | Node | $mol_view)[];
         sub_visible(): (string | number | boolean | Node | $mol_view)[];
-        minimal_height(): number;
         minimal_width(): number;
+        minimal_height(): number;
         private 'dom_node()';
         dom_node(next?: Element): Element;
+        static bind_event(node: Element, events: {
+            [key: string]: (event: Event) => void;
+        }): void;
         static render_sub(node: Element, sub: ($mol_view | Node | string | number | boolean)[]): void;
         static render_attr(node: Element, attrs: {
             [key: string]: string | number | boolean;
@@ -229,6 +233,16 @@ interface Window {
 declare namespace $ {
 }
 declare namespace $ {
+    class $mol_view_selection extends $mol_object {
+        static focused(next?: Element[], force?: $mol_atom_force): Element[];
+        static position(...diff: any[]): any;
+        static onFocus(event: FocusEvent): void;
+        static onBlur(event: FocusEvent): void;
+    }
+}
+declare namespace $ {
+}
+declare namespace $ {
     class $mol_state_session<Value> extends $mol_object {
         static value<Value>(key: string, next?: Value): Value;
         prefix(): string;
@@ -241,8 +255,8 @@ declare namespace $ {
         scroll_top(val?: any): any;
         scroll_left(val?: any): any;
         field(): {
-            "scrollTop": (val?: any) => any;
-            "scrollLeft": (val?: any) => any;
+            "scrollTop": any;
+            "scrollLeft": any;
         };
         event_scroll(event?: any): any;
         event(): {
@@ -363,12 +377,117 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
+    enum $mol_keyboard_code {
+        backspace = 8,
+        tab = 9,
+        enter = 13,
+        shift = 16,
+        ctrl = 17,
+        alt = 18,
+        pause = 19,
+        capsLock = 20,
+        escape = 27,
+        space = 32,
+        pageUp = 33,
+        pageDown = 34,
+        end = 35,
+        home = 36,
+        left = 37,
+        up = 38,
+        right = 39,
+        down = 40,
+        insert = 45,
+        delete = 46,
+        key0 = 48,
+        key1 = 49,
+        key2 = 50,
+        key3 = 51,
+        key4 = 52,
+        key5 = 53,
+        key6 = 54,
+        key7 = 55,
+        key8 = 56,
+        key9 = 57,
+        A = 65,
+        B = 66,
+        C = 67,
+        D = 68,
+        E = 69,
+        F = 70,
+        G = 71,
+        H = 72,
+        I = 73,
+        J = 74,
+        K = 75,
+        L = 76,
+        M = 77,
+        N = 78,
+        O = 79,
+        P = 80,
+        Q = 81,
+        R = 82,
+        S = 83,
+        T = 84,
+        U = 85,
+        V = 86,
+        W = 87,
+        X = 88,
+        Y = 89,
+        Z = 90,
+        metaLeft = 91,
+        metaRight = 92,
+        select = 93,
+        numpad0 = 96,
+        numpad1 = 97,
+        numpad2 = 98,
+        numpad3 = 99,
+        numpad4 = 100,
+        numpad5 = 101,
+        numpad6 = 102,
+        numpad7 = 103,
+        numpad8 = 104,
+        numpad9 = 105,
+        multiply = 106,
+        add = 107,
+        subtract = 109,
+        decimal = 110,
+        divide = 111,
+        F1 = 112,
+        F2 = 113,
+        F3 = 114,
+        F4 = 115,
+        F5 = 116,
+        F6 = 117,
+        F7 = 118,
+        F8 = 119,
+        F9 = 120,
+        F10 = 121,
+        F11 = 122,
+        F12 = 123,
+        numLock = 144,
+        scrollLock = 145,
+        semicolon = 186,
+        equals = 187,
+        comma = 188,
+        dash = 189,
+        period = 190,
+        forwardSlash = 191,
+        graveAccent = 192,
+        bracketOpen = 219,
+        slashBack = 220,
+        bracketClose = 221,
+        quoteSingle = 222,
+    }
+}
+declare namespace $ {
     class $mol_button extends $mol_view {
         enabled(): boolean;
         event_click(event?: any): any;
         event_activate(event?: any): any;
+        evenet_key_press(event?: any): any;
         event(): {
             "click": (event?: any) => any;
+            "keypress": (event?: any) => any;
         };
         disabled(): boolean;
         tab_index(): string;
@@ -383,6 +502,7 @@ declare namespace $.$mol {
     class $mol_button extends $.$mol_button {
         disabled(): boolean;
         event_activate(next: Event): void;
+        evenet_key_press(event: KeyboardEvent): void;
         tab_index(): string;
     }
 }
@@ -1210,9 +1330,11 @@ declare namespace $ {
         disabled(): boolean;
         value(val?: any): any;
         value_changed(val?: any): any;
+        autofocus(val?: any): any;
         field(): {
             "disabled": any;
             "value": any;
+            "autofocus": any;
         };
         event_change(event?: any): any;
         event(): {
@@ -1294,12 +1416,15 @@ declare namespace $.$mol {
 }
 declare namespace $ {
     class $mol_demo_small extends $mol_demo {
+        height(): number;
         minimal_height(): number;
+        width(): number;
         minimal_width(): number;
     }
 }
-declare namespace $ {
-    class $mol_demo_medium extends $mol_demo {
+declare namespace $.$mol {
+    class $mol_demo_small extends $.$mol_demo_small {
+        context_sub(): $mol_view_context;
     }
 }
 declare namespace $ {
@@ -2811,109 +2936,6 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
-    enum $mol_keyboard_code {
-        backspace = 8,
-        tab = 9,
-        enter = 13,
-        shift = 16,
-        ctrl = 17,
-        alt = 18,
-        pause = 19,
-        capsLock = 20,
-        escape = 27,
-        space = 32,
-        pageUp = 33,
-        pageDown = 34,
-        end = 35,
-        home = 36,
-        left = 37,
-        up = 38,
-        right = 39,
-        down = 40,
-        insert = 45,
-        delete = 46,
-        key0 = 48,
-        key1 = 49,
-        key2 = 50,
-        key3 = 51,
-        key4 = 52,
-        key5 = 53,
-        key6 = 54,
-        key7 = 55,
-        key8 = 56,
-        key9 = 57,
-        A = 65,
-        B = 66,
-        C = 67,
-        D = 68,
-        E = 69,
-        F = 70,
-        G = 71,
-        H = 72,
-        I = 73,
-        J = 74,
-        K = 75,
-        L = 76,
-        M = 77,
-        N = 78,
-        O = 79,
-        P = 80,
-        Q = 81,
-        R = 82,
-        S = 83,
-        T = 84,
-        U = 85,
-        V = 86,
-        W = 87,
-        X = 88,
-        Y = 89,
-        Z = 90,
-        metaLeft = 91,
-        metaRight = 92,
-        select = 93,
-        numpad0 = 96,
-        numpad1 = 97,
-        numpad2 = 98,
-        numpad3 = 99,
-        numpad4 = 100,
-        numpad5 = 101,
-        numpad6 = 102,
-        numpad7 = 103,
-        numpad8 = 104,
-        numpad9 = 105,
-        multiply = 106,
-        add = 107,
-        subtract = 109,
-        decimal = 110,
-        divide = 111,
-        F1 = 112,
-        F2 = 113,
-        F3 = 114,
-        F4 = 115,
-        F5 = 116,
-        F6 = 117,
-        F7 = 118,
-        F8 = 119,
-        F9 = 120,
-        F10 = 121,
-        F11 = 122,
-        F12 = 123,
-        numLock = 144,
-        scrollLock = 145,
-        semicolon = 186,
-        equals = 187,
-        comma = 188,
-        dash = 189,
-        period = 190,
-        forwardSlash = 191,
-        graveAccent = 192,
-        bracketOpen = 219,
-        slashBack = 220,
-        bracketClose = 221,
-        quoteSingle = 222,
-    }
-}
-declare namespace $ {
     class $mol_app_todomvc extends $mol_scroll {
         title(): string;
         Title(): $mol_view;
@@ -3303,6 +3325,157 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    const $mol_colors: {
+        aliceblue: string;
+        antiquewhite: string;
+        aqua: string;
+        aquamarine: string;
+        azure: string;
+        beige: string;
+        bisque: string;
+        black: string;
+        blanchedalmond: string;
+        blue: string;
+        blueviolet: string;
+        brown: string;
+        burlywood: string;
+        cadetblue: string;
+        chartreuse: string;
+        chocolate: string;
+        coral: string;
+        cornflowerblue: string;
+        cornsilk: string;
+        crimson: string;
+        cyan: string;
+        darkblue: string;
+        darkcyan: string;
+        darkgoldenrod: string;
+        darkgray: string;
+        darkgreen: string;
+        darkgrey: string;
+        darkkhaki: string;
+        darkmagenta: string;
+        darkolivegreen: string;
+        darkorange: string;
+        darkorchid: string;
+        darkred: string;
+        darksalmon: string;
+        darkseagreen: string;
+        darkslateblue: string;
+        darkslategrey: string;
+        darkturquoise: string;
+        darkviolet: string;
+        deeppink: string;
+        deepskyblue: string;
+        dimgray: string;
+        dimgrey: string;
+        dodgerblue: string;
+        firebrick: string;
+        floralwhite: string;
+        forestgreen: string;
+        fuchsia: string;
+        gainsboro: string;
+        ghostwhite: string;
+        gold: string;
+        goldenrod: string;
+        gray: string;
+        green: string;
+        greenyellow: string;
+        grey: string;
+        honeydew: string;
+        hotpink: string;
+        indianred: string;
+        indigo: string;
+        ivory: string;
+        khaki: string;
+        lavender: string;
+        lavenderblush: string;
+        lawngreen: string;
+        lemonchiffon: string;
+        lightblue: string;
+        lightcoral: string;
+        lightcyan: string;
+        lightgoldenrodyellow: string;
+        lightgray: string;
+        lightgreen: string;
+        lightgrey: string;
+        lightpink: string;
+        lightsalmon: string;
+        lightseagreen: string;
+        lightskyblue: string;
+        lightslategray: string;
+        lightslategrey: string;
+        lightsteelblue: string;
+        lightyellow: string;
+        lime: string;
+        limegreen: string;
+        linen: string;
+        magenta: string;
+        maroon: string;
+        mediumaquamarine: string;
+        mediumblue: string;
+        mediumorchid: string;
+        mediumpurple: string;
+        mediumseagreen: string;
+        mediumslateblue: string;
+        mediumspringgreen: string;
+        mediumturquoise: string;
+        mediumvioletred: string;
+        midnightblue: string;
+        mintcream: string;
+        mistyrose: string;
+        moccasin: string;
+        navajowhite: string;
+        navy: string;
+        oldlace: string;
+        olive: string;
+        olivedrab: string;
+        orange: string;
+        orangered: string;
+        orchid: string;
+        palegoldenrod: string;
+        palegreen: string;
+        paleturquoise: string;
+        palevioletred: string;
+        papayawhip: string;
+        peachpuff: string;
+        peru: string;
+        pink: string;
+        plum: string;
+        powderblue: string;
+        purple: string;
+        rebeccapurple: string;
+        red: string;
+        rosybrown: string;
+        royalblue: string;
+        saddlebrown: string;
+        salmon: string;
+        sandybrown: string;
+        seagreen: string;
+        seashell: string;
+        sienna: string;
+        silver: string;
+        skyblue: string;
+        slateblue: string;
+        slategray: string;
+        slategrey: string;
+        snow: string;
+        springgreen: string;
+        steelblue: string;
+        tan: string;
+        teal: string;
+        thistle: string;
+        tomato: string;
+        turquoise: string;
+        violet: string;
+        wheat: string;
+        white: string;
+        whitesmoke: string;
+        yellow: string;
+        yellowgreen: string;
+    };
+}
+declare namespace $ {
     function $mol_csv_parse(text: string, delimiter?: string): {
         [key: string]: any;
     }[];
@@ -3325,6 +3498,10 @@ declare namespace $ {
         commanderContent(): $mol_row;
         commanderItem(): $mol_deck_item;
         items(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_demo_medium extends $mol_demo {
     }
 }
 declare namespace $ {
@@ -3483,6 +3660,11 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_icon_cross extends $mol_icon {
+        path(): string;
+    }
+}
+declare namespace $ {
     class $mol_icon_demo extends $mol_row {
         icons(): any[];
         sub(): any[];
@@ -3522,16 +3704,6 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_view_selection extends $mol_object {
-        static focused(next?: Element[]): Element[];
-        static position(...diff: any[]): any;
-        static onFocus(event: FocusEvent): void;
-        static onBlur(event: FocusEvent): void;
-    }
-}
-declare namespace $ {
-}
-declare namespace $ {
     class $mol_suggest extends $mol_view {
         suggests(): any[];
         eventPress(val?: any): any;
@@ -3559,6 +3731,7 @@ declare namespace $ {
         event(): {
             "mousedown": (val?: any) => any;
             "click": (event?: any) => any;
+            "keypress": (event?: any) => any;
         };
         selected(): boolean;
         attr(): {
@@ -3623,6 +3796,49 @@ declare namespace $.$mol {
 }
 declare namespace $ {
     function $mol_maybe<Value>(value: Value): Value[];
+}
+declare namespace $ {
+    class $mol_view_ghost extends $mol_view {
+        Sub(): any;
+    }
+}
+declare namespace $.$mol {
+    class $mol_view_ghost extends $.$mol_view_ghost {
+        dom_node(next?: Element): any;
+        dom_tree(): any;
+    }
+}
+declare namespace $ {
+    class $mol_nav extends $mol_view_ghost {
+        cycle(val?: any): any;
+        keys_x(val?: any): any;
+        keys_y(val?: any): any;
+        current_x(val?: any): any;
+        current_y(val?: any): any;
+        event_up(event?: any): any;
+        event_down(event?: any): any;
+        event_left(event?: any): any;
+        event_right(event?: any): any;
+        event_key(event?: any): any;
+        event(): {
+            "keydown": (event?: any) => any;
+        };
+        attr(): {
+            "mol_nav_x": any;
+            "mol_nav_y": any;
+        };
+    }
+}
+declare namespace $.$mol {
+    class $mol_nav extends $.$mol_nav {
+        event_key(event?: KeyboardEvent): void;
+        event_up(event?: KeyboardEvent): void;
+        event_down(event?: KeyboardEvent): void;
+        event_left(event?: KeyboardEvent): void;
+        event_right(event?: KeyboardEvent): void;
+        index_y(): any;
+        index_x(): any;
+    }
 }
 declare namespace $ {
     class $mol_number_demo extends $mol_row {
@@ -3877,6 +4093,82 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
+    class $mol_pop extends $mol_view {
+        showed(val?: any): any;
+        Anchor(): any;
+        align(): string;
+        bubble_content(): any[];
+        height_max(): number;
+        Bubble(): $mol_pop_tip;
+        sub(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_pop_tip extends $mol_scroll {
+        content(): any[];
+        sub(): any[];
+        height_max(): number;
+        style(): {
+            "maxHeight": any;
+        };
+        align(): string;
+        attr(): {
+            "mol_pop_align": any;
+        };
+    }
+}
+declare namespace $.$mol {
+    class $mol_pop extends $.$mol_pop {
+        sub(): any[];
+        height_max(): number;
+    }
+}
+declare namespace $ {
+    class $mol_pop_demo extends $mol_pop {
+        value(val?: any): any;
+        Checkbox(): $mol_check_box;
+        Anchor(): $mol_check_box;
+        event_hide(event?: any): any;
+        Button(): $mol_button;
+        Content(): $mol_view;
+        bubble_content(): any[];
+        showed(val?: any): any;
+        align(): string;
+    }
+}
+declare namespace $.$mol {
+    class $mol_pop_demo extends $.$mol_pop_demo {
+        event_hide(event?: MouseEvent): void;
+    }
+}
+declare namespace $ {
+    class $mol_pop_over extends $mol_pop {
+        event_show(event?: any): any;
+        event_hide(event?: any): any;
+        event(): {
+            "mouseover": (event?: any) => any;
+            "mouseout": (event?: any) => any;
+        };
+    }
+}
+declare namespace $.$mol {
+    class $mol_pop_over extends $.$mol_pop_over {
+        event_show(event?: MouseEvent): void;
+        event_hide(event?: MouseEvent): void;
+    }
+}
+declare namespace $ {
+    class $mol_pop_over_demo extends $mol_pop_over {
+        align(): string;
+        Anchor(): string;
+        Open(): $mol_row;
+        Export(): $mol_row;
+        Save(): $mol_row;
+        Menu(): $mol_list;
+        bubble_content(): any[];
+    }
+}
+declare namespace $ {
     class $mol_portion_demo_empty extends $mol_portion {
         portion(): number;
     }
@@ -3904,6 +4196,267 @@ declare namespace $ {
     class $mol_section_demo extends $mol_scroll {
         Section(): $mol_section;
         sub(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_select extends $mol_view {
+        dictionary(): {};
+        options(): any[];
+        value(val?: any): any;
+        search_breakpoint(): number;
+        clearable(): boolean;
+        event_select(id: any, event?: any): any;
+        option_label(id: any): string;
+        filter_pattern(val?: any): any;
+        Option_label(id: any): $mol_dimmer;
+        option_content(id: any): any[];
+        option_content_super(id: any): any[];
+        Option_row(id: any): $mol_button;
+        no_options_message(): string;
+        No_options(): $mol_view;
+        clear_option_message(): string;
+        Clear_icon(): $mol_icon_cross;
+        clear_option_content(): any[];
+        Сlear_option_content(): $mol_view;
+        nav_components(): any[];
+        option_focused(key?: any): any;
+        nav_cycle(val?: any): any;
+        options_showed(val?: any): any;
+        options_align(val?: any): any;
+        event_showed_toggle(event?: any): any;
+        value_content(): any[];
+        Trigger_icon(): $mol_icon_chevron;
+        Trigger(): $mol_button;
+        filter_hint(): string;
+        Filter_string(): $mol_string;
+        filter_content(): any[];
+        option_rows(): any[];
+        Bubble_content(): $mol_list;
+        bubble_content(): any[];
+        Pop(): $mol_pop;
+        Nav(): $mol_nav;
+        sub(): any[];
+    }
+}
+declare namespace $.$mol {
+    class $mol_select extends $.$mol_select {
+        filter_pattern(next?: string): string;
+        options_showed(val?: boolean): boolean;
+        options(): string[];
+        options_filtered(): string[];
+        option_label(id: string): any;
+        option_rows(): $mol_view[] | $.$mol_button[];
+        option_content_super(id: string): any[];
+        option_focused(component: $mol_view): "" | $mol_view;
+        event_showed_toggle(event?: MouseEvent): void;
+        event_select(id: string, event?: MouseEvent): void;
+        searchable(): boolean;
+        select_bubble_content(): any[];
+        value_content(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_select_demo_colors extends $mol_labeler {
+        title(): string;
+        color(val?: any): any;
+        colors(): {};
+        color_name(id: any): string;
+        option_color(id: any): string;
+        Color_preview(id: any): $mol_select_colors_color_preview;
+        Color_row(id: any): $mol_row;
+        option_content(id: any): any[];
+        Content(): $mol_select;
+    }
+}
+declare namespace $ {
+    class $mol_select_colors_color_preview extends $mol_view {
+        color(): string;
+        style(): {
+            "background": any;
+        };
+    }
+}
+declare namespace $.$mol {
+    class $mol_select_demo_colors extends $.$mol_select_demo_colors {
+        color_name(id: string): string;
+        option_color(id: string): any;
+        colors(): {
+            aliceblue: string;
+            antiquewhite: string;
+            aqua: string;
+            aquamarine: string;
+            azure: string;
+            beige: string;
+            bisque: string;
+            black: string;
+            blanchedalmond: string;
+            blue: string;
+            blueviolet: string;
+            brown: string;
+            burlywood: string;
+            cadetblue: string;
+            chartreuse: string;
+            chocolate: string;
+            coral: string;
+            cornflowerblue: string;
+            cornsilk: string;
+            crimson: string;
+            cyan: string;
+            darkblue: string;
+            darkcyan: string;
+            darkgoldenrod: string;
+            darkgray: string;
+            darkgreen: string;
+            darkgrey: string;
+            darkkhaki: string;
+            darkmagenta: string;
+            darkolivegreen: string;
+            darkorange: string;
+            darkorchid: string;
+            darkred: string;
+            darksalmon: string;
+            darkseagreen: string;
+            darkslateblue: string;
+            darkslategrey: string;
+            darkturquoise: string;
+            darkviolet: string;
+            deeppink: string;
+            deepskyblue: string;
+            dimgray: string;
+            dimgrey: string;
+            dodgerblue: string;
+            firebrick: string;
+            floralwhite: string;
+            forestgreen: string;
+            fuchsia: string;
+            gainsboro: string;
+            ghostwhite: string;
+            gold: string;
+            goldenrod: string;
+            gray: string;
+            green: string;
+            greenyellow: string;
+            grey: string;
+            honeydew: string;
+            hotpink: string;
+            indianred: string;
+            indigo: string;
+            ivory: string;
+            khaki: string;
+            lavender: string;
+            lavenderblush: string;
+            lawngreen: string;
+            lemonchiffon: string;
+            lightblue: string;
+            lightcoral: string;
+            lightcyan: string;
+            lightgoldenrodyellow: string;
+            lightgray: string;
+            lightgreen: string;
+            lightgrey: string;
+            lightpink: string;
+            lightsalmon: string;
+            lightseagreen: string;
+            lightskyblue: string;
+            lightslategray: string;
+            lightslategrey: string;
+            lightsteelblue: string;
+            lightyellow: string;
+            lime: string;
+            limegreen: string;
+            linen: string;
+            magenta: string;
+            maroon: string;
+            mediumaquamarine: string;
+            mediumblue: string;
+            mediumorchid: string;
+            mediumpurple: string;
+            mediumseagreen: string;
+            mediumslateblue: string;
+            mediumspringgreen: string;
+            mediumturquoise: string;
+            mediumvioletred: string;
+            midnightblue: string;
+            mintcream: string;
+            mistyrose: string;
+            moccasin: string;
+            navajowhite: string;
+            navy: string;
+            oldlace: string;
+            olive: string;
+            olivedrab: string;
+            orange: string;
+            orangered: string;
+            orchid: string;
+            palegoldenrod: string;
+            palegreen: string;
+            paleturquoise: string;
+            palevioletred: string;
+            papayawhip: string;
+            peachpuff: string;
+            peru: string;
+            pink: string;
+            plum: string;
+            powderblue: string;
+            purple: string;
+            rebeccapurple: string;
+            red: string;
+            rosybrown: string;
+            royalblue: string;
+            saddlebrown: string;
+            salmon: string;
+            sandybrown: string;
+            seagreen: string;
+            seashell: string;
+            sienna: string;
+            silver: string;
+            skyblue: string;
+            slateblue: string;
+            slategray: string;
+            slategrey: string;
+            snow: string;
+            springgreen: string;
+            steelblue: string;
+            tan: string;
+            teal: string;
+            thistle: string;
+            tomato: string;
+            turquoise: string;
+            violet: string;
+            wheat: string;
+            white: string;
+            whitesmoke: string;
+            yellow: string;
+            yellowgreen: string;
+        };
+    }
+}
+declare namespace $ {
+    class $mol_select_demo_search extends $mol_labeler {
+        title(): string;
+        month(val?: any): any;
+        months(): {
+            "jan": any;
+            "feb": any;
+            "mar": any;
+            "apr": any;
+            "may": any;
+            "jun": any;
+            "jul": any;
+            "aug": any;
+            "sep": any;
+            "oct": any;
+            "nov": any;
+            "dec": any;
+        };
+        Content(): $mol_select;
+    }
+}
+declare namespace $ {
+    class $mol_select_demo_strings extends $mol_labeler {
+        title(): string;
+        priority(val?: any): any;
+        Content(): $mol_select;
     }
 }
 declare namespace $ {

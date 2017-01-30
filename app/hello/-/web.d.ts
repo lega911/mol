@@ -185,6 +185,7 @@ declare namespace $ {
         static Root(id: number): $mol_view;
         title(): string;
         static state_prefix(): string;
+        focused(next?: boolean): boolean;
         state_prefix(): any;
         state_key(postfix: string): string;
         context(next?: $mol_view_context): $mol_view_context;
@@ -193,10 +194,13 @@ declare namespace $ {
         dom_name_space(): string;
         sub(): (string | number | boolean | Node | $mol_view)[];
         sub_visible(): (string | number | boolean | Node | $mol_view)[];
-        minimal_height(): number;
         minimal_width(): number;
+        minimal_height(): number;
         private 'dom_node()';
         dom_node(next?: Element): Element;
+        static bind_event(node: Element, events: {
+            [key: string]: (event: Event) => void;
+        }): void;
         static render_sub(node: Element, sub: ($mol_view | Node | string | number | boolean)[]): void;
         static render_attr(node: Element, attrs: {
             [key: string]: string | number | boolean;
@@ -229,6 +233,16 @@ interface Window {
 declare namespace $ {
 }
 declare namespace $ {
+    class $mol_view_selection extends $mol_object {
+        static focused(next?: Element[], force?: $mol_atom_force): Element[];
+        static position(...diff: any[]): any;
+        static onFocus(event: FocusEvent): void;
+        static onBlur(event: FocusEvent): void;
+    }
+}
+declare namespace $ {
+}
+declare namespace $ {
     class $mol_string extends $mol_view {
         dom_name(): string;
         enabled(): boolean;
@@ -241,9 +255,11 @@ declare namespace $ {
         disabled(): boolean;
         value(val?: any): any;
         value_changed(val?: any): any;
+        autofocus(val?: any): any;
         field(): {
             "disabled": any;
             "value": any;
+            "autofocus": any;
         };
         event_change(event?: any): any;
         event(): {
