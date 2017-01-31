@@ -650,7 +650,7 @@ declare namespace $ {
         row_ids(): any[];
         row_id(index: any): any;
         col_ids(): any[];
-        records(): any[];
+        records(): {};
         record(id: any): any;
         hierarchy(): any;
         hierarchy_col(): string;
@@ -2149,6 +2149,97 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_labeler extends $mol_view {
+        dom_name(): string;
+        Title(): $mol_view;
+        content(): any;
+        Content(): $mol_view;
+        sub(): any[];
+    }
+}
+declare namespace $ {
+    function $mol_csv_parse(text: string, delimiter?: string): {
+        [key: string]: any;
+    }[];
+}
+declare namespace $ {
+    class $mol_app_lamps extends $mol_stack {
+        lamp_current_id(val?: any): any;
+        filter_hint(): string;
+        filter(val?: any): any;
+        Filter(): $mol_code;
+        lamp_rows(): any[];
+        Menu(): $mol_list;
+        addon_page(): $mol_page;
+        addon(): any[];
+        title(): string;
+        Temp_title(): string;
+        temp(): string;
+        Temp(): $mol_labeler;
+        cri_title(): string;
+        cri(): string;
+        Cri(): $mol_labeler;
+        angle_title(): string;
+        angle(): string;
+        Angle(): $mol_labeler;
+        Light(): $mol_row;
+        type_title(): string;
+        type(): string;
+        Type(): $mol_labeler;
+        shape_title(): string;
+        shape(): string;
+        Shape(): $mol_labeler;
+        base_title(): string;
+        base(): string;
+        Base(): $mol_labeler;
+        Body(): $mol_row;
+        Info(): $mol_row;
+        main_page(): $mol_page;
+        main(): any[];
+        lamp_title(id: any): string;
+        lamp_arg(id: any): {};
+        Lamp_row(id: any): $mol_lamps_lamp_row;
+    }
+}
+declare namespace $ {
+    class $mol_lamps_lamp_row extends $mol_link {
+        minimal_height(): number;
+        sub(): any[];
+    }
+}
+declare namespace $.$mol {
+    class $mol_app_lamps extends $.$mol_app_lamps {
+        lamps_all(): {
+            [key: string]: any;
+        }[];
+        lamps(): {
+            [key: string]: any;
+        }[];
+        lamps_dict(): {
+            [key: string]: any;
+        };
+        lamp_rows(): $mol_lamps_lamp_row[];
+        lamp_title(id: string): string;
+        lamp_arg(id: string): {
+            'lamp': string;
+        };
+        id(next?: string): any;
+        lamp(): any;
+        main(): any[];
+        title(): string;
+        cri(): string;
+        angle(): string;
+        shape(): string;
+        base(): string;
+        type(): string;
+        temp(): string;
+    }
+}
+declare namespace $ {
+    class $mol_app_lamps_demo extends $mol_app_lamps {
+    }
+}
+declare namespace $ {
     class $mol_app_quine extends $mol_page {
         content(): string;
         texter(): $mol_text;
@@ -2454,15 +2545,6 @@ declare namespace $.$mol {
 }
 declare namespace $ {
     class $mol_app_signup_demo extends $mol_app_signup {
-    }
-}
-declare namespace $ {
-    class $mol_labeler extends $mol_view {
-        dom_name(): string;
-        Title(): $mol_view;
-        content(): any;
-        Content(): $mol_view;
-        sub(): any[];
     }
 }
 declare namespace $ {
@@ -3611,11 +3693,6 @@ declare namespace $ {
         yellow: string;
         yellowgreen: string;
     };
-}
-declare namespace $ {
-    function $mol_csv_parse(text: string, delimiter?: string): {
-        [key: string]: any;
-    }[];
 }
 declare namespace $ {
     class $mol_deck_demo extends $mol_deck {

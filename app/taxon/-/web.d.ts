@@ -588,7 +588,7 @@ declare namespace $ {
         row_ids(): any[];
         row_id(index: any): any;
         col_ids(): any[];
-        records(): any[];
+        records(): {};
         record(id: any): any;
         hierarchy(): any;
         hierarchy_col(): string;

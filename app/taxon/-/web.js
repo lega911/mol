@@ -2375,7 +2375,7 @@ var $;
             return [];
         };
         $mol_grid.prototype.records = function () {
-            return [];
+            return ({});
         };
         $mol_grid.prototype.record = function (id) {
             return null;
