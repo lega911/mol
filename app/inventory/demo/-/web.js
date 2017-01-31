@@ -2136,15 +2136,6 @@ var $;
         $mol_string.prototype.enabled = function () {
             return true;
         };
-        $mol_string.prototype.hint = function () {
-            return "";
-        };
-        $mol_string.prototype.type = function (val) {
-            return (val !== void 0) ? val : "text";
-        };
-        $mol_string.prototype.attr = function () {
-            return (__assign({}, _super.prototype.attr.call(this), { "placeholder": this.hint(), "type": this.type() }));
-        };
         $mol_string.prototype.disabled = function () {
             return false;
         };
@@ -2157,8 +2148,14 @@ var $;
         $mol_string.prototype.autofocus = function (val) {
             return (val !== void 0) ? val : false;
         };
+        $mol_string.prototype.hint = function () {
+            return "";
+        };
+        $mol_string.prototype.type = function (val) {
+            return (val !== void 0) ? val : "text";
+        };
         $mol_string.prototype.field = function () {
-            return (__assign({}, _super.prototype.field.call(this), { "disabled": this.disabled(), "value": this.value_changed(), "autofocus": this.autofocus() }));
+            return (__assign({}, _super.prototype.field.call(this), { "disabled": this.disabled(), "value": this.value_changed(), "autofocus": this.autofocus(), "placeholder": this.hint(), "type": this.type() }));
         };
         $mol_string.prototype.event_change = function (event) {
             return (event !== void 0) ? event : null;
@@ -2171,9 +2168,6 @@ var $;
     }($.$mol_view));
     __decorate([
         $.$mol_mem()
-    ], $mol_string.prototype, "type", null);
-    __decorate([
-        $.$mol_mem()
     ], $mol_string.prototype, "value", null);
     __decorate([
         $.$mol_mem()
@@ -2181,6 +2175,9 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_string.prototype, "autofocus", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_string.prototype, "type", null);
     __decorate([
         $.$mol_mem()
     ], $mol_string.prototype, "event_change", null);

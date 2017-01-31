@@ -772,20 +772,18 @@ declare namespace $ {
     class $mol_string extends $mol_view {
         dom_name(): string;
         enabled(): boolean;
-        hint(): string;
-        type(val?: any): any;
-        attr(): {
-            "placeholder": any;
-            "type": any;
-        };
         disabled(): boolean;
         value(val?: any): any;
         value_changed(val?: any): any;
         autofocus(val?: any): any;
+        hint(): string;
+        type(val?: any): any;
         field(): {
             "disabled": any;
             "value": any;
             "autofocus": any;
+            "placeholder": any;
+            "type": any;
         };
         event_change(event?: any): any;
         event(): {
