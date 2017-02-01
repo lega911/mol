@@ -4389,7 +4389,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_bench.prototype.bench = function (next) {
-                return $.$mol_state_arg.value(this.state_key('bench'), next) || 'list';
+                return $.$mol_state_arg.value(this.state_key('bench'), next) || 'list/';
             };
             $mol_app_bench.prototype.sandbox = function (next, force) {
                 var _this = this;
