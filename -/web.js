@@ -9443,7 +9443,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_lamps.prototype.lamps_all = function () {
-                return $.$mol_csv_parse($.$mol_http_resource.item('//eigenmethod.github.io/mol/app/lamps/lamps.csv').text());
+                return $.$mol_csv_parse($.$mol_http_resource.item('lamps.csv').text());
             };
             $mol_app_lamps.prototype.lamps = function () {
                 var filter = this.filter().toLowerCase();
@@ -9523,24 +9523,6 @@ var $;
     })($mol = $.$mol || ($.$mol = {}));
 })($ || ($ = {}));
 //lamps.view.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var $;
-(function ($) {
-    var $mol_app_lamps_demo = (function (_super) {
-        __extends($mol_app_lamps_demo, _super);
-        function $mol_app_lamps_demo() {
-            return _super.apply(this, arguments) || this;
-        }
-        return $mol_app_lamps_demo;
-    }($.$mol_app_lamps));
-    $.$mol_app_lamps_demo = $mol_app_lamps_demo;
-})($ || ($ = {}));
-//demo.view.tree.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
