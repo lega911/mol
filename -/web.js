@@ -3381,6 +3381,9 @@ var $;
         $mol_text_header.prototype.dom_name = function () {
             return "h";
         };
+        $mol_text_header.prototype.minimal_height = function () {
+            return 50;
+        };
         $mol_text_header.prototype.level = function (val) {
             return (val !== void 0) ? val : 0;
         };
@@ -9440,7 +9443,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_lamps.prototype.lamps_all = function () {
-                return $.$mol_csv_parse($.$mol_http_resource.item('/mol/app/lamps/lamps.csv').text());
+                return $.$mol_csv_parse($.$mol_http_resource.item('//eigenmethod.github.io/mol/app/lamps/lamps.csv').text());
             };
             $mol_app_lamps.prototype.lamps = function () {
                 var filter = this.filter().toLowerCase();

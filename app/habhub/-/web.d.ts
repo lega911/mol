@@ -801,6 +801,7 @@ declare namespace $ {
 declare namespace $ {
     class $mol_text_header extends $mol_view {
         dom_name(): string;
+        minimal_height(): number;
         level(val?: any): any;
         attr(): {
             "mol_text_header_level": any;

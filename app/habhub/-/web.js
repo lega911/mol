@@ -3248,6 +3248,9 @@ var $;
         $mol_text_header.prototype.dom_name = function () {
             return "h";
         };
+        $mol_text_header.prototype.minimal_height = function () {
+            return 50;
+        };
         $mol_text_header.prototype.level = function (val) {
             return (val !== void 0) ? val : 0;
         };
