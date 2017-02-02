@@ -503,7 +503,10 @@
 }
 [mol_number_inc] ,
 [mol_number_dec] {
-    margin: 0
+    margin: 0;
+    -webkit-box-flex: 0;
+        -ms-flex: 0 0 auto;
+            flex: 0 0 auto
 }
 [mol_number_inc_icon] ,
 [mol_number_dec_icon] {
@@ -588,10 +591,10 @@
 }
 [mol_app_inventory_position_product] {
     -webkit-box-flex: 1000;
-        -ms-flex: 1000 1 160px;
-            flex: 1000 1 160px;
-    -ms-flex: 1000 1 10rem;
-        flex: 1000 1 10rem
+        -ms-flex: 1000 1000 160px;
+            flex: 1000 1000 160px;
+    -ms-flex: 1000 1000 10rem;
+        flex: 1000 1000 10rem
 }
 [mol_app_inventory_position_status] {
     -webkit-box-flex: 1;
@@ -602,10 +605,10 @@
     width: 128px;
     width: 8rem;
     -webkit-box-flex: 1;
-        -ms-flex: 1 1 64px;
-            flex: 1 1 64px;
-    -ms-flex: 1 1 4rem;
-        flex: 1 1 4rem
+        -ms-flex: 1 1 128px;
+            flex: 1 1 128px;
+    -ms-flex: 1 1 8rem;
+        flex: 1 1 8rem
 }
 [mol_app_inventory_position_comment] {
     -webkit-box-flex: 0;
