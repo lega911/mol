@@ -637,6 +637,24 @@ var $;
 ;
 var $;
 (function ($) {
+    $.$mol_test({
+        'null by default': function () {
+            var key = String(Math.random());
+            $.$mol_assert_equal($.$mol_state_session.value(key), null);
+        },
+        'storing': function () {
+            var key = String(Math.random());
+            $.$mol_state_session.value(key, '$mol_state_session_test');
+            $.$mol_assert_equal($.$mol_state_session.value(key), '$mol_state_session_test');
+            $.$mol_state_session.value(key, null);
+            $.$mol_assert_equal($.$mol_state_session.value(key), null);
+        },
+    });
+})($ || ($ = {}));
+//session.test.js.map
+;
+var $;
+(function ($) {
     var $mol;
     (function ($mol) {
         $.$mol_test({
@@ -645,7 +663,7 @@ var $;
                 var clicker = new $mol.$mol_button;
                 clicker.event_click = function (event) { clicked = true; };
                 var element = clicker.dom_tree();
-                var event = document.createEvent('mouseevent');
+                var event = $.$mol_dom_context.document.createEvent('mouseevent');
                 event.initEvent('click', true, true);
                 element.dispatchEvent(event);
                 $.$mol_assert_ok(clicked);
@@ -656,7 +674,7 @@ var $;
                 clicker.event_click = function (event) { clicked = true; };
                 clicker.enabled = function () { return false; };
                 var element = clicker.dom_tree();
-                var event = document.createEvent('mouseevent');
+                var event = $.$mol_dom_context.document.createEvent('mouseevent');
                 event.initEvent('click', true, true);
                 element.dispatchEvent(event);
                 $.$mol_assert_not(clicked);

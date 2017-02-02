@@ -798,6 +798,17 @@ var $;
 })($ || ($ = {}));
 //window.web.js.map
 ;
+var $;
+(function ($) {
+})($ || ($ = {}));
+//context.js.map
+;
+var $;
+(function ($) {
+    $.$mol_dom_context = window;
+})($ || ($ = {}));
+//context.web.js.map
+;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -895,14 +906,14 @@ var $;
                 next2 = this['dom_node()'];
                 if (next2)
                     return next2;
-                next2 = document.getElementById(path);
+                next2 = $.$mol_dom_context.document.getElementById(path);
                 if (next2) {
                     if (next2['$mol_view']) {
                         return this['dom_node()'] = next2;
                     }
                 }
                 else {
-                    next2 = document.createElementNS(this.dom_name_space(), this.dom_name());
+                    next2 = $.$mol_dom_context.document.createElementNS(this.dom_name_space(), this.dom_name());
                 }
             }
             next2.id = path;
@@ -974,7 +985,7 @@ var $;
                         nextNode = nextNode.nextSibling;
                     }
                     else {
-                        var textNode = document.createTextNode(String(view));
+                        var textNode = $.$mol_dom_context.document.createTextNode(String(view));
                         node.insertBefore(textNode, nextNode);
                     }
                 }
@@ -1090,14 +1101,14 @@ var $;
 ;
 var $;
 (function ($) {
-    document.addEventListener(window.cordova ? 'deviceready' : 'DOMContentLoaded', function (event) {
-        var nodes = document.querySelectorAll('[mol_view_root]');
+    $.$mol_dom_context.document.addEventListener(window.cordova ? 'deviceready' : 'DOMContentLoaded', function (event) {
+        var nodes = $.$mol_dom_context.document.querySelectorAll('[mol_view_root]');
         var _loop_1 = function (i) {
             var view = $[nodes.item(i).getAttribute('mol_view_root')].Root(i);
             view.dom_node(nodes.item(i));
             var win = new $.$mol_atom("$mol_view.Root(" + i + ")", function () {
                 view.dom_tree();
-                document.title = view.title();
+                $.$mol_dom_context.document.title = view.title();
                 return null;
             });
             new $.$mol_defer(function () { return win.get(); });
@@ -1148,7 +1159,7 @@ var $;
                 var end = diff[0].end;
                 if (!(start <= end))
                     throw new Error("Wrong offsets (" + start + "," + end + ")");
-                var root = document.getElementById(diff[0].id);
+                var root = $.$mol_dom_context.document.getElementById(diff[0].id);
                 root.focus();
                 var range = new Range;
                 var cur = root.firstChild;
@@ -1189,13 +1200,13 @@ var $;
                     }
                 }
                 range.setEnd(cur, end);
-                var sel = document.getSelection();
+                var sel = $.$mol_dom_context.document.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
                 return diff[0];
             }
             else {
-                var sel = document.getSelection();
+                var sel = $.$mol_dom_context.document.getSelection();
                 if (sel.rangeCount === 0)
                     return null;
                 var range = sel.getRangeAt(0);
@@ -1239,13 +1250,13 @@ var $;
 ;
 var $;
 (function ($) {
-    document.addEventListener('selectionchange', function (event) {
+    $.$mol_dom_context.document.addEventListener('selectionchange', function (event) {
         $.$mol_view_selection.position(void 0);
     });
-    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
-    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
-    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
-    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
+    $.$mol_dom_context.document.addEventListener('focusin', $.$mol_view_selection.onFocus);
+    $.$mol_dom_context.document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
+    $.$mol_dom_context.document.addEventListener('focusout', $.$mol_view_selection.onBlur);
+    $.$mol_dom_context.document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
 })($ || ($ = {}));
 //selection.web.js.map
 ;

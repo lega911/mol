@@ -176,6 +176,16 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    var $mol_dom_context: Window & {
+        Node: typeof Node;
+        Element: typeof Element;
+        HTMLElement: typeof HTMLElement;
+        XMLHttpRequest: typeof XMLHttpRequest;
+    };
+}
+declare namespace $ {
+}
+declare namespace $ {
     let $mol_view_context: $mol_view_context;
     interface $mol_view_context {
         $mol_view_visible_width(): number;
@@ -303,9 +313,6 @@ declare namespace $ {
         response(next?: any, force?: $mol_atom_force): any;
         text(next?: string, force?: $mol_atom_force): string;
     }
-}
-declare namespace $ {
-    var $mol_http_request_native: () => XMLHttpRequest;
 }
 declare namespace $ {
     class $mol_http_resource extends $mol_object {
@@ -442,12 +449,25 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_file extends $mol_object {
+        static absolute(path: string): $mol_file;
+        static relative(path: string): $mol_file;
+        path(): string;
+        parent(): $mol_file;
+        name(): string;
+        ext(): string;
+        content(next?: string, force?: $mol_atom_force): string;
+        resolve(path: string): $mol_file;
+        relate(base?: any): void;
+    }
+}
+declare namespace $ {
     interface $mol_locale_dict {
         [key: string]: string;
     }
     class $mol_locale extends $mol_object {
         static lang(next?: string): any;
-        static texts(): $mol_locale_dict;
+        static texts(next?: $mol_locale_dict): $mol_locale_dict;
         static text(contexts: string[], key: string): string;
     }
 }
@@ -644,6 +664,7 @@ declare namespace $ {
             "role": any;
             "tabindex": any;
         };
+        sub(): any[];
     }
 }
 declare namespace $.$mol {

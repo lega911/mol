@@ -11,9 +11,21 @@ $.$mol = $
 ;
 var $;
 (function ($) {
+})($ || ($ = {}));
+//context.js.map
+;
+var $;
+(function ($) {
+    $.$mol_dom_context = window;
+})($ || ($ = {}));
+//context.web.js.map
+;
+var $;
+(function ($) {
     function $mol_dom_make(config) {
         var tag = config.tagName || 'div';
         var ns = config.namespaceURI || 'http://www.w3.org/1999/xhtml';
+        var document = $.$mol_dom_context.document;
         var el = document.getElementById(config.id) || document.createElementNS(ns, tag);
         if (config.childNodes) {
             var i = 0;
@@ -31,7 +43,7 @@ var $;
                             el.appendChild(document.createTextNode(child));
                         }
                         else {
-                            el.appendChild(child instanceof Node ? child : $mol_dom_make(child));
+                            el.appendChild(child instanceof $.$mol_dom_context.Node ? child : $mol_dom_make(child));
                         }
                     }
                     break;
@@ -47,7 +59,7 @@ var $;
                         childNext = document.createTextNode(childNext);
                     }
                 }
-                else if (!(childNext instanceof Node)) {
+                else if (!(childNext instanceof $.$mol_dom_context.Node)) {
                     childNext = $mol_dom_make(childNext);
                 }
                 if (childNext !== childPrev) {

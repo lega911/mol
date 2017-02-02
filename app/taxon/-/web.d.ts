@@ -176,6 +176,16 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    var $mol_dom_context: Window & {
+        Node: typeof Node;
+        Element: typeof Element;
+        HTMLElement: typeof HTMLElement;
+        XMLHttpRequest: typeof XMLHttpRequest;
+    };
+}
+declare namespace $ {
+}
+declare namespace $ {
     let $mol_view_context: $mol_view_context;
     interface $mol_view_context {
         $mol_view_visible_width(): number;
@@ -434,6 +444,7 @@ declare namespace $ {
             "role": any;
             "tabindex": any;
         };
+        sub(): any[];
     }
 }
 declare namespace $.$mol {
@@ -718,9 +729,6 @@ declare namespace $ {
         response(next?: any, force?: $mol_atom_force): any;
         text(next?: string, force?: $mol_atom_force): string;
     }
-}
-declare namespace $ {
-    var $mol_http_request_native: () => XMLHttpRequest;
 }
 declare namespace $ {
     class $mol_http_resource extends $mol_object {

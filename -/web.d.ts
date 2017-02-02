@@ -176,6 +176,16 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    var $mol_dom_context: Window & {
+        Node: typeof Node;
+        Element: typeof Element;
+        HTMLElement: typeof HTMLElement;
+        XMLHttpRequest: typeof XMLHttpRequest;
+    };
+}
+declare namespace $ {
+}
+declare namespace $ {
     let $mol_view_context: $mol_view_context;
     interface $mol_view_context {
         $mol_view_visible_width(): number;
@@ -496,6 +506,7 @@ declare namespace $ {
             "role": any;
             "tabindex": any;
         };
+        sub(): any[];
     }
 }
 declare namespace $.$mol {
@@ -956,9 +967,6 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    var $mol_http_request_native: () => XMLHttpRequest;
-}
-declare namespace $ {
     class $mol_http_resource extends $mol_object {
         static item(uri: string): $mol_http_resource;
         uri(): string;
@@ -975,12 +983,25 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_file extends $mol_object {
+        static absolute(path: string): $mol_file;
+        static relative(path: string): $mol_file;
+        path(): string;
+        parent(): $mol_file;
+        name(): string;
+        ext(): string;
+        content(next?: string, force?: $mol_atom_force): string;
+        resolve(path: string): $mol_file;
+        relate(base?: any): void;
+    }
+}
+declare namespace $ {
     interface $mol_locale_dict {
         [key: string]: string;
     }
     class $mol_locale extends $mol_object {
         static lang(next?: string): any;
-        static texts(): $mol_locale_dict;
+        static texts(next?: $mol_locale_dict): $mol_locale_dict;
         static text(contexts: string[], key: string): string;
     }
 }
@@ -2336,6 +2357,7 @@ declare namespace $ {
         dictionary(): {};
         options(): any[];
         value(val?: any): any;
+        searchable(): boolean;
         search_breakpoint(): number;
         clearable(): boolean;
         event_select(id: any, event?: any): any;
@@ -2359,6 +2381,7 @@ declare namespace $ {
         event_showed_toggle(event?: any): any;
         Trigger_icon(): $mol_icon_chevron;
         value_content(): any[];
+        trigger_content(): any[];
         Trigger(): $mol_button;
         filter_hint(): string;
         Filter_string(): $mol_string;
@@ -2380,10 +2403,11 @@ declare namespace $.$mol {
         option_label(id: string): any;
         option_rows(): $mol_view[] | $.$mol_button[];
         option_content_super(id: string): any[];
-        option_focused(component: $mol_view): "" | $mol_view;
+        option_focused(component: $mol_view): $mol_view;
         event_showed_toggle(event?: MouseEvent): void;
         event_select(id: string, event?: MouseEvent): void;
         searchable(): boolean;
+        nav_components(): any[];
         bubble_content(): any[];
         value_content(): any[];
     }
@@ -3910,60 +3934,32 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_suggest extends $mol_view {
-        suggests(): any[];
-        eventPress(val?: any): any;
-        event(): {
-            "keydown": (val?: any) => any;
-        };
-        selectedRow(val?: any): any;
-        focused(): boolean;
-        suggest(id: any): string;
-        eventRowerSelected(id: any, val?: any): any;
-        selected(id: any): boolean;
-        rower(id: any): $mol_suggest_rower;
-        value(val?: any): any;
+    class $mol_search extends $mol_bar {
+        query(val?: any): any;
+        suggest_selected(val?: any): any;
         hint(): string;
-        stringer(): $mol_string;
-        suggestrows(): any[];
-        lister(): $mol_list;
+        suggests_showed(): boolean;
+        suggests(): any[];
+        Suggest(): $mol_search_suggest;
+        Clear_icon(): $mol_icon_cross;
+        event_clear(val?: any): any;
+        Clear(): $mol_button_minor;
         sub(): any[];
     }
 }
 declare namespace $ {
-    class $mol_suggest_rower extends $mol_button {
-        dom_name(): string;
-        eventSelected(val?: any): any;
-        event(): {
-            "mousedown": (val?: any) => any;
-            "click": (event?: any) => any;
-            "keypress": (event?: any) => any;
-        };
-        selected(): boolean;
-        attr(): {
-            "mol_suggest_selected": any;
-            "disabled": any;
-            "role": any;
-            "tabindex": any;
-        };
-        minimal_height(): number;
-        text(): string;
-        prefix(): string;
-        dimmer(): $mol_dimmer;
-        sub(): any[];
+    class $mol_search_suggest extends $mol_select {
+        trigger_content(): any[];
+        bubble_content(): any[];
+        clearable(): boolean;
     }
 }
 declare namespace $.$mol {
-    class $mol_suggest extends $.$mol_suggest {
-        context_sub(): $mol_view_context;
-        suggestrows(): $mol_suggest_rower[];
-        sub(): ($.$mol_list | $.$mol_string)[];
-        eventRowerSelected(index: number, next?: MouseEvent): void;
-        selectedRow(next?: any): any;
-        eventPress(next?: KeyboardEvent): void;
-        focused(): boolean;
-        selected(index: number): boolean;
-        suggest(index: number): any;
+    class $mol_search extends $.$mol_search {
+        suggests_showed(): boolean;
+        suggest_selected(next?: string): any;
+        sub(): ($mol_button_minor | $mol_search_suggest)[];
+        event_clear(event?: Event): void;
     }
 }
 declare namespace $ {
@@ -3973,7 +3969,7 @@ declare namespace $ {
         title(val?: any): any;
         suggest1(): string;
         suggest2(): string;
-        titler(): $mol_suggest;
+        titler(): $mol_search;
         countHint(): string;
         count(val?: any): any;
         counter(): $mol_number;
@@ -4327,6 +4323,15 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_search_demo extends $mol_search {
+    }
+}
+declare namespace $.$mol {
+    class $mol_search_demo extends $.$mol_search_demo {
+        suggests(): any[];
+    }
+}
+declare namespace $ {
     class $mol_section_demo extends $mol_scroll {
         Section(): $mol_section;
         sub(): any[];
@@ -4570,37 +4575,9 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_suggest_demo_base extends $mol_suggest {
-        query_suggests(): any[];
-        suggests(): any[];
-        query(val?: any): any;
+    class $mol_suggest extends $mol_search {
         value(val?: any): any;
-    }
-}
-declare namespace $ {
-    class $mol_suggest_demo_empty extends $mol_suggest {
-        focused(): boolean;
-        value(): string;
-        suggests(): any[];
-    }
-}
-declare namespace $ {
-    class $mol_suggest_demo_opened extends $mol_suggest {
-        hint(): string;
-        value(): string;
-        focused(): boolean;
-        selected_row(): number;
-        suggest1(): string;
-        suggest2(): string;
-        suggest3(): string;
-        suggest4(): string;
-        suggest5(): string;
-        suggests(): any[];
-    }
-}
-declare namespace $.$mol {
-    class $mol_suggest_demo_base extends $.$mol_suggest_demo_base {
-        query_suggests(): any[];
+        query(val?: any): any;
     }
 }
 declare namespace $ {

@@ -798,6 +798,17 @@ var $;
 })($ || ($ = {}));
 //window.web.js.map
 ;
+var $;
+(function ($) {
+})($ || ($ = {}));
+//context.js.map
+;
+var $;
+(function ($) {
+    $.$mol_dom_context = window;
+})($ || ($ = {}));
+//context.web.js.map
+;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -895,14 +906,14 @@ var $;
                 next2 = this['dom_node()'];
                 if (next2)
                     return next2;
-                next2 = document.getElementById(path);
+                next2 = $.$mol_dom_context.document.getElementById(path);
                 if (next2) {
                     if (next2['$mol_view']) {
                         return this['dom_node()'] = next2;
                     }
                 }
                 else {
-                    next2 = document.createElementNS(this.dom_name_space(), this.dom_name());
+                    next2 = $.$mol_dom_context.document.createElementNS(this.dom_name_space(), this.dom_name());
                 }
             }
             next2.id = path;
@@ -974,7 +985,7 @@ var $;
                         nextNode = nextNode.nextSibling;
                     }
                     else {
-                        var textNode = document.createTextNode(String(view));
+                        var textNode = $.$mol_dom_context.document.createTextNode(String(view));
                         node.insertBefore(textNode, nextNode);
                     }
                 }
@@ -1090,14 +1101,14 @@ var $;
 ;
 var $;
 (function ($) {
-    document.addEventListener(window.cordova ? 'deviceready' : 'DOMContentLoaded', function (event) {
-        var nodes = document.querySelectorAll('[mol_view_root]');
+    $.$mol_dom_context.document.addEventListener(window.cordova ? 'deviceready' : 'DOMContentLoaded', function (event) {
+        var nodes = $.$mol_dom_context.document.querySelectorAll('[mol_view_root]');
         var _loop_1 = function (i) {
             var view = $[nodes.item(i).getAttribute('mol_view_root')].Root(i);
             view.dom_node(nodes.item(i));
             var win = new $.$mol_atom("$mol_view.Root(" + i + ")", function () {
                 view.dom_tree();
-                document.title = view.title();
+                $.$mol_dom_context.document.title = view.title();
                 return null;
             });
             new $.$mol_defer(function () { return win.get(); });
@@ -1148,7 +1159,7 @@ var $;
                 var end = diff[0].end;
                 if (!(start <= end))
                     throw new Error("Wrong offsets (" + start + "," + end + ")");
-                var root = document.getElementById(diff[0].id);
+                var root = $.$mol_dom_context.document.getElementById(diff[0].id);
                 root.focus();
                 var range = new Range;
                 var cur = root.firstChild;
@@ -1189,13 +1200,13 @@ var $;
                     }
                 }
                 range.setEnd(cur, end);
-                var sel = document.getSelection();
+                var sel = $.$mol_dom_context.document.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
                 return diff[0];
             }
             else {
-                var sel = document.getSelection();
+                var sel = $.$mol_dom_context.document.getSelection();
                 if (sel.rangeCount === 0)
                     return null;
                 var range = sel.getRangeAt(0);
@@ -1239,13 +1250,13 @@ var $;
 ;
 var $;
 (function ($) {
-    document.addEventListener('selectionchange', function (event) {
+    $.$mol_dom_context.document.addEventListener('selectionchange', function (event) {
         $.$mol_view_selection.position(void 0);
     });
-    document.addEventListener('focusin', $.$mol_view_selection.onFocus);
-    document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
-    document.addEventListener('focusout', $.$mol_view_selection.onBlur);
-    document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
+    $.$mol_dom_context.document.addEventListener('focusin', $.$mol_view_selection.onFocus);
+    $.$mol_dom_context.document.addEventListener('focus', $.$mol_view_selection.onFocus, true);
+    $.$mol_dom_context.document.addEventListener('focusout', $.$mol_view_selection.onBlur);
+    $.$mol_dom_context.document.addEventListener('blur', $.$mol_view_selection.onBlur, true);
 })($ || ($ = {}));
 //selection.web.js.map
 ;
@@ -1286,7 +1297,7 @@ var $;
         }
         $mol_state_arg.href = function (next) {
             if (next)
-                history.replaceState(history.state, document.title, "" + next);
+                history.replaceState(history.state, $.$mol_dom_context.document.title, "" + next);
             return window.location.search + window.location.hash;
         };
         $mol_state_arg.dict = function (next) {
@@ -1457,7 +1468,7 @@ var $;
             var _this = this;
             if (this['native()'])
                 return this['native()'];
-            var next = this['native()'] = $.$mol_http_request_native();
+            var next = this['native()'] = new $.$mol_dom_context.XMLHttpRequest;
             next.withCredentials = Boolean(this.credentials());
             next.onload = function (event) {
                 if (Math.floor(next.status / 100) === 2) {
@@ -1500,12 +1511,6 @@ var $;
     $.$mol_http_request = $mol_http_request;
 })($ || ($ = {}));
 //request.js.map
-;
-var $;
-(function ($) {
-    $.$mol_http_request_native = function () { return new XMLHttpRequest; };
-})($ || ($ = {}));
-//request.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1741,7 +1746,7 @@ var $;
                 var error = new Error(JSON.stringify(resource) + " " + message);
                 $mol_hyperhive.data(resource, error, $.$mol_atom_force);
             };
-            document.addEventListener('deviceready', function () {
+            $.$mol_dom_context.document.addEventListener('deviceready', function () {
                 if (next === void 0) {
                     hhfw.GetDeltaStream(resource.uri, resource.table, function (result) {
                         var db = sqlitePlugin.openDatabase({
@@ -1872,7 +1877,7 @@ var $;
     ], $mol_state_session, "value", null);
     $.$mol_state_session = $mol_state_session;
 })($ || ($ = {}));
-//session.js.map
+//session.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -2069,6 +2074,75 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var $;
 (function ($) {
+    var $mol_file = (function (_super) {
+        __extends($mol_file, _super);
+        function $mol_file() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_file.absolute = function (path) {
+            return new $mol_file().setup(function (obj) {
+                obj.path = function () { return path; };
+            });
+        };
+        $mol_file.relative = function (path) {
+            if (/^[\w-]+:/.test(path)) {
+                return $mol_file.absolute(path);
+            }
+            if (/^\/[^\/]/.test(path)) {
+                var prefix_1 = $.$mol_dom_context.document.location.href.replace(/([^\/])\/[^\/]+.*/, '$1');
+                return $mol_file.absolute(prefix_1 + path);
+            }
+            var prefix = $.$mol_dom_context.document.location.href.replace(/[\?#].*$/, '').replace(/\/[^\/]*$/, '/');
+            return $mol_file.absolute(prefix + path);
+        };
+        $mol_file.prototype.path = function () {
+            return '.';
+        };
+        $mol_file.prototype.parent = function () {
+            return this.resolve('..');
+        };
+        $mol_file.prototype.name = function () {
+            return this.path().replace(/^.*\//, '');
+        };
+        $mol_file.prototype.ext = function () {
+            var match = /((?:\.\w+)+)$/.exec(this.path());
+            return match && match[1].substring(1);
+        };
+        $mol_file.prototype.content = function (next, force) {
+            return $.$mol_http_resource.item(this.path()).text(next);
+        };
+        $mol_file.prototype.resolve = function (path) {
+            return this.Class().relative(path);
+        };
+        $mol_file.prototype.relate = function (base) {
+            if (base === void 0) { base = this.Class().relative('.'); }
+            throw new Error('Not implemented yet');
+        };
+        return $mol_file;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_file.prototype, "content", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_file, "absolute", null);
+    $.$mol_file = $mol_file;
+})($ || ($ = {}));
+//file.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
     var $mol_locale = (function (_super) {
         __extends($mol_locale, _super);
         function $mol_locale() {
@@ -2077,10 +2151,12 @@ var $;
         $mol_locale.lang = function (next) {
             return $.$mol_state_local.value('locale', next) || $.$mol_state_arg.value('locale') || 'en';
         };
-        $mol_locale.texts = function () {
-            var uri = "-/web.locale=" + this.lang() + ".json";
-            var resource = $.$mol_http_resource_json.item(uri);
-            return resource.json();
+        $mol_locale.texts = function (next) {
+            if (next)
+                return next;
+            var path = "-/web.locale=" + this.lang() + ".json";
+            var content = $.$mol_file.relative(path).content();
+            return JSON.parse(content);
         };
         $mol_locale.text = function (contexts, key) {
             var texts = this.texts();
@@ -2640,6 +2716,9 @@ var $;
         };
         $mol_button.prototype.attr = function () {
             return (__assign({}, _super.prototype.attr.call(this), { "disabled": this.disabled(), "role": "button", "tabindex": this.tab_index() }));
+        };
+        $mol_button.prototype.sub = function () {
+            return [].concat(this.title());
         };
         return $mol_button;
     }($.$mol_view));
