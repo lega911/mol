@@ -825,6 +825,7 @@ var $;
     $.$mol_view_context = {};
     $.$mol_view_context.$mol_view_visible_width = function () { return $.$mol_window.size().width; };
     $.$mol_view_context.$mol_view_visible_height = function () { return $.$mol_window.size().height; };
+    $.$mol_view_context.$mol_view_state_key = function (suffix) { return suffix; };
     var $mol_view = (function (_super) {
         __extends($mol_view, _super);
         function $mol_view() {
@@ -836,25 +837,19 @@ var $;
         $mol_view.prototype.title = function () {
             return this.Class().toString();
         };
-        $mol_view.state_prefix = function () {
-            return '';
-        };
         $mol_view.prototype.focused = function (next) {
             var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
             return value.indexOf(this.dom_node()) !== -1;
-        };
-        $mol_view.prototype.state_prefix = function () {
-            var owner = this.object_owner();
-            return owner ? owner.state_prefix() : '';
-        };
-        $mol_view.prototype.state_key = function (postfix) {
-            return this.state_prefix() + postfix;
         };
         $mol_view.prototype.context = function (next) {
             return next || $.$mol_view_context;
         };
         $mol_view.prototype.context_sub = function () {
             return this.context();
+        };
+        $mol_view.prototype.state_key = function (suffix) {
+            if (suffix === void 0) { suffix = ''; }
+            return this.context().$mol_view_state_key(suffix);
         };
         $mol_view.prototype.dom_name = function () {
             return this.constructor.toString().replace('$', '');
@@ -1425,7 +1420,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_link.prototype.uri = function () {
-                return new $.$mol_state_arg(this.state_prefix()).link(this.arg());
+                return new $.$mol_state_arg(this.state_key()).link(this.arg());
             };
             $mol_link.prototype.current = function () {
                 return this.uri() === $.$mol_state_arg.link({});
@@ -1600,122 +1595,77 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var $;
 (function ($) {
-    function $mol_range_in(source) {
-        return new $mol_range_lazy(source);
-    }
-    $.$mol_range_in = $mol_range_in;
-    var $mol_range_common = (function () {
-        function $mol_range_common() {
-            this.length = 0;
+    var $mol_hyperhive = (function (_super) {
+        __extends($mol_hyperhive, _super);
+        function $mol_hyperhive() {
+            return _super.apply(this, arguments) || this;
         }
-        $mol_range_common.prototype.item = function (id) {
-            return;
+        $mol_hyperhive.initialize = function (params) {
+            if (typeof hhfw === 'undefined')
+                return this;
+            hhfw.Init(params.host, params.version, params.environment, params.project, params.application);
+            hhfw.SetSslChecks(false);
+            return this;
         };
-        Object.defineProperty($mol_range_common.prototype, '0', {
-            get: function () {
-                throw new Error('Direct access to items not supported. Use item( id : number ) method instead.');
-            },
-            enumerable: true,
-            configurable: true
-        });
-        $mol_range_common.prototype.forEach = function (handle) {
-            var length = this.length;
-            for (var i = 0; i < length; ++i) {
-                handle(this.item(i), i);
+        $mol_hyperhive.authentificated = function (credentials, next, force) {
+            var _this = this;
+            if (typeof hhfw === 'undefined')
+                return true;
+            hhfw.Auth(credentials.login, credentials.password, function (message) { return _this.authentificated(credentials, true, $.$mol_atom_force); }, function (message) { return _this.authentificated(credentials, new Error(JSON.stringify(credentials) + " " + message), $.$mol_atom_force); });
+            throw new $.$mol_atom_wait('Authentification...');
+        };
+        $mol_hyperhive.data = function (resource, next, force) {
+            if (typeof hhfw === 'undefined') {
+                var uri = "" + resource.uri + resource.table + "/table/" + resource.table + "/";
+                var res = $.$mol_http_resource_json.item(uri);
+                res.credentials = $.$mol_const({});
+                return res.json();
             }
-        };
-        $mol_range_common.prototype.valueOf = function () {
-            var list = [];
-            this.forEach(function (val) { return list.push(val); });
-            return list;
-        };
-        $mol_range_common.prototype.concat = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var ranges = args.map(function (range) { return range.valueOf(); });
-            return (_a = this.valueOf()).concat.apply(_a, ranges);
-            var _a;
-        };
-        $mol_range_common.prototype.slice = function (start, end) {
-            if (start === void 0) { start = 0; }
-            var source = this;
-            return new $mol_range_lazy({
-                item: function (id) {
-                    return source.item(id + start);
-                },
-                get length() {
-                    return Math.min(end, source.length) - start;
+            var handleError = function (message) {
+                var error = new Error(JSON.stringify(resource) + " " + message);
+                $mol_hyperhive.data(resource, error, $.$mol_atom_force);
+            };
+            $.$mol_dom_context.document.addEventListener('deviceready', function () {
+                if (next === void 0) {
+                    hhfw.GetDeltaStream("GET_" + resource.table, function (result) {
+                        console.debug(result);
+                        hhfw.QueryToResTable("GET_" + resource.table, "select * from GET_" + resource.table + "_$_GET_" + resource.table, function (resp) {
+                            console.debug(resp.substring(0, 512));
+                            $mol_hyperhive.data(resource, JSON.parse(resp).data || null, $.$mol_atom_force);
+                        }, handleError);
+                    }, handleError);
+                }
+                else {
+                    hhfw.Post("UPSERT_" + resource.table, resource.table, JSON.stringify(next), function (resp) {
+                        console.debug(resp);
+                        $mol_hyperhive.data(resource, void 0, $.$mol_atom_force);
+                    }, handleError);
                 }
             });
+            throw new $.$mol_atom_wait("Loading " + resource.table + " from " + resource.uri);
         };
-        $mol_range_common.prototype.map = function (proceed) {
-            var source = this;
-            return new $mol_range_lazy({
-                item: function (id) {
-                    return proceed(source.item(id), id);
-                },
-                get length() {
-                    return source.length;
-                }
-            });
-        };
-        $mol_range_common.prototype.join = function (delim) {
-            if (delim === void 0) { delim = ','; }
-            var list = [];
-            this.forEach(function (val) { return list.push(val); });
-            return list.join(delim);
-        };
-        $mol_range_common.prototype.every = function (check) {
-            var res = true;
-            this.forEach(function (val, id) {
-                if (!res)
-                    return;
-                res = check(val, id);
-            });
-            return res;
-        };
-        $mol_range_common.prototype.some = function (check) {
-            var res = false;
-            this.forEach(function (val, id) {
-                if (res)
-                    return;
-                res = check(val, id);
-            });
-            return res;
-        };
-        return $mol_range_common;
-    }());
-    $.$mol_range_common = $mol_range_common;
-    var $mol_range_lazy = (function (_super) {
-        __extends($mol_range_lazy, _super);
-        function $mol_range_lazy(source) {
-            if (source === void 0) { source = {
-                item: function (id) { return void 0; },
-                length: 0
-            }; }
-            var _this = _super.call(this) || this;
-            _this.source = source;
-            return _this;
-        }
-        $mol_range_lazy.prototype.item = function (id) {
-            return this.source.item(id);
-        };
-        Object.defineProperty($mol_range_lazy.prototype, "length", {
-            get: function () {
-                return this.source.length;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return $mol_range_lazy;
-    }($mol_range_common));
-    $.$mol_range_lazy = $mol_range_lazy;
+        return $mol_hyperhive;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_hyperhive, "initialize", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_hyperhive, "authentificated", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_hyperhive, "data", null);
+    $.$mol_hyperhive = $mol_hyperhive;
 })($ || ($ = {}));
-//range.js.map
+//hyperhive.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1730,55 +1680,312 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var $;
 (function ($) {
-    var $mol_hyperhive = (function (_super) {
-        __extends($mol_hyperhive, _super);
-        function $mol_hyperhive() {
+    var $mol_state_session = (function (_super) {
+        __extends($mol_state_session, _super);
+        function $mol_state_session() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_hyperhive.data = function (resource, next, force) {
-            if (typeof hhfw === 'undefined') {
-                var uri = "" + resource.uri + resource.table + "/table/" + resource.table + "/";
-                var res = $.$mol_http_resource_json.item(uri);
-                res.credentials = $.$mol_const({});
-                return res.json();
-            }
-            var handleError = function (message) {
-                var error = new Error(JSON.stringify(resource) + " " + message);
-                $mol_hyperhive.data(resource, error, $.$mol_atom_force);
-            };
-            $.$mol_dom_context.document.addEventListener('deviceready', function () {
-                if (next === void 0) {
-                    hhfw.GetDeltaStream(resource.uri, resource.table, function (result) {
-                        var db = sqlitePlugin.openDatabase({
-                            name: "cpprun.db",
-                            location: 'default',
-                        });
-                        hhfw.ReadFromStorage(db, resource.table + "_$_" + resource.table, function (result2) {
-                            var range = $.$mol_range_in(result2.rows);
-                            $mol_hyperhive.data(resource, range, $.$mol_atom_force);
-                        }, handleError);
-                    }, handleError);
-                }
-                else {
-                    for (var key in next) {
-                        hhfw.AddPostParameter(key, JSON.stringify(next[key]), function () { return console.log; }, handleError);
-                    }
-                    hhfw.Post("" + resource.uri + resource.table + "/post/", function (resp) {
-                        console.log(resp);
-                        $mol_hyperhive.data(resource, void 0, $.$mol_atom_force);
-                    }, handleError);
-                }
-            });
-            throw new $.$mol_atom_wait("Loading " + resource.table + " from " + resource.uri);
+        $mol_state_session.value = function (key, next) {
+            if (next === void 0)
+                return JSON.parse(sessionStorage.getItem(key) || 'null');
+            if (next === null)
+                sessionStorage.removeItem(key);
+            else
+                sessionStorage.setItem(key, JSON.stringify(next));
+            return next;
         };
-        return $mol_hyperhive;
+        $mol_state_session.prototype.prefix = function () { return ''; };
+        $mol_state_session.prototype.value = function (key, next) {
+            return $mol_state_session.value(this.prefix() + '.' + key, next);
+        };
+        return $mol_state_session;
     }($.$mol_object));
     __decorate([
         $.$mol_mem_key()
-    ], $mol_hyperhive, "data", null);
-    $.$mol_hyperhive = $mol_hyperhive;
+    ], $mol_state_session, "value", null);
+    $.$mol_state_session = $mol_state_session;
 })($ || ($ = {}));
-//hyperhive.js.map
+//session.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    $.$mol_app_inventory_domain_position_status = {
+        draft: 'Inserted',
+        approved: 'Approved',
+        completed: 'Completed',
+        pending: 'Pending',
+        rejected: 'Rejected',
+    };
+    var $mol_app_inventory_domain = (function (_super) {
+        __extends($mol_app_inventory_domain, _super);
+        function $mol_app_inventory_domain() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_app_inventory_domain.prototype.table = function (name, next) {
+            var creds = this.credentials();
+            var uri = "https://" + creds.login + ":" + creds.password + "@mobrun.sp.saprun.com/api/v0.5/data/demo/demo/inventory/";
+            return $.$mol_hyperhive.data({
+                uri: uri,
+                table: name,
+            }, next);
+        };
+        $mol_app_inventory_domain.prototype.products_table = function () {
+            return this.table('MATERIALS');
+        };
+        $mol_app_inventory_domain.prototype.positions_table = function (next) {
+            return this.table('MOVEMENTS', next);
+        };
+        $mol_app_inventory_domain.prototype.product_rows_by_id = function () {
+            var table = this.products_table();
+            var dict = {};
+            table.forEach(function (row) {
+                dict[row.R_MATERIAL_ID] = row;
+            });
+            return dict;
+        };
+        $mol_app_inventory_domain.prototype.product_by_code = function (code) {
+            var row = this.product_rows_by_code()[code];
+            return row ? this.product(row.R_MATERIAL_ID) : null;
+        };
+        $mol_app_inventory_domain.prototype.product_rows_by_code = function () {
+            var table = this.products_table();
+            var dict = {};
+            table.forEach(function (row) {
+                dict[row.R_BARCODE] = row;
+            });
+            return dict;
+        };
+        $mol_app_inventory_domain.prototype.position_rows_by_id = function () {
+            var table = this.positions_table();
+            var dict = {};
+            table.forEach(function (row) {
+                dict[row.R_MOVEMENT_ID] = row;
+            });
+            return dict;
+        };
+        $mol_app_inventory_domain.prototype.products = function () {
+            var _this = this;
+            return this.products_table().map(function (row) { return _this.product(row.R_MATERIAL_ID); });
+        };
+        $mol_app_inventory_domain.prototype.product = function (id) {
+            var _this = this;
+            var next = new $mol_app_inventory_domain_product;
+            next.id = $.$mol_const(id);
+            next.code = function () { return _this.product_code(id); };
+            next.title = function () { return _this.product_title(id); };
+            return next;
+        };
+        $mol_app_inventory_domain.prototype.product_code = function (id) {
+            return this.product_rows_by_id()[id].R_BARCODE;
+        };
+        $mol_app_inventory_domain.prototype.product_title = function (id) {
+            return this.product_rows_by_id()[id].R_NAME;
+        };
+        $mol_app_inventory_domain.prototype.positions = function (next) {
+            var _this = this;
+            var table = next && next.map(function (position) {
+                return {
+                    R_MOVEMENT_ID: position.id(),
+                    R_MATERIAL_ID: position.product().id(),
+                    R_QUANTITY: position.count(),
+                    R_COMMENT: position.remark(),
+                    R_STATUS: $.$mol_app_inventory_domain_position_status[position.status()]
+                };
+            });
+            return this.positions_table(table)
+                .map(function (row) { return _this.position(row.R_MOVEMENT_ID); })
+                .filter(function (position) { return position.status(); });
+        };
+        $mol_app_inventory_domain.prototype.positions_by_product_id = function () {
+            var positions = this.positions();
+            var dict = {};
+            positions.forEach(function (position) {
+                if (position.status() === 'completed')
+                    return;
+                dict[position.product().id()] = position;
+            });
+            return dict;
+        };
+        $mol_app_inventory_domain.prototype.position_by_product_id = function (product_id) {
+            var position = this.positions_by_product_id()[product_id];
+            if (position)
+                return position;
+            this.positions_table([{
+                    R_MOVEMENT_ID: null,
+                    R_MATERIAL_ID: product_id,
+                    R_STATUS: $.$mol_app_inventory_domain_position_status.draft,
+                    R_QUANTITY: 0,
+                    R_COMMENT: '',
+                }]);
+            return this.positions_by_product_id()[product_id];
+        };
+        $mol_app_inventory_domain.prototype.position = function (id) {
+            var _this = this;
+            var next = new $mol_app_inventory_domain_position();
+            next.id = $.$mol_const(id);
+            next.product = function () { return _this.position_product(id); };
+            next.count = function (next) { return _this.position_count(id, next); };
+            next.status = function (next) { return _this.position_status(id, next); };
+            return next;
+        };
+        $mol_app_inventory_domain.prototype.position_product = function (id, next) {
+            return this.product(this.position_rows_by_id()[id].R_MATERIAL_ID);
+        };
+        $mol_app_inventory_domain.prototype.position_count = function (id, next) {
+            if (next >= 0) {
+                var pos = this.position(id);
+                var row = this.position_rows_by_id()[id];
+                if (row.R_QUANTITY === next)
+                    return next;
+                this.positions_table([
+                    {
+                        R_MOVEMENT_ID: id,
+                        R_MATERIAL_ID: pos.product().id(),
+                        R_QUANTITY: next,
+                        R_COMMENT: pos.remark(),
+                        R_STATUS: $.$mol_app_inventory_domain_position_status.draft,
+                    }
+                ]);
+            }
+            return this.position_rows_by_id()[id].R_QUANTITY;
+        };
+        $mol_app_inventory_domain.prototype.position_status = function (id, next) {
+            var remap = {};
+            for (var key in $.$mol_app_inventory_domain_position_status) {
+                remap[$.$mol_app_inventory_domain_position_status[key]] = key;
+            }
+            if (next) {
+                var pos = this.position(id);
+                this.positions_table([{
+                        R_MOVEMENT_ID: id,
+                        R_MATERIAL_ID: pos.product().id(),
+                        R_QUANTITY: pos.count(),
+                        R_COMMENT: pos.remark(),
+                        R_STATUS: $.$mol_app_inventory_domain_position_status[next],
+                    }]);
+            }
+            return remap[this.position_rows_by_id()[id].R_STATUS];
+        };
+        $mol_app_inventory_domain.prototype.credentials = function (next) {
+            return $.$mol_state_session.value('credentials', next);
+        };
+        $mol_app_inventory_domain.prototype.authentificated = function () {
+            $.$mol_hyperhive.initialize({
+                host: "mobrun.sp.saprun.com",
+                version: "v0.5",
+                environment: "demo",
+                project: "demo",
+                application: "inventory",
+            });
+            var creds = this.credentials();
+            if (!creds)
+                return false;
+            return $.$mol_hyperhive.authentificated(creds);
+        };
+        $mol_app_inventory_domain.prototype.can_write_off = function () {
+            return Boolean(this.credentials().login.match('keeper'));
+        };
+        $mol_app_inventory_domain.prototype.can_approve = function () {
+            return Boolean(this.credentials().login.match('controller'));
+        };
+        $mol_app_inventory_domain.prototype.message = function () {
+            return void 0;
+        };
+        return $mol_app_inventory_domain;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "products_table", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "positions_table", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "product_rows_by_id", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "product_rows_by_code", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "position_rows_by_id", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "products", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_app_inventory_domain.prototype, "product", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "positions", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "positions_by_product_id", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_app_inventory_domain.prototype, "position_by_product_id", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_app_inventory_domain.prototype, "position", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "credentials", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain.prototype, "authentificated", null);
+    $.$mol_app_inventory_domain = $mol_app_inventory_domain;
+    var $mol_app_inventory_domain_product = (function (_super) {
+        __extends($mol_app_inventory_domain_product, _super);
+        function $mol_app_inventory_domain_product() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_app_inventory_domain_product.prototype.id = function () { return void 0; };
+        $mol_app_inventory_domain_product.prototype.code = function () { return void 0; };
+        $mol_app_inventory_domain_product.prototype.title = function () { return void 0; };
+        $mol_app_inventory_domain_product.prototype.description = function () { return void 0; };
+        return $mol_app_inventory_domain_product;
+    }($.$mol_object));
+    $.$mol_app_inventory_domain_product = $mol_app_inventory_domain_product;
+    var $mol_app_inventory_domain_position = (function (_super) {
+        __extends($mol_app_inventory_domain_position, _super);
+        function $mol_app_inventory_domain_position() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_app_inventory_domain_position.prototype.id = function () { return void 0; };
+        $mol_app_inventory_domain_position.prototype.product = function () { return void 0; };
+        $mol_app_inventory_domain_position.prototype.count = function (next) {
+            return next || 0;
+        };
+        $mol_app_inventory_domain_position.prototype.status = function (next) {
+            return next || 'draft';
+        };
+        $mol_app_inventory_domain_position.prototype.remark = function (next) {
+            return next;
+        };
+        return $mol_app_inventory_domain_position;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain_position.prototype, "count", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain_position.prototype, "status", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_domain_position.prototype, "remark", null);
+    $.$mol_app_inventory_domain_position = $mol_app_inventory_domain_position;
+})($ || ($ = {}));
+//domain.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -1838,228 +2045,6 @@ var $;
     });
 })($ || ($ = {}));
 //local.web.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_state_session = (function (_super) {
-        __extends($mol_state_session, _super);
-        function $mol_state_session() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_state_session.value = function (key, next) {
-            if (next === void 0)
-                return JSON.parse(sessionStorage.getItem(key) || 'null');
-            if (next === null)
-                sessionStorage.removeItem(key);
-            else
-                sessionStorage.setItem(key, JSON.stringify(next));
-            return next;
-        };
-        $mol_state_session.prototype.prefix = function () { return ''; };
-        $mol_state_session.prototype.value = function (key, next) {
-            return $mol_state_session.value(this.prefix() + '.' + key, next);
-        };
-        return $mol_state_session;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_state_session, "value", null);
-    $.$mol_state_session = $mol_state_session;
-})($ || ($ = {}));
-//session.web.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_app_inventory_domain = (function (_super) {
-        __extends($mol_app_inventory_domain, _super);
-        function $mol_app_inventory_domain() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_app_inventory_domain.prototype.table = function (name) {
-            var creds = this.credentials();
-            var uri = "http://" + creds.login + ":" + creds.password + "@hh.saprun.com/sync/v0.4/dev-env/dev-prj/app/";
-            return $.$mol_hyperhive.data({
-                uri: uri,
-                table: name,
-            });
-        };
-        $mol_app_inventory_domain.prototype.products_table = function () {
-            return this.table('GET_MATERIALS');
-        };
-        $mol_app_inventory_domain.prototype.positions_table = function () {
-            return this.table('GET_MOVEMENTS');
-        };
-        $mol_app_inventory_domain.prototype.product_rows_by_id = function () {
-            var table = this.products_table();
-            var dict = {};
-            table.forEach(function (row) {
-                dict[row.R_MATERIAL_ID] = row;
-            });
-            return dict;
-        };
-        $mol_app_inventory_domain.prototype.product_by_code = function (code) {
-            return this.product(this.product_rows_by_code()[code].R_MATERIAL_ID);
-        };
-        $mol_app_inventory_domain.prototype.product_rows_by_code = function () {
-            var table = this.products_table();
-            var dict = {};
-            table.forEach(function (row) {
-                dict[row.R_BARCODE] = row;
-            });
-            return dict;
-        };
-        $mol_app_inventory_domain.prototype.positions_dict = function () {
-            var table = this.positions_table();
-            var dict = {};
-            table.forEach(function (row) {
-                dict[row.R_MATERIAL_ID] = row;
-            });
-            return dict;
-        };
-        $mol_app_inventory_domain.prototype.products = function () {
-            var _this = this;
-            return this.products_table().map(function (row) { return _this.product(row.R_MATERIAL_ID); });
-        };
-        $mol_app_inventory_domain.prototype.product = function (code) {
-            var _this = this;
-            var next = new $mol_app_inventory_domain_product;
-            next.code = $.$mol_const(code);
-            next.title = function () { return _this.product_rows_by_id()[code].R_NAME; };
-            return next;
-        };
-        $mol_app_inventory_domain.prototype.positions = function (next) {
-            var _this = this;
-            var codes = next && next.map(function (position) {
-                return position.product().code();
-            });
-            var codes2 = $.$mol_state_local.value('positions', codes) || [];
-            return codes2.map(function (code) { return _this.position(code); });
-        };
-        $mol_app_inventory_domain.prototype.position = function (productCode) {
-            var _this = this;
-            var next = new $mol_app_inventory_domain_position();
-            next.product = function () { return _this.product(productCode); };
-            next.count = function (next) { return _this.position_count(productCode, next); };
-            next.status = function (next) { return _this.position_status(productCode, next); };
-            return next;
-        };
-        $mol_app_inventory_domain.prototype.position_count = function (productCode, next) {
-            var key = "positionCount(" + JSON.stringify(productCode) + ")";
-            return $.$mol_state_local.value(key, next) || 0;
-        };
-        $mol_app_inventory_domain.prototype.position_status = function (productCode, next) {
-            var key = "positionStatus(" + JSON.stringify(productCode) + ")";
-            return $.$mol_state_local.value(key, next) || $mol_app_inventory_domain_position_status.draft;
-        };
-        $mol_app_inventory_domain.prototype.credentials = function (next) {
-            return $.$mol_state_session.value('credentials', next);
-        };
-        $mol_app_inventory_domain.prototype.authentificated = function () {
-            var creds = this.credentials();
-            if (!creds)
-                return false;
-            return true;
-        };
-        $mol_app_inventory_domain.prototype.message = function () {
-            return void 0;
-        };
-        return $mol_app_inventory_domain;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "products_table", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "positions_table", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "product_rows_by_id", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "product_rows_by_code", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "positions_dict", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "products", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "product", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "positions", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_app_inventory_domain.prototype, "position", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain.prototype, "credentials", null);
-    $.$mol_app_inventory_domain = $mol_app_inventory_domain;
-    var $mol_app_inventory_domain_product = (function (_super) {
-        __extends($mol_app_inventory_domain_product, _super);
-        function $mol_app_inventory_domain_product() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_app_inventory_domain_product.prototype.code = function () { return void 0; };
-        $mol_app_inventory_domain_product.prototype.title = function () { return void 0; };
-        $mol_app_inventory_domain_product.prototype.description = function () { return void 0; };
-        return $mol_app_inventory_domain_product;
-    }($.$mol_object));
-    $.$mol_app_inventory_domain_product = $mol_app_inventory_domain_product;
-    var $mol_app_inventory_domain_position = (function (_super) {
-        __extends($mol_app_inventory_domain_position, _super);
-        function $mol_app_inventory_domain_position() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_app_inventory_domain_position.prototype.product = function () { return void 0; };
-        $mol_app_inventory_domain_position.prototype.count = function (next) {
-            return next || 0;
-        };
-        $mol_app_inventory_domain_position.prototype.status = function (next) {
-            return next || $mol_app_inventory_domain_position_status.draft;
-        };
-        return $mol_app_inventory_domain_position;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain_position.prototype, "count", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain_position.prototype, "status", null);
-    $.$mol_app_inventory_domain_position = $mol_app_inventory_domain_position;
-    var $mol_app_inventory_domain_position_status;
-    (function ($mol_app_inventory_domain_position_status) {
-        $mol_app_inventory_domain_position_status[$mol_app_inventory_domain_position_status["draft"] = 'draft'] = "draft";
-        $mol_app_inventory_domain_position_status[$mol_app_inventory_domain_position_status["pending"] = 'pending'] = "pending";
-        $mol_app_inventory_domain_position_status[$mol_app_inventory_domain_position_status["rejected"] = 'rejected'] = "rejected";
-        $mol_app_inventory_domain_position_status[$mol_app_inventory_domain_position_status["approved"] = 'approved'] = "approved";
-        $mol_app_inventory_domain_position_status[$mol_app_inventory_domain_position_status["completed"] = 'completed'] = "completed";
-    })($mol_app_inventory_domain_position_status = $.$mol_app_inventory_domain_position_status || ($.$mol_app_inventory_domain_position_status = {}));
-})($ || ($ = {}));
-//domain.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -3854,12 +3839,16 @@ var $;
                 obj.sub = function () { return [].concat(_this.Title(), _this.Description()); };
             });
         };
+        $mol_app_inventory_position.prototype.count_editable = function () {
+            return true;
+        };
         $mol_app_inventory_position.prototype.count = function (val) {
             return (val !== void 0) ? val : 0;
         };
         $mol_app_inventory_position.prototype.Count = function () {
             var _this = this;
             return new $.$mol_number().setup(function (obj) {
+                obj.enabled = function () { return _this.count_editable(); };
                 obj.value = function (val) { return _this.count(val); };
             });
         };
@@ -3997,26 +3986,27 @@ var $;
         $mol_app_inventory_controller.prototype.Position_row = function (id) {
             var _this = this;
             return new $.$mol_app_inventory_position().setup(function (obj) {
+                obj.count_editable = function () { return false; };
                 obj.position = function () { return _this.position(id); };
             });
         };
-        $mol_app_inventory_controller.prototype.event_submit = function (event) {
+        $mol_app_inventory_controller.prototype.event_sweep = function (event) {
             return (event !== void 0) ? event : null;
         };
         $mol_app_inventory_controller.prototype.submit_label = function () {
             return $.$mol_locale.text(this.locale_contexts(), "submit_label");
         };
-        $mol_app_inventory_controller.prototype.Submit = function () {
+        $mol_app_inventory_controller.prototype.Sweep = function () {
             var _this = this;
             return new $.$mol_button_major().setup(function (obj) {
-                obj.event_click = function (event) { return _this.event_submit(event); };
+                obj.event_click = function (event) { return _this.event_sweep(event); };
                 obj.sub = function () { return [].concat(_this.submit_label()); };
             });
         };
         $mol_app_inventory_controller.prototype.Controls_row = function () {
             var _this = this;
             return new $.$mol_row().setup(function (obj) {
-                obj.sub = function () { return [].concat(_this.Submit()); };
+                obj.sub = function () { return [].concat(_this.Sweep()); };
             });
         };
         $mol_app_inventory_controller.prototype.foot = function () {
@@ -4032,10 +4022,10 @@ var $;
     ], $mol_app_inventory_controller.prototype, "Position_row", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_inventory_controller.prototype, "event_submit", null);
+    ], $mol_app_inventory_controller.prototype, "event_sweep", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_inventory_controller.prototype, "Submit", null);
+    ], $mol_app_inventory_controller.prototype, "Sweep", null);
     __decorate([
         $.$mol_mem()
     ], $mol_app_inventory_controller.prototype, "Controls_row", null);
@@ -4063,27 +4053,27 @@ var $;
             function $mol_app_inventory_controller() {
                 return _super.apply(this, arguments) || this;
             }
-            $mol_app_inventory_controller.prototype.position = function (code) {
-                return this.domain().position(code);
+            $mol_app_inventory_controller.prototype.position = function (id) {
+                return this.domain().position(id);
             };
             $mol_app_inventory_controller.prototype.position_rows = function () {
                 var _this = this;
-                return this.positions().map(function (position) { return _this.Position_row(position.product().code()); });
+                return this.positions().map(function (position) { return _this.Position_row(position.id()); });
             };
             $mol_app_inventory_controller.prototype.positions = function () {
                 return this.domain().positions().filter(function (position) {
                     switch (position.status()) {
-                        case $.$mol_app_inventory_domain_position_status.pending: return true;
-                        case $.$mol_app_inventory_domain_position_status.rejected: return true;
-                        case $.$mol_app_inventory_domain_position_status.approved: return true;
+                        case 'pending': return true;
+                        case 'rejected': return true;
+                        case 'approved': return true;
                     }
                     return false;
                 });
             };
-            $mol_app_inventory_controller.prototype.event_submit = function (next) {
+            $mol_app_inventory_controller.prototype.event_sweep = function (next) {
                 this.positions().forEach(function (position) {
-                    if (position.status() === $.$mol_app_inventory_domain_position_status.approved) {
-                        position.status($.$mol_app_inventory_domain_position_status.completed);
+                    if (position.status() === 'approved') {
+                        position.status('completed');
                     }
                 });
             };
@@ -4336,8 +4326,8 @@ var $;
             function $mol_app_inventory_keeper() {
                 return _super.apply(this, arguments) || this;
             }
-            $mol_app_inventory_keeper.prototype.position = function (code) {
-                return this.domain().position(code);
+            $mol_app_inventory_keeper.prototype.position = function (id) {
+                return this.domain().position(id);
             };
             $mol_app_inventory_keeper.prototype.code_new = function (next) {
                 if (next === void 0)
@@ -4346,32 +4336,26 @@ var $;
                 var product = domain.product_by_code(next);
                 if (!product)
                     return next;
-                var positions = domain.positions();
-                var position = domain.position(product.code());
-                if (positions.indexOf(position) === -1) {
-                    positions = positions.concat(position);
-                    domain.positions(positions);
-                }
+                var position = domain.position_by_product_id(product.id());
                 position.count(position.count() + 1);
-                position.status($.$mol_app_inventory_domain_position_status.draft);
                 return '';
             };
             $mol_app_inventory_keeper.prototype.position_rows = function () {
                 var _this = this;
-                return this.positions().map(function (position) { return _this.Position_row(position.product().code()); });
+                return this.positions().map(function (position) { return _this.Position_row(position.id()); });
             };
             $mol_app_inventory_keeper.prototype.positions = function () {
                 return this.domain().positions().filter(function (position) {
                     switch (position.status()) {
-                        case $.$mol_app_inventory_domain_position_status.draft: return true;
-                        case $.$mol_app_inventory_domain_position_status.rejected: return true;
+                        case 'draft': return true;
+                        case 'rejected': return true;
                     }
                     return false;
                 });
             };
             $mol_app_inventory_keeper.prototype.event_submit = function (next) {
                 this.positions().forEach(function (position) {
-                    position.status($.$mol_app_inventory_domain_position_status.pending);
+                    position.status('pending');
                 });
             };
             return $mol_app_inventory_keeper;
@@ -4444,8 +4428,18 @@ var $;
         $mol_app_inventory.prototype.sub = function () {
             return [].concat(this.Page());
         };
+        $mol_app_inventory.prototype.can_write_off = function () {
+            return false;
+        };
+        $mol_app_inventory.prototype.can_approve = function () {
+            return false;
+        };
         $mol_app_inventory.prototype.Head = function () {
-            return new $.$mol_app_inventory_head();
+            var _this = this;
+            return new $.$mol_app_inventory_head().setup(function (obj) {
+                obj.keeper_show = function () { return _this.can_write_off(); };
+                obj.control_show = function () { return _this.can_approve(); };
+            });
         };
         $mol_app_inventory.prototype.Enter = function () {
             var _this = this;
@@ -4502,6 +4496,12 @@ var $;
         function $mol_app_inventory_head() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_app_inventory_head.prototype.keeper_show = function () {
+            return false;
+        };
+        $mol_app_inventory_head.prototype.control_show = function () {
+            return false;
+        };
         $mol_app_inventory_head.prototype.keeper_label = function () {
             return $.$mol_locale.text(this.locale_contexts(), "keeper_label");
         };
@@ -4526,8 +4526,20 @@ var $;
                 obj.sub = function () { return [].concat(_this.control_label()); };
             });
         };
+        $mol_app_inventory_head.prototype.stats_label = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "stats_label");
+        };
+        $mol_app_inventory_head.prototype.Stats_link = function () {
+            var _this = this;
+            return new $.$mol_link().setup(function (obj) {
+                obj.arg = function () { return ({
+                    "page": "stats",
+                }); };
+                obj.sub = function () { return [].concat(_this.stats_label()); };
+            });
+        };
         $mol_app_inventory_head.prototype.sub = function () {
-            return [].concat(this.Keeper_link(), this.Control_link());
+            return [].concat(this.Keeper_link(), this.Control_link(), this.Stats_link());
         };
         return $mol_app_inventory_head;
     }($.$mol_row));
@@ -4537,6 +4549,9 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_app_inventory_head.prototype, "Control_link", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_inventory_head.prototype, "Stats_link", null);
     $.$mol_app_inventory_head = $mol_app_inventory_head;
 })($ || ($ = {}));
 //inventory.view.tree.js.map
@@ -4570,10 +4585,20 @@ var $;
                     case 'controller': return this.Controller();
                     case 'stats': return this.Stats();
                 }
-                return this.Keeper();
+                if (this.can_write_off())
+                    return this.Keeper();
+                if (this.can_approve())
+                    return this.Controller();
+                return null;
             };
             $mol_app_inventory.prototype.page_name = function (next) {
-                return $.$mol_state_arg.value(this.state_key('page'), next) || 'keeper';
+                return $.$mol_state_arg.value(this.state_key('page'), next) || '';
+            };
+            $mol_app_inventory.prototype.can_write_off = function () {
+                return this.domain().can_write_off();
+            };
+            $mol_app_inventory.prototype.can_approve = function () {
+                return this.domain().can_approve();
             };
             return $mol_app_inventory;
         }($.$mol_app_inventory));
@@ -4581,6 +4606,20 @@ var $;
             $.$mol_mem()
         ], $mol_app_inventory.prototype, "page_name", null);
         $mol.$mol_app_inventory = $mol_app_inventory;
+        var $mol_app_inventory_head = (function (_super) {
+            __extends($mol_app_inventory_head, _super);
+            function $mol_app_inventory_head() {
+                return _super.apply(this, arguments) || this;
+            }
+            $mol_app_inventory_head.prototype.sub = function () {
+                return [
+                    this.keeper_show() ? this.Keeper_link() : null,
+                    this.control_show() ? this.Control_link() : null,
+                ];
+            };
+            return $mol_app_inventory_head;
+        }($.$mol_app_inventory_head));
+        $mol.$mol_app_inventory_head = $mol_app_inventory_head;
     })($mol = $.$mol || ($.$mol = {}));
 })($ || ($ = {}));
 //inventory.view.js.map
@@ -5458,45 +5497,29 @@ var $;
         function $mol_app_inventory_domain_mock() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_app_inventory_domain_mock.prototype.products = function () {
-            var _this = this;
-            return ['111', '222', '333'].map(function (code) { return _this.product(code); });
+        $mol_app_inventory_domain_mock.prototype.products_table = function () {
+            return [
+                {
+                    R_MATERIAL_ID: '01',
+                    R_NAME: $.$mol_stub_product_name(),
+                    R_BARCODE: '12345',
+                }
+            ];
         };
-        $mol_app_inventory_domain_mock.prototype.product = function (code) {
-            if (code.length !== 5)
-                return null;
-            var next = new $.$mol_app_inventory_domain_product();
-            next.code = $.$mol_const(code);
-            next.title = $.$mol_const($.$mol_stub_product_name());
-            next.description = $.$mol_const('some description');
-            return next;
-        };
-        $mol_app_inventory_domain_mock.prototype.product_by_code = function (code) {
-            return this.product(code);
-        };
-        $mol_app_inventory_domain_mock.prototype.positions = function (next) {
-            var _this = this;
-            var codes = next && next.map(function (position) {
-                return position.product().code();
+        $mol_app_inventory_domain_mock.prototype.positions_table = function (next) {
+            var table = $.$mol_state_local.value('positions') || [];
+            if (next === void 0)
+                return table;
+            var index = table.length;
+            next.forEach(function (row) {
+                if (!row.R_MOVEMENT_ID)
+                    row.R_MOVEMENT_ID = String(index++);
             });
-            var codes2 = $.$mol_state_session.value('positions', codes) || [];
-            return codes2.map(function (code) { return _this.position(code); });
-        };
-        $mol_app_inventory_domain_mock.prototype.position = function (productCode) {
-            var _this = this;
-            var next = new $.$mol_app_inventory_domain_position();
-            next.product = function () { return _this.product(productCode); };
-            next.count = function (next) { return _this.position_count(productCode, next); };
-            next.status = function (next) { return _this.position_status(productCode, next); };
-            return next;
-        };
-        $mol_app_inventory_domain_mock.prototype.position_count = function (productCode, next) {
-            var key = "positionCount(" + JSON.stringify(productCode) + ")";
-            return $.$mol_state_session.value(key, next) || 0;
-        };
-        $mol_app_inventory_domain_mock.prototype.position_status = function (productCode, next) {
-            var key = "positionStatus(" + JSON.stringify(productCode) + ")";
-            return $.$mol_state_session.value(key, next) || $.$mol_app_inventory_domain_position_status.draft;
+            table = table.filter(function (row) {
+                return next.some(function (row2) { return row.R_MOVEMENT_ID === row2.R_MOVEMENT_ID; });
+            });
+            table = table.concat(next);
+            return $.$mol_state_local.value('positions', next);
         };
         $mol_app_inventory_domain_mock.prototype.authentificated = function () {
             var creds = this.credentials();
@@ -5513,16 +5536,7 @@ var $;
     }($.$mol_app_inventory_domain));
     __decorate([
         $.$mol_mem()
-    ], $mol_app_inventory_domain_mock.prototype, "products", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_app_inventory_domain_mock.prototype, "product", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_inventory_domain_mock.prototype, "positions", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_app_inventory_domain_mock.prototype, "position", null);
+    ], $mol_app_inventory_domain_mock.prototype, "positions_table", null);
     $.$mol_app_inventory_domain_mock = $mol_app_inventory_domain_mock;
 })($ || ($ = {}));
 //mock.js.map

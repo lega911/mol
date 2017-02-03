@@ -825,6 +825,7 @@ var $;
     $.$mol_view_context = {};
     $.$mol_view_context.$mol_view_visible_width = function () { return $.$mol_window.size().width; };
     $.$mol_view_context.$mol_view_visible_height = function () { return $.$mol_window.size().height; };
+    $.$mol_view_context.$mol_view_state_key = function (suffix) { return suffix; };
     var $mol_view = (function (_super) {
         __extends($mol_view, _super);
         function $mol_view() {
@@ -836,25 +837,19 @@ var $;
         $mol_view.prototype.title = function () {
             return this.Class().toString();
         };
-        $mol_view.state_prefix = function () {
-            return '';
-        };
         $mol_view.prototype.focused = function (next) {
             var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
             return value.indexOf(this.dom_node()) !== -1;
-        };
-        $mol_view.prototype.state_prefix = function () {
-            var owner = this.object_owner();
-            return owner ? owner.state_prefix() : '';
-        };
-        $mol_view.prototype.state_key = function (postfix) {
-            return this.state_prefix() + postfix;
         };
         $mol_view.prototype.context = function (next) {
             return next || $.$mol_view_context;
         };
         $mol_view.prototype.context_sub = function () {
             return this.context();
+        };
+        $mol_view.prototype.state_key = function (suffix) {
+            if (suffix === void 0) { suffix = ''; }
+            return this.context().$mol_view_state_key(suffix);
         };
         $mol_view.prototype.dom_name = function () {
             return this.constructor.toString().replace('$', '');

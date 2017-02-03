@@ -6,10 +6,11 @@
 	"$mol_app_inventory_position_status_label_pending": "Pending",
 	"$mol_app_inventory_position_status_label_approved": "Approved",
 	"$mol_app_inventory_position_status_label_rejected": "Rejected",
-	"$mol_app_inventory_controller_submit_label": "Remove confirmed",
+	"$mol_app_inventory_controller_submit_label": "Sweep approved",
 	"$mol_code_scan_label": "Scan",
 	"$mol_app_inventory_keeper_code_new_hint": "Product bar code",
 	"$mol_app_inventory_keeper_submit_label": "Write off",
 	"$mol_app_inventory_head_keeper_label": "Keeper",
-	"$mol_app_inventory_head_control_label": "Controller"
+	"$mol_app_inventory_head_control_label": "Controller",
+	"$mol_app_inventory_head_stats_label": "Stats"
 }

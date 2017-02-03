@@ -1193,10 +1193,10 @@
     width: 128px;
     width: 8rem;
     -webkit-box-flex: 1;
-        -ms-flex: 1 1 128px;
-            flex: 1 1 128px;
-    -ms-flex: 1 1 8rem;
-        flex: 1 1 8rem
+        -ms-flex: 1 0 128px;
+            flex: 1 0 128px;
+    -ms-flex: 1 0 8rem;
+        flex: 1 0 8rem
 }
 [mol_app_inventory_position_comment] {
     -webkit-box-flex: 0;
@@ -1204,7 +1204,9 @@
             flex: 0 1 auto
 }
 [mol_app_inventory_position_title] {
-    display: block
+    display: block;
+    min-height: 16px;
+    min-height: 1rem
 }
 [mol_app_inventory_position_description] {
     display: block;
@@ -2215,18 +2217,18 @@
     margin: .25rem;
     box-shadow: none
 }
-[mol_app_todomvc_sanitize] {
+[mol_app_todomvc_sweep] {
     -webkit-box-flex: 0;
         -ms-flex: 0 1 auto;
             flex: 0 1 auto;
     padding: 4px;
     padding: .25rem
 }
-[mol_app_todomvc_sanitize][disabled] {
+[mol_app_todomvc_sweep][disabled] {
     visibility: hidden
 }
-[mol_app_todomvc_sanitize]:hover ,
-[mol_app_todomvc_sanitize]:focus {
+[mol_app_todomvc_sweep]:hover ,
+[mol_app_todomvc_sweep]:focus {
     text-decoration: underline
 }
 [mol_app_users] {

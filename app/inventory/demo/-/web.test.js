@@ -568,57 +568,20 @@ var $;
 var $;
 (function ($) {
     $.$mol_test({
-        'materialization': function () {
-            var list = $.$mol_range_in({
-                item: function (id) { return id * 2; },
-                get length() { return 5; },
-            });
-            var list2 = list.valueOf();
-            $.$mol_assert_equal(list2[2], 4);
-            $.$mol_assert_equal(list2[5], void 0);
+        'null by default': function () {
+            var key = String(Math.random());
+            $.$mol_assert_equal($.$mol_state_session.value(key), null);
         },
-        'lazy slicing': function () {
-            var list = $.$mol_range_in({
-                item: function (id) { return id * 2; },
-                get length() { return Number.POSITIVE_INFINITY; },
-            });
-            list = list.slice(2, 5);
-            $.$mol_assert_equal(list.join(), '4,6,8');
-        },
-        'lazy concatenation': function () {
-            var list1 = $.$mol_range_in({
-                item: function (id) { return id * 2; },
-                get length() { return 3; },
-            });
-            var list2 = $.$mol_range_in({
-                item: function (id) { return id * 3; },
-                get length() { return 3; },
-            });
-            var list3 = $.$mol_range_in({
-                item: function (id) { return id * 4; },
-                get length() { return 3; },
-            });
-            $.$mol_assert_equal(list1.concat(list2, list3).join(), '0,2,4,0,3,6,0,4,8');
-        },
-        'every': function () {
-            var list = $.$mol_range_in({
-                item: function (id) { return id * 2; },
-                get length() { return 3; }
-            });
-            $.$mol_assert_equal(list.every(function (v) { return v >= 0; }), true);
-            $.$mol_assert_equal(list.every(function (v) { return v > 0; }), false);
-        },
-        'some': function () {
-            var list = $.$mol_range_in({
-                item: function (id) { return id * 2; },
-                get length() { return 3; }
-            });
-            $.$mol_assert_equal(list.some(function (v) { return v > 100; }), false);
-            $.$mol_assert_equal(list.some(function (v) { return v === 0; }), true);
+        'storing': function () {
+            var key = String(Math.random());
+            $.$mol_state_session.value(key, '$mol_state_session_test');
+            $.$mol_assert_equal($.$mol_state_session.value(key), '$mol_state_session_test');
+            $.$mol_state_session.value(key, null);
+            $.$mol_assert_equal($.$mol_state_session.value(key), null);
         },
     });
 })($ || ($ = {}));
-//range.test.js.map
+//session.test.js.map
 ;
 var $;
 (function ($) {
@@ -634,24 +597,6 @@ var $;
     });
 })($ || ($ = {}));
 //local.test.js.map
-;
-var $;
-(function ($) {
-    $.$mol_test({
-        'null by default': function () {
-            var key = String(Math.random());
-            $.$mol_assert_equal($.$mol_state_session.value(key), null);
-        },
-        'storing': function () {
-            var key = String(Math.random());
-            $.$mol_state_session.value(key, '$mol_state_session_test');
-            $.$mol_assert_equal($.$mol_state_session.value(key), '$mol_state_session_test');
-            $.$mol_state_session.value(key, null);
-            $.$mol_assert_equal($.$mol_state_session.value(key), null);
-        },
-    });
-})($ || ($ = {}));
-//session.test.js.map
 ;
 var $;
 (function ($) {

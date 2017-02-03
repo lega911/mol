@@ -190,16 +190,15 @@ declare namespace $ {
     interface $mol_view_context {
         $mol_view_visible_width(): number;
         $mol_view_visible_height(): number;
+        $mol_view_state_key(suffix: string): string;
     }
     class $mol_view extends $mol_object {
         static Root(id: number): $mol_view;
         title(): string;
-        static state_prefix(): string;
         focused(next?: boolean): boolean;
-        state_prefix(): any;
-        state_key(postfix: string): string;
         context(next?: $mol_view_context): $mol_view_context;
         context_sub(): $mol_view_context;
+        state_key(suffix?: string): string;
         dom_name(): string;
         dom_name_space(): string;
         sub(): (string | number | boolean | Node | $mol_view)[];

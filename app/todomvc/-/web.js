@@ -825,6 +825,7 @@ var $;
     $.$mol_view_context = {};
     $.$mol_view_context.$mol_view_visible_width = function () { return $.$mol_window.size().width; };
     $.$mol_view_context.$mol_view_visible_height = function () { return $.$mol_window.size().height; };
+    $.$mol_view_context.$mol_view_state_key = function (suffix) { return suffix; };
     var $mol_view = (function (_super) {
         __extends($mol_view, _super);
         function $mol_view() {
@@ -836,25 +837,19 @@ var $;
         $mol_view.prototype.title = function () {
             return this.Class().toString();
         };
-        $mol_view.state_prefix = function () {
-            return '';
-        };
         $mol_view.prototype.focused = function (next) {
             var value = $.$mol_view_selection.focused(next === void 0 ? void 0 : [this.dom_node()]);
             return value.indexOf(this.dom_node()) !== -1;
-        };
-        $mol_view.prototype.state_prefix = function () {
-            var owner = this.object_owner();
-            return owner ? owner.state_prefix() : '';
-        };
-        $mol_view.prototype.state_key = function (postfix) {
-            return this.state_prefix() + postfix;
         };
         $mol_view.prototype.context = function (next) {
             return next || $.$mol_view_context;
         };
         $mol_view.prototype.context_sub = function () {
             return this.context();
+        };
+        $mol_view.prototype.state_key = function (suffix) {
+            if (suffix === void 0) { suffix = ''; }
+            return this.context().$mol_view_state_key(suffix);
         };
         $mol_view.prototype.dom_name = function () {
             return this.constructor.toString().replace('$', '');
@@ -1783,7 +1778,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_link.prototype.uri = function () {
-                return new $.$mol_state_arg(this.state_prefix()).link(this.arg());
+                return new $.$mol_state_arg(this.state_key()).link(this.arg());
             };
             $mol_link.prototype.current = function () {
                 return this.uri() === $.$mol_state_arg.link({});
@@ -2679,25 +2674,25 @@ var $;
                 obj.sub = function () { return _this.filterOptions(); };
             });
         };
-        $mol_app_todomvc.prototype.sanitize_enabled = function () {
+        $mol_app_todomvc.prototype.sweep_enabled = function () {
             return true;
         };
-        $mol_app_todomvc.prototype.event_sanitize = function (event) {
+        $mol_app_todomvc.prototype.event_sweep = function (event) {
             return (event !== void 0) ? event : null;
         };
-        $mol_app_todomvc.prototype.sanitize_label = function () {
-            return $.$mol_locale.text(this.locale_contexts(), "sanitize_label");
+        $mol_app_todomvc.prototype.sweep_label = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "sweep_label");
         };
-        $mol_app_todomvc.prototype.Sanitize = function () {
+        $mol_app_todomvc.prototype.Sweep = function () {
             var _this = this;
             return new $.$mol_button_minor().setup(function (obj) {
-                obj.enabled = function () { return _this.sanitize_enabled(); };
-                obj.event_click = function (event) { return _this.event_sanitize(event); };
-                obj.sub = function () { return [].concat(_this.sanitize_label()); };
+                obj.enabled = function () { return _this.sweep_enabled(); };
+                obj.event_click = function (event) { return _this.event_sweep(event); };
+                obj.sub = function () { return [].concat(_this.sweep_label()); };
             });
         };
         $mol_app_todomvc.prototype.foot_content = function () {
-            return [].concat(this.Pending(), this.Filter(), this.Sanitize());
+            return [].concat(this.Pending(), this.Filter(), this.Sweep());
         };
         $mol_app_todomvc.prototype.Foot = function () {
             var _this = this;
@@ -2783,10 +2778,10 @@ var $;
     ], $mol_app_todomvc.prototype, "Filter", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_todomvc.prototype, "event_sanitize", null);
+    ], $mol_app_todomvc.prototype, "event_sweep", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_todomvc.prototype, "Sanitize", null);
+    ], $mol_app_todomvc.prototype, "Sweep", null);
     __decorate([
         $.$mol_mem()
     ], $mol_app_todomvc.prototype, "Foot", null);
@@ -3003,8 +2998,9 @@ var $;
             };
             $mol_app_todomvc.prototype.task = function (id, next) {
                 var key = this.state_key("mol-todos-" + id);
-                if (next === void 0)
+                if (next === void 0) {
                     return $.$mol_state_local.value(key) || { title: '', completed: false };
+                }
                 $.$mol_state_local.value(key, next);
                 return next || void 0;
             };
@@ -3029,7 +3025,7 @@ var $;
                 this.task(id, null);
                 this.task_ids(tasks);
             };
-            $mol_app_todomvc.prototype.event_sanitize = function () {
+            $mol_app_todomvc.prototype.event_sweep = function () {
                 var _this = this;
                 this.task_ids(this.task_ids().filter(function (id) {
                     if (!_this.task(id).completed)
@@ -3048,7 +3044,7 @@ var $;
             $mol_app_todomvc.prototype.foot_visible = function () {
                 return this.task_ids().length > 0;
             };
-            $mol_app_todomvc.prototype.sanitize_enabled = function () {
+            $mol_app_todomvc.prototype.sweep_enabled = function () {
                 return this.groups_completed()['true'].length > 0;
             };
             return $mol_app_todomvc;

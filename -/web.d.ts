@@ -190,16 +190,15 @@ declare namespace $ {
     interface $mol_view_context {
         $mol_view_visible_width(): number;
         $mol_view_visible_height(): number;
+        $mol_view_state_key(suffix: string): string;
     }
     class $mol_view extends $mol_object {
         static Root(id: number): $mol_view;
         title(): string;
-        static state_prefix(): string;
         focused(next?: boolean): boolean;
-        state_prefix(): any;
-        state_key(postfix: string): string;
         context(next?: $mol_view_context): $mol_view_context;
         context_sub(): $mol_view_context;
+        state_key(suffix?: string): string;
         dom_name(): string;
         dom_name_space(): string;
         sub(): (string | number | boolean | Node | $mol_view)[];
@@ -943,9 +942,9 @@ declare namespace $ {
 declare var localStorage: Storage;
 declare namespace $ {
     class $mol_state_local<Value> extends $mol_object {
-        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): any;
+        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): Value;
         prefix(): string;
-        value(key: string, next?: Value): any;
+        value(key: string, next?: Value): Value;
     }
 }
 declare namespace $ {
@@ -1454,7 +1453,7 @@ declare namespace $ {
 declare namespace $ {
     class $mol_app_demo extends $mol_stack {
         detail_title(): string;
-        Main_content(): any[];
+        main_content(): any[];
         Detail(): $mol_app_demo_page;
         main(): any[];
         filter_hint(): string;
@@ -1514,7 +1513,7 @@ declare namespace $.$mol {
         widget(name: string): $mol_view;
         detail_title(): string;
         names_demo(): string[];
-        Main_content(): $.$mol_status[] | $mol_demo_large[] | $.$mol_row[];
+        main_content(): $.$mol_status[] | $mol_demo_large[] | $.$mol_row[];
         Samples(): $mol_demo_small[];
         Sample_small(name: string): $mol_demo_small;
         Sample_large(name: string): $mol_demo_large;
@@ -1586,6 +1585,8 @@ declare namespace $ {
         domain(): $mol_app_inventory_domain;
         Page(): any;
         sub(): any[];
+        can_write_off(): boolean;
+        can_approve(): boolean;
         Head(): $mol_app_inventory_head;
         Enter(): $mol_app_inventory_enter;
         Controller(): $mol_app_inventory_controller;
@@ -1595,10 +1596,14 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_app_inventory_head extends $mol_row {
+        keeper_show(): boolean;
+        control_show(): boolean;
         keeper_label(): string;
         Keeper_link(): $mol_link;
         control_label(): string;
         Control_link(): $mol_link;
+        stats_label(): string;
+        Stats_link(): $mol_link;
         sub(): any[];
     }
 }
@@ -1606,6 +1611,11 @@ declare namespace $.$mol {
     class $mol_app_inventory extends $.$mol_app_inventory {
         Page(): $mol_view;
         page_name(next?: string): any;
+        can_write_off(): boolean;
+        can_approve(): boolean;
+    }
+    class $mol_app_inventory_head extends $.$mol_app_inventory_head {
+        sub(): $.$mol_link[];
     }
 }
 declare namespace $ {
@@ -1694,6 +1704,7 @@ declare namespace $ {
         description(): string;
         Description(): $mol_view;
         Product(): $mol_view;
+        count_editable(): boolean;
         count(val?: any): any;
         Count(): $mol_number;
         status(val?: any): any;
@@ -1710,7 +1721,7 @@ declare namespace $.$mol {
         title(): string;
         description(): string;
         count(next?: number): number;
-        status(next?: $mol_app_inventory_domain_position_status): $mol_app_inventory_domain_position_status;
+        status(next?: keyof typeof $mol_app_inventory_domain_position_status): "draft" | "approved" | "completed" | "pending" | "rejected";
     }
 }
 declare var cordova: any;
@@ -1756,7 +1767,7 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_app_inventory_keeper extends $.$mol_app_inventory_keeper {
-        position(code: string): $mol_app_inventory_domain_position;
+        position(id: string): $mol_app_inventory_domain_position;
         code_new(next?: string): string;
         position_rows(): $.$mol_app_inventory_position[];
         positions(): $mol_app_inventory_domain_position[];
@@ -1770,19 +1781,19 @@ declare namespace $ {
         body(): any[];
         position(id: any): any;
         Position_row(id: any): $mol_app_inventory_position;
-        event_submit(event?: any): any;
+        event_sweep(event?: any): any;
         submit_label(): string;
-        Submit(): $mol_button_major;
+        Sweep(): $mol_button_major;
         Controls_row(): $mol_row;
         foot(): any[];
     }
 }
 declare namespace $.$mol {
     class $mol_app_inventory_controller extends $.$mol_app_inventory_controller {
-        position(code: string): $mol_app_inventory_domain_position;
+        position(id: string): $mol_app_inventory_domain_position;
         position_rows(): $.$mol_app_inventory_position[];
         positions(): $mol_app_inventory_domain_position[];
-        event_submit(next?: Event): void;
+        event_sweep(next?: Event): void;
     }
 }
 declare namespace $ {
@@ -1848,38 +1859,21 @@ declare namespace $ {
         '()': Value;
     };
 }
-declare namespace $ {
-    function $mol_range_in<Item>(source: {
-        item: (id: number) => Item;
-        length: number;
-    }): Item[];
-    class $mol_range_common<Value> {
-        item(id: number): Value;
-        length: number;
-        readonly '0': Value;
-        forEach(handle: (value?: Value, id?: number) => void): void;
-        valueOf(): Value[];
-        concat(...args: any[]): Value[];
-        slice(start?: number, end?: number): $mol_range_lazy<Value>;
-        map<ResValue>(proceed: (val: Value, id?: number) => ResValue): $mol_range_lazy<ResValue>;
-        join(delim?: string): string;
-        every(check: (value: Value, id: number) => boolean): boolean;
-        some(check: (value: Value, id: number) => boolean): boolean;
-    }
-    class $mol_range_lazy<Value> extends $mol_range_common<Value> {
-        private source;
-        constructor(source?: {
-            item(id: number): Value;
-            length: number;
-        });
-        item(id: number): Value;
-        readonly length: number;
-    }
-}
 declare var hhfw: any;
 declare var sqlitePlugin: any;
 declare namespace $ {
     class $mol_hyperhive extends $mol_object {
+        static initialize(params: {
+            host: string;
+            version: string;
+            environment: string;
+            project: string;
+            application: string;
+        }): typeof $mol_hyperhive;
+        static authentificated(credentials: {
+            login: string;
+            password: string;
+        }, next?: boolean, force?: $mol_atom_force): boolean;
         static data<Value>(resource: {
             uri: string;
             table: string;
@@ -1887,10 +1881,29 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    const $mol_app_inventory_domain_position_status: {
+        draft: string;
+        approved: string;
+        completed: string;
+        pending: string;
+        rejected: string;
+    };
+    interface $mol_app_inventory_domain_product_raw {
+        R_MATERIAL_ID: string;
+        R_BARCODE: string;
+        R_NAME: string;
+    }
+    interface $mol_app_inventory_domain_position_raw {
+        R_MOVEMENT_ID: string;
+        R_MATERIAL_ID: string;
+        R_QUANTITY: number;
+        R_COMMENT: string;
+        R_STATUS: typeof $mol_app_inventory_domain_position_status[keyof typeof $mol_app_inventory_domain_position_status];
+    }
     class $mol_app_inventory_domain extends $mol_object {
-        table<Row>(name: string): Row[];
+        table<Row>(name: string, next?: Row[]): Row[];
         products_table(): $mol_app_inventory_domain_product_raw[];
-        positions_table(): $mol_app_inventory_domain_product_raw[];
+        positions_table(next?: $mol_app_inventory_domain_position_raw[]): $mol_app_inventory_domain_position_raw[];
         product_rows_by_id(): {
             [code: string]: $mol_app_inventory_domain_product_raw;
         };
@@ -1898,15 +1911,22 @@ declare namespace $ {
         product_rows_by_code(): {
             [code: string]: $mol_app_inventory_domain_product_raw;
         };
-        positions_dict(): {
+        position_rows_by_id(): {
             [code: string]: $mol_app_inventory_domain_position_raw;
         };
         products(): $mol_app_inventory_domain_product[];
-        product(code: string): $mol_app_inventory_domain_product;
+        product(id: string): $mol_app_inventory_domain_product;
+        product_code(id: string): string;
+        product_title(id: string): string;
         positions(next?: $mol_app_inventory_domain_position[]): $mol_app_inventory_domain_position[];
-        position(productCode: string): $mol_app_inventory_domain_position;
-        position_count(productCode: string, next?: number): any;
-        position_status(productCode: string, next?: $mol_app_inventory_domain_position_status): any;
+        positions_by_product_id(): {
+            [code: string]: $mol_app_inventory_domain_position;
+        };
+        position_by_product_id(product_id: string): $mol_app_inventory_domain_position;
+        position(id: string): $mol_app_inventory_domain_position;
+        position_product(id: string, next?: $mol_app_inventory_domain_product): $mol_app_inventory_domain_product;
+        position_count(id: string, next?: number): number;
+        position_status(id: string, next?: keyof typeof $mol_app_inventory_domain_position_status): any;
         credentials(next?: {
             login: string;
             password: string;
@@ -1915,32 +1935,22 @@ declare namespace $ {
             password: string;
         };
         authentificated(): boolean;
+        can_write_off(): boolean;
+        can_approve(): boolean;
         message(): string;
     }
-    interface $mol_app_inventory_domain_product_raw {
-        R_MATERIAL_ID: string;
-        R_BARCODE: string;
-        R_NAME: string;
-    }
-    interface $mol_app_inventory_domain_position_raw {
-        R_BARCODE: string;
-    }
     class $mol_app_inventory_domain_product extends $mol_object {
+        id(): string;
         code(): string;
         title(): string;
         description(): string;
     }
     class $mol_app_inventory_domain_position extends $mol_object {
+        id(): string;
         product(): $mol_app_inventory_domain_product;
         count(next?: number): number;
-        status(next?: $mol_app_inventory_domain_position_status): $mol_app_inventory_domain_position_status;
-    }
-    enum $mol_app_inventory_domain_position_status {
-        draft,
-        pending,
-        rejected,
-        approved,
-        completed,
+        status(next?: keyof typeof $mol_app_inventory_domain_position_status): "draft" | "approved" | "completed" | "pending" | "rejected";
+        remark(next?: string): string;
     }
 }
 declare namespace $ {
@@ -2134,13 +2144,12 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_app_inventory_domain_mock extends $mol_app_inventory_domain {
-        products(): $mol_app_inventory_domain_product[];
-        product(code: string): $mol_app_inventory_domain_product;
-        product_by_code(code: string): $mol_app_inventory_domain_product;
-        positions(next?: $mol_app_inventory_domain_position[]): $mol_app_inventory_domain_position[];
-        position(productCode: string): $mol_app_inventory_domain_position;
-        position_count(productCode: string, next?: number): number;
-        position_status(productCode: string, next?: $mol_app_inventory_domain_position_status): $mol_app_inventory_domain_position_status;
+        products_table(): {
+            R_MATERIAL_ID: string;
+            R_NAME: string;
+            R_BARCODE: string;
+        }[];
+        positions_table(next?: $mol_app_inventory_domain_position_raw[]): $mol_app_inventory_domain_position_raw[];
         authentificated(): boolean;
         message(): string;
     }
@@ -2554,12 +2563,12 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_app_signup extends $.$mol_app_signup {
-        name_first(next?: string): any;
+        name_first(next?: string): string;
         name_first_errors(): string[];
-        name_nick(next?: string): any;
-        name_second(next?: string): any;
+        name_nick(next?: string): string;
+        name_second(next?: string): string;
         name_second_errors(): string[];
-        sex(next?: string): any;
+        sex(next?: string): string;
         sex_errors(): string[];
         event_submit(next?: Event): void;
     }
@@ -3199,10 +3208,10 @@ declare namespace $ {
         Filter_completed(): $mol_link;
         filterOptions(): any[];
         Filter(): $mol_bar;
-        sanitize_enabled(): boolean;
-        event_sanitize(event?: any): any;
-        sanitize_label(): string;
-        Sanitize(): $mol_button_minor;
+        sweep_enabled(): boolean;
+        event_sweep(event?: any): any;
+        sweep_label(): string;
+        Sweep(): $mol_button_minor;
         foot_content(): any[];
         Foot(): $mol_view;
         panels(): any[];
@@ -3263,14 +3272,14 @@ declare namespace $.$mol {
         _id_seed: number;
         event_add(next: Event): void;
         task_rows(): $mol_app_todomvc_task_row[];
-        task(id: number, next?: $mol_app_todomvc_task): any;
-        task_completed(index: number, next?: boolean): any;
-        task_title(index: number, next?: string): any;
+        task(id: number, next?: $mol_app_todomvc_task): $mol_app_todomvc_task;
+        task_completed(index: number, next?: boolean): boolean;
+        task_title(index: number, next?: string): string;
         event_task_drop(index: number, next?: Event): void;
-        event_sanitize(): void;
+        event_sweep(): void;
         panels(): ($mol_view | $.$mol_list)[];
         foot_visible(): boolean;
-        sanitize_enabled(): boolean;
+        sweep_enabled(): boolean;
     }
 }
 declare namespace $ {
@@ -3840,6 +3849,34 @@ declare namespace $ {
         edgeIn(to: string, from: string): Edge;
         link(one: string, two: string, edge: Edge): void;
         sorted(getWeight: (edge: Edge) => number): string[];
+    }
+}
+declare namespace $ {
+    function $mol_range_in<Item>(source: {
+        item: (id: number) => Item;
+        length: number;
+    }): Item[];
+    class $mol_range_common<Value> {
+        item(id: number): Value;
+        length: number;
+        readonly '0': Value;
+        forEach(handle: (value?: Value, id?: number) => void): void;
+        valueOf(): Value[];
+        concat(...args: any[]): Value[];
+        slice(start?: number, end?: number): $mol_range_lazy<Value>;
+        map<ResValue>(proceed: (val: Value, id?: number) => ResValue): $mol_range_lazy<ResValue>;
+        join(delim?: string): string;
+        every(check: (value: Value, id: number) => boolean): boolean;
+        some(check: (value: Value, id: number) => boolean): boolean;
+    }
+    class $mol_range_lazy<Value> extends $mol_range_common<Value> {
+        private source;
+        constructor(source?: {
+            item(id: number): Value;
+            length: number;
+        });
+        item(id: number): Value;
+        readonly length: number;
     }
 }
 declare namespace $ {
@@ -4555,7 +4592,7 @@ declare namespace $ {
     class $mol_state_history<Value> extends $mol_object {
         static value<Value>(key: string, next?: Value): Value;
         prefix(): string;
-        value(key: string, next?: Value): any;
+        value(key: string, next?: Value): Value;
         static id(next?: string): string;
     }
 }

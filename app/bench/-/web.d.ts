@@ -190,16 +190,15 @@ declare namespace $ {
     interface $mol_view_context {
         $mol_view_visible_width(): number;
         $mol_view_visible_height(): number;
+        $mol_view_state_key(suffix: string): string;
     }
     class $mol_view extends $mol_object {
         static Root(id: number): $mol_view;
         title(): string;
-        static state_prefix(): string;
         focused(next?: boolean): boolean;
-        state_prefix(): any;
-        state_key(postfix: string): string;
         context(next?: $mol_view_context): $mol_view_context;
         context_sub(): $mol_view_context;
+        state_key(suffix?: string): string;
         dom_name(): string;
         dom_name_space(): string;
         sub(): (string | number | boolean | Node | $mol_view)[];
@@ -943,9 +942,9 @@ declare namespace $ {
 declare var localStorage: Storage;
 declare namespace $ {
     class $mol_state_local<Value> extends $mol_object {
-        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): any;
+        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): Value;
         prefix(): string;
-        value(key: string, next?: Value): any;
+        value(key: string, next?: Value): Value;
     }
 }
 declare namespace $ {
@@ -1037,7 +1036,7 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_bench extends $.$mol_bench {
-        col_sort(next?: string): string;
+        col_sort(next?: string): any;
         result_sorted(): any;
         result_value(id: {
             row: string[];
@@ -1087,7 +1086,7 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_app_bench extends $.$mol_app_bench {
-        bench(next?: string): string;
+        bench(next?: string): any;
         sandbox(next?: HTMLIFrameElement, force?: $mol_atom_force): HTMLIFrameElement;
         'command_current()': any[];
         command_current(next?: any[], force?: $mol_atom_force): any[];
@@ -1128,7 +1127,7 @@ declare namespace $.$mol {
             };
         };
         result_col_title(col_id: string): string[];
-        result_col_sort(next?: string): string;
+        result_col_sort(next?: string): any;
         menu_options(): $mol_check_box[];
         menu_option_title(sample: string): string;
         menu_option_checked(sample: string, next?: boolean): boolean;
