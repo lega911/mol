@@ -1,10 +1,6 @@
 [mol_view] {
-    -webkit-transition-property: background-color, height, width, min-height, min-width, max-width, max-height, -webkit-transform;
-    transition-property: background-color, height, width, min-height, min-width, max-width, max-height, -webkit-transform;
     transition-property: background-color, height, width, min-height, min-width, max-width, max-height, transform;
-    transition-property: background-color, height, width, min-height, min-width, max-width, max-height, transform, -webkit-transform;
-    -webkit-transition-duration: .1s;
-            transition-duration: .1s;
+    transition-duration: .1s;
     -webkit-appearance: none
 }
 [mol_view_root] {
@@ -15,13 +11,6 @@
     font: 12pt/1.5 "-apple-system", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
 }
 [mol_view_error] {
-    background-image: -webkit-repeating-linear-gradient(
-		315deg,
-		rgba(255, 220, 220, 1),
-		rgba(255, 220, 220, 1) 11px,
-		rgba(255, 255, 220, 1) 10px,
-		rgba(255, 255, 220, 1) 20px
-	) !important;
     background-image: repeating-linear-gradient(
 		135deg,
 		rgba(255, 220, 220, 1),
@@ -34,22 +23,9 @@
 [mol_view_error] * {
     background: none !important
 }
-@-webkit-keyframes mol_view_wait_show {
-    from {
-        background: none
-    }
-}
 @keyframes mol_view_wait_show {
     from {
         background: none
-    }
-}
-@-webkit-keyframes mol_view_wait_move {
-    from {
-        background-position: 0 0
-    }
-    to {
-        background-position: 28px 0
     }
 }
 @keyframes mol_view_wait_move {
@@ -62,13 +38,6 @@
 }
 [mol_view_error="$mol_atom_wait"] ,
 [mol_view_error="$mol_atom_wait"] * {
-    background-image: -webkit-repeating-linear-gradient(
-		45deg,
-		rgba(91, 136, 200, 0.025),
-		rgba(91, 136, 200, 0.025) 9px,
-		rgba(255, 255, 255, .015) 10px,
-		rgba(255, 255, 255, .015) 20px
-	) !important;
     background-image: repeating-linear-gradient(
 		45deg,
 		rgba(91, 136, 200, 0.025),
@@ -77,26 +46,19 @@
 		rgba(255, 255, 255, .015) 20px
 	) !important;
     background-size: 28px 28px !important;
-    -webkit-animation: mol_view_wait_show .5s ease-in , mol_view_wait_move .25s steps(6) infinite !important;
-            animation: mol_view_wait_show .5s ease-in , mol_view_wait_move .25s steps(6) infinite !important
+    animation: mol_view_wait_show .5s ease-in , mol_view_wait_move .25s steps(6) infinite !important
 }
 [mol_scroll] {
     overflow: auto;
     overflow-y: scroll;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
+    flex: 1 1 auto;
     box-sizing: border-box;
     will-change: scroll-position;
-    -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+    transform: translateZ(0);
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
     max-height: 100%;
     max-width: 100%;
-    -webkit-overflow-scrolling: touch;
-    -ms-flex-item-align: stretch;
-        -ms-grid-row-align: stretch;
-        align-self: stretch
+    -webkit-overflow-scrolling: touch
 }
 @media print {
     [mol_scroll] {
@@ -104,20 +66,12 @@
     }
 }
 [mol_page] {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
     margin: 0;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
+    flex-direction: column;
+    flex: 1 1 auto;
     position: relative;
-    -ms-flex-item-align: stretch;
-        align-self: stretch;
+    align-self: stretch;
     max-width: 100%;
     max-height: 100%;
     box-sizing: border-box;
@@ -126,34 +80,20 @@
 [mol_page_head] {
     background: hsl(215, 50%, 57%);
     color: rgb(251, 252, 254);
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-pack: justify;
-        -ms-flex-pack: justify;
-            justify-content: space-between;
-    -webkit-box-flex: 0;
-        -ms-flex: 0 0 auto;
-            flex: 0 0 auto;
+    justify-content: space-between;
+    flex: 0 0 auto;
     /*overflow: hidden;*/
     position: relative;
     margin: 0
 }
 [mol_page_title] {
-    -webkit-box-flex: 1000;
-        -ms-flex: 1000 1 auto;
-            flex: 1000 1 auto;
-    display: -webkit-box;
-    display: -ms-flexbox;
+    flex: 1000 1 auto;
     display: flex;
-    padding: 16px;
     padding: 1rem
 }
 [mol_page_body] {
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
-    height: 100%;
+    flex: 1 1 auto;
     margin: 0;
     background: #fcfcfc;
     color: rgba(0, 0, 0, .9)
@@ -161,21 +101,14 @@
 [mol_page_foot] {
     background: hsl(215, 50%, 57%);
     color: rgb(251, 252, 254);
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-pack: justify;
-        -ms-flex-pack: justify;
-            justify-content: space-between;
-    -webkit-box-flex: 0;
-        -ms-flex: 0 0 auto;
-            flex: 0 0 auto;
+    justify-content: space-between;
+    flex: 0 0 auto;
     margin: 0;
     overflow: hidden
 }
 [mol_status] {
     text-align: center;
-    padding: 8px;
     padding: .5rem;
     border-radius: 2px;
     margin: auto
@@ -195,13 +128,11 @@
     position: relative;
     z-index: 1;
     opacity: 1;
-    -webkit-transition: opacity .25s ease-in;
     transition: opacity .25s ease-in;
     display: block
 }
 [mol_float_scrolling] {
     opacity: 0;
-    -webkit-transition: opacity .25s ease-out;
     transition: opacity .25s ease-out
 }
 [mol_button] {
@@ -211,26 +142,16 @@
             user-select: none;
     border: none;
     font: inherit;
-    background: none;
+    background-color: none;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
     border-radius: 2px;
-    -webkit-box-flex: 0;
-        -ms-flex: 0 1 auto;
-            flex: 0 1 auto;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-    -ms-flex-line-pack: center;
-        align-content: center;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    flex: 0 1 auto;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
     vertical-align: middle;
     text-align: center;
-    padding: 8px;
     padding: .5rem;
-    display: -webkit-inline-box;
-    display: -ms-inline-flexbox;
     display: inline-flex;
     text-decoration: inherit;
     color: inherit;
@@ -240,28 +161,28 @@
     margin: auto
 }
 [mol_button][disabled] {
-    color: gray
+    color: darkgray
 }
 [mol_button_minor]:not([disabled]) {
-    background: rgba(245, 245, 245, .9);
+    background-color: rgba(245, 245, 245, .9);
     color: rgba(0, 0, 0, .9)
 }
 [mol_button_major]:not([disabled]) {
-    background: rgb(211, 80, 91);
+    background-color: rgb(211, 80, 91);
     color: rgb(251, 254, 254);
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1)
 }
 [mol_button_danger]:not([disabled]) {
-    background: rgba(255, 50, 50, .75);
+    background-color: rgba(255, 50, 50, .75);
     color: white
 }
 [mol_button]:not([disabled]):hover {
     z-index: 1;
     cursor: pointer;
-    background: rgba(0, 0, 0, .05)
+    background-color: rgba(0, 0, 0, .05)
 }
 [mol_button_minor]:not([disabled]):hover {
-    background: rgb(240, 240, 240);
+    background-color: rgb(240, 240, 240);
     color: rgba(0, 0, 0, .9)
 }
 [mol_button]:focus {
@@ -270,23 +191,16 @@
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .2)
 }
 [mol_button_major]:not([disabled]):hover {
-    background: rgb(206, 59, 71)
+    background-color: rgb(206, 59, 71)
 }
 [mol_button_danger]:not([disabled]):hover {
-    background: rgba(255, 26, 26, 0.75)
+    background-color: rgba(255, 26, 26, 0.75)
 }
 [mol_check] {
-    -webkit-box-flex: 0;
-        -ms-flex: 0 1 auto;
-            flex: 0 1 auto;
-    -webkit-box-pack: start;
-        -ms-flex-pack: start;
-            justify-content: flex-start;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    -ms-flex-line-pack: center;
-        align-content: center;
+    flex: 0 1 auto;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
     border: none;
     font-weight: normal;
     box-shadow: none;
@@ -297,15 +211,11 @@
     color: inherit
 }
 [mol_check_icon] {
-    display: -webkit-inline-box;
-    display: -ms-inline-flexbox;
     display: inline-flex;
     /*vertical-align: -10%;*/
     vertical-align: middle
 }
 [mol_check_label] {
-    display: -webkit-inline-box;
-    display: -ms-inline-flexbox;
     display: inline-flex
 }
 [mol_icon] {
@@ -325,7 +235,6 @@
     color: rgba(0, 0, 0, .9)
 }
 [mol_check_box_icon] + [mol_check_box_label]:not(:empty) {
-    margin-left: 8px;
     margin-left: .5rem
 }
 [mol_check]:not([mol_check_checked]) > [mol_check_box_icon] {
@@ -345,12 +254,10 @@
     box-shadow: none
 }
 [mol_check_expand]:not([mol_check_checked]) > [mol_check_expand_icon] {
-    -webkit-transform: rotateZ(0deg);
-            transform: rotateZ(0deg)
+    transform: rotateZ(0deg)
 }
 [mol_check_expand][mol_check_checked] > [mol_check_expand_icon] {
-    -webkit-transform: rotateZ(90deg);
-            transform: rotateZ(90deg)
+    transform: rotateZ(90deg)
 }
 [mol_check_box_icon] + div:not(:empty) {}
 [mol_dimmer_low] {
@@ -358,27 +265,22 @@
 }
 [mol_grid] {
     display: block;
-    -webkit-box-flex: 0;
-        -ms-flex: 0 1 auto;
-            flex: 0 1 auto;
+    flex: 0 1 auto;
     margin: auto
 }
 [mol_grid_table] {
     border-spacing: 0;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    -webkit-transform: translateZ(0);
-            transform: translateZ(0)
+    transform: translateZ(0)
 }
 [mol_grid_table] > * {
     display: table-row !important;
-    -webkit-transition: none;
     transition: none
 }
 [mol_grid_table] > * > * {
     display: table-cell !important
 }
 [mol_grid_table] > * > * {
-    padding: 0 16px;
     padding: 0 1rem;
     white-space: nowrap;
     vertical-align: middle
@@ -402,27 +304,17 @@
 }
 [mol_text] {
     line-height: 1.5;
-    max-width: 960px;
     max-width: 60rem;
     background: white;
     box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    padding: 16px 32px;
     padding: 1rem 2rem;
     border-radius: 2px;
     white-space: pre-line;
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-align: start;
-        -ms-flex-align: start;
-            align-items: flex-start
+    flex-direction: column;
+    align-items: flex-start
 }
 [mol_text_row] {
-    margin: 8px 0;
     margin: .5rem 0;
     overflow: auto;
     max-width: 100%
@@ -430,30 +322,24 @@
 [mol_text_type="block"] {}
 [mol_text_header] {
     display: block;
-    padding: 8px 0;
     padding: .5rem 0;
     font-weight: 500;
     margin: 0
 }
 [mol_text_header_level="1"] {
-    font-size: 24px;
     font-size: 1.5rem
 }
 [mol_text_header_level="2"] {
-    font-size: 20.8px;
     font-size: 1.3rem
 }
 [mol_text_header_level="3"] {
-    font-size: 17.6px;
     font-size: 1.1rem
 }
 [mol_text_header_level="4"] {
-    font-size: 17.6px;
     font-size: 1.1rem;
     font-style: italic
 }
 [mol_text_header_level="5"] {
-    font-size: 17.6px;
     font-size: 1.1rem;
     font-weight: normal;
     font-style: italic
@@ -466,16 +352,12 @@
     max-width: 100%;
     max-height: 50vh;
     overflow: auto;
-    margin: 8px auto 8px 0;
     margin: .5rem auto .5rem 0;
-    -webkit-box-flex: 0;
-        -ms-flex-positive: 0;
-            flex-grow: 0
+    flex-grow: 0
 }
 [mol_text_type="code"] {
     font-family: monospace;
     white-space: pre;
-    font-size: 14.4px;
     font-size: .9rem;
     background: #fcfcfc;
     color: rgba(0, 0, 0, .9);
@@ -502,18 +384,15 @@
 }
 [mol_text_type="strike"] {
     text-decoration: line-through;
-    color: gray
+    color: darkgray
 }
 [mol_app_habhub] {
     margin: 0
 }
 [mol_app_habhub_title] {
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center
+    justify-content: center
 }
 [mol_app_habhub_gist_row] {
-    margin: 16px auto;
     margin: 1rem auto
 }
 

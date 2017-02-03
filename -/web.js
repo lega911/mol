@@ -11,6 +11,22 @@ $.$mol = $
 ;
 var $;
 (function ($) {
+    $.$mol_func_name_dict = new WeakMap();
+    function $mol_func_name(func) {
+        if (func.name)
+            return func.name;
+        if ($.$mol_func_name_dict.has(func))
+            return $.$mol_func_name_dict.get(func);
+        var name = Function.prototype.toString.call(func).match(/^function ([a-z0-9_$]*)/)[1];
+        $.$mol_func_name_dict.set(func, name);
+        return name;
+    }
+    $.$mol_func_name = $mol_func_name;
+})($ || ($ = {}));
+//func.js.map
+;
+var $;
+(function ($) {
     function $mol_log(path, values) {
         var filter = $mol_log.filter();
         if (filter == null)
@@ -52,11 +68,7 @@ var $;
             return this.constructor;
         };
         $mol_object.toString = function () {
-            var self = this;
-            return self['name']
-                || self['displayName']
-                || (self['displayName'] = Function.prototype.toString.call(self)
-                    .match(/^function ([a-z0-9_$]*)/)[1]);
+            return $.$mol_func_name(this);
         };
         $mol_object.prototype.object_owner = function (next) {
             if (this['object_owner()'])
@@ -14029,7 +14041,7 @@ var $;
                     sub: []
                 };
                 resource.json().d.results.forEach(function (row) {
-                    var parent = hierarchy[row.ParentId];
+                    var parent = hierarchy[row.ParentId || ''];
                     var node = hierarchy[row.KeyId] = {
                         id: "" + row.KeyId,
                         parent: parent,
@@ -19619,7 +19631,7 @@ var $;
                 var data = chunks[3];
                 var deep = indent.length;
                 var types = path ? path.split(/ +/) : [];
-                if (stack.length < deep)
+                if (stack.length <= deep)
                     throw new Error("Too many tabs at " + baseUri + "#" + row + "\n" + line);
                 stack.length = deep + 1;
                 var parent = stack[deep];

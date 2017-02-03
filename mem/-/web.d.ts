@@ -1,3 +1,16 @@
+declare class WeakMap<Key extends Object, Value> {
+    get(key: Key): Value;
+    has(key: Key): boolean;
+    set(key: Key, val: Value): this;
+    delete(key: Key): this;
+}
+interface Function {
+    name: string;
+}
+declare namespace $ {
+    var $mol_func_name_dict: WeakMap<Function, string>;
+    function $mol_func_name(func: Function): string;
+}
 declare namespace $ {
     function $mol_log(path: string, values: any[]): void;
     namespace $mol_log {

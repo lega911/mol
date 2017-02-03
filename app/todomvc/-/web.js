@@ -11,6 +11,22 @@ $.$mol = $
 ;
 var $;
 (function ($) {
+    $.$mol_func_name_dict = new WeakMap();
+    function $mol_func_name(func) {
+        if (func.name)
+            return func.name;
+        if ($.$mol_func_name_dict.has(func))
+            return $.$mol_func_name_dict.get(func);
+        var name = Function.prototype.toString.call(func).match(/^function ([a-z0-9_$]*)/)[1];
+        $.$mol_func_name_dict.set(func, name);
+        return name;
+    }
+    $.$mol_func_name = $mol_func_name;
+})($ || ($ = {}));
+//func.js.map
+;
+var $;
+(function ($) {
     function $mol_log(path, values) {
         var filter = $mol_log.filter();
         if (filter == null)
@@ -52,11 +68,7 @@ var $;
             return this.constructor;
         };
         $mol_object.toString = function () {
-            var self = this;
-            return self['name']
-                || self['displayName']
-                || (self['displayName'] = Function.prototype.toString.call(self)
-                    .match(/^function ([a-z0-9_$]*)/)[1]);
+            return $.$mol_func_name(this);
         };
         $mol_object.prototype.object_owner = function (next) {
             if (this['object_owner()'])
