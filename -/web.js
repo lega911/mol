@@ -15200,20 +15200,20 @@ var $;
         }
         $mol_attach_demo_filled.prototype.Item1 = function () {
             return new $.$mol_attach_item().setup(function (obj) {
-                obj.url_thumb = function () { return "/mol/logo/logo.svg"; };
-                obj.url_load = function () { return "/mol/logo/logo.svg"; };
+                obj.url_thumb = function () { return "logo/logo.svg"; };
+                obj.url_load = function () { return "logo/logo.svg"; };
             });
         };
         $mol_attach_demo_filled.prototype.Item2 = function () {
             return new $.$mol_attach_item().setup(function (obj) {
-                obj.url_thumb = function () { return "/mol/logo/logo.svg"; };
-                obj.url_load = function () { return "/mol/logo/logo.svg"; };
+                obj.url_thumb = function () { return "logo/logo.svg"; };
+                obj.url_load = function () { return "logo/logo.svg"; };
             });
         };
         $mol_attach_demo_filled.prototype.Item3 = function () {
             return new $.$mol_attach_item().setup(function (obj) {
-                obj.url_thumb = function () { return "/mol/logo/logo.svg"; };
-                obj.url_load = function () { return "/mol/logo/logo.svg"; };
+                obj.url_thumb = function () { return "logo/logo.svg"; };
+                obj.url_load = function () { return "logo/logo.svg"; };
             });
         };
         $mol_attach_demo_filled.prototype.items = function () {
