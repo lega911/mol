@@ -2285,6 +2285,10 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
+    class $mol_app_lamps_demo extends $mol_app_lamps {
+    }
+}
+declare namespace $ {
     class $mol_app_quine extends $mol_page {
         content(): string;
         texter(): $mol_text;
