@@ -218,6 +218,8 @@ declare namespace $ {
         sub_visible(): (string | number | boolean | Node | $mol_view)[];
         minimal_width(): number;
         minimal_height(): number;
+        'view_classes()': Function[];
+        view_classes(): Function[];
         private 'dom_node()';
         dom_node(next?: Element): Element;
         static bind_event(node: Element, events: {
@@ -246,6 +248,7 @@ declare namespace $ {
         event(): {
             [key: string]: (event: Event) => void;
         };
+        'locale_contexts()': string[];
         locale_contexts(): string[];
     }
 }
@@ -356,6 +359,8 @@ declare namespace $ {
     class $mol_file extends $mol_object {
         static absolute(path: string): $mol_file;
         static relative(path: string): $mol_file;
+        static root(): $mol_file;
+        static base(): $mol_file;
         path(): string;
         parent(): $mol_file;
         name(): string;

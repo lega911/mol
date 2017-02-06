@@ -906,6 +906,20 @@ var $;
             });
             return min;
         };
+        $mol_view.prototype.view_classes = function () {
+            var proto = Object.getPrototypeOf(this);
+            if (this['view_classes()'])
+                return this['view_classes()'];
+            var current = proto;
+            var classes = [];
+            while (current) {
+                classes.push(current.constructor);
+                if (!(current instanceof $mol_view))
+                    break;
+                current = Object.getPrototypeOf(current);
+            }
+            return this['view_classes()'] = classes;
+        };
         $mol_view.prototype.dom_node = function (next) {
             var path = this.toString();
             var next2 = next;
@@ -926,24 +940,20 @@ var $;
             next2.id = path;
             void (next2['$mol_view'] = this);
             this['dom_node()'] = next2;
-            var ownerProto = this.object_owner() && Object.getPrototypeOf(this.object_owner());
-            if (ownerProto) {
-                var suffix = this.object_field().replace(/\(.*/, '');
-                var suffix2 = '_' + suffix[0].toLowerCase() + suffix.substring(1);
-                while (ownerProto && (ownerProto instanceof $mol_view) && (suffix in ownerProto)) {
-                    var attrName = ownerProto.constructor.toString().replace(/\$/g, '') + suffix2;
-                    next2.setAttribute(attrName, '');
-                    ownerProto = Object.getPrototypeOf(ownerProto);
-                }
+            var owner = this.object_owner();
+            if (owner instanceof $mol_view) {
+                var suffix_1 = this.object_field().replace(/\(.*/, '');
+                var suffix2_1 = '_' + suffix_1[0].toLowerCase() + suffix_1.substring(1);
+                owner.view_classes().forEach(function (Class) {
+                    if (suffix_1 in Class.prototype) {
+                        var attrName = Class.toString().replace(/\$/g, '') + suffix2_1;
+                        next2.setAttribute(attrName, '');
+                    }
+                });
             }
-            var proto = Object.getPrototypeOf(this);
-            while (proto) {
-                var attrName = proto.constructor.toString().replace(/\$/g, '').toLowerCase();
-                next2.setAttribute(attrName, '');
-                if (!(proto instanceof $mol_view))
-                    break;
-                proto = Object.getPrototypeOf(proto);
-            }
+            this.view_classes().forEach(function (Class) {
+                next2.setAttribute(Class.toString().replace(/\$/g, '').toLowerCase(), '');
+            });
             $mol_view.bind_event(next2, this.event());
             return next2;
         };
@@ -1074,13 +1084,7 @@ var $;
         };
         $mol_view.prototype.event = function () { return {}; };
         $mol_view.prototype.locale_contexts = function () {
-            var contexts = [];
-            var proto = Object.getPrototypeOf(this);
-            while (proto && (proto instanceof $mol_view)) {
-                contexts.push(proto.constructor.toString());
-                proto = Object.getPrototypeOf(proto);
-            }
-            return contexts;
+            return this['locale_contexts()'] || (this['locale_contexts()'] = this.view_classes().map(String));
         };
         return $mol_view;
     }($.$mol_object));
@@ -2310,15 +2314,17 @@ var $;
             });
         };
         $mol_file.relative = function (path) {
-            if (/^[\w-]+:/.test(path)) {
-                return $mol_file.absolute(path);
+            if (/^\//.test(path)) {
+                return $mol_file.root().resolve(path.substring(1));
             }
-            if (/^\/[^\/]/.test(path)) {
-                var prefix_1 = $.$mol_dom_context.document.location.href.replace(/([^\/])\/[^\/]+.*/, '$1');
-                return $mol_file.absolute(prefix_1 + path);
-            }
-            var prefix = $.$mol_dom_context.document.location.href.replace(/[\?#].*$/, '').replace(/\/[^\/]*$/, '/');
-            return $mol_file.absolute(prefix + path);
+            return $mol_file.base().resolve(path);
+        };
+        $mol_file.root = function () {
+            return $mol_file.absolute('');
+        };
+        $mol_file.base = function () {
+            var path = $.$mol_dom_context.document.location.pathname.replace(/\/[^\/]*$/, '');
+            return $mol_file.absolute(path);
         };
         $mol_file.prototype.path = function () {
             return '.';
@@ -2337,7 +2343,20 @@ var $;
             return $.$mol_http_resource.item(this.path()).text(next);
         };
         $mol_file.prototype.resolve = function (path) {
-            return this.Class().relative(path);
+            var res = this.path() + '/' + path;
+            while (true) {
+                var prev = res;
+                res = res.replace(/\/[^\/]+\/\.\.\//, '/');
+                if (prev === res)
+                    break;
+            }
+            while (true) {
+                var prev = res;
+                res = res.replace(/\/\.\.\/[^\/]+\//, '/');
+                if (prev === res)
+                    break;
+            }
+            return this.Class().absolute(res);
         };
         $mol_file.prototype.relate = function (base) {
             if (base === void 0) { base = this.Class().relative('.'); }
