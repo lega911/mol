@@ -312,6 +312,7 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_page extends $mol_view {
         Title(): $mol_view;
+        tools(): any[];
         head(): any[];
         Head(): $mol_view;
         body(): any[];

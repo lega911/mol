@@ -1490,8 +1490,11 @@ var $;
                 obj.sub = function () { return [].concat(_this.title()); };
             });
         };
+        $mol_page.prototype.tools = function () {
+            return [];
+        };
         $mol_page.prototype.head = function () {
-            return [].concat(this.Title());
+            return [].concat(this.Title(), this.tools());
         };
         $mol_page.prototype.Head = function () {
             var _this = this;
@@ -1537,6 +1540,65 @@ var $;
     $.$mol_page = $mol_page;
 })($ || ($ = {}));
 //page.view.tree.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var localStorage = localStorage || {
+    getItem: function (key) {
+        return this[':' + key];
+    },
+    setItem: function (key, value) {
+        this[':' + key] = value;
+    },
+    removeItem: function (key) {
+        this[':' + key] = void 0;
+    }
+};
+var $;
+(function ($) {
+    var $mol_state_local = (function (_super) {
+        __extends($mol_state_local, _super);
+        function $mol_state_local() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_state_local.value = function (key, next, force) {
+            if (next === void 0)
+                return JSON.parse(localStorage.getItem(key) || 'null');
+            if (next === null)
+                localStorage.removeItem(key);
+            else
+                localStorage.setItem(key, JSON.stringify(next));
+            return next;
+        };
+        $mol_state_local.prototype.prefix = function () { return ''; };
+        $mol_state_local.prototype.value = function (key, next) {
+            return $mol_state_local.value(this.prefix() + '.' + key, next);
+        };
+        return $mol_state_local;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_state_local, "value", null);
+    $.$mol_state_local = $mol_state_local;
+})($ || ($ = {}));
+//local.js.map
+;
+var $;
+(function ($) {
+    window.addEventListener('storage', function (event) {
+        $.$mol_state_local.value(event.key, void 0, $.$mol_atom_force);
+    });
+})($ || ($ = {}));
+//local.web.js.map
 ;
 var $;
 (function ($) {
@@ -1643,13 +1705,77 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_http_request = (function (_super) {
+        __extends($mol_http_request, _super);
+        function $mol_http_request() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_http_request.prototype.uri = function () { return ''; };
+        $mol_http_request.prototype.method = function () { return 'Get'; };
+        $mol_http_request.prototype.credentials = function () {
+            return null;
+        };
+        $mol_http_request.prototype.body = function () { return null; };
+        $mol_http_request.prototype.native = function () {
+            var _this = this;
+            if (this['native()'])
+                return this['native()'];
+            var next = this['native()'] = new $.$mol_dom_context.XMLHttpRequest;
+            next.withCredentials = Boolean(this.credentials());
+            next.onload = function (event) {
+                if (Math.floor(next.status / 100) === 2) {
+                    _this.response(next.responseText, $.$mol_atom_force);
+                }
+                else {
+                    _this.response(new Error(next.responseText), $.$mol_atom_force);
+                }
+            };
+            next.onerror = function (event) {
+                _this.response(event.error || new Error('Unknown HTTP error'), $.$mol_atom_force);
+            };
+            return next;
+        };
+        $mol_http_request.prototype.destroyed = function (next) {
+            if (next) {
+                var native = this['native()'];
+                if (native)
+                    native.abort();
+            }
+            return _super.prototype.destroyed.call(this, next);
+        };
+        $mol_http_request.prototype.response = function (next, force) {
+            var creds = this.credentials();
+            var native = this.native();
+            var method = (next === void 0) ? 'Get' : this.method();
+            var uri = this.uri();
+            native.open(method, uri, true, creds && creds.login, creds && creds.password);
+            native.send(next);
+            throw new $.$mol_atom_wait(method + " " + uri);
+        };
+        $mol_http_request.prototype.text = function (next, force) {
+            return this.response(next, force);
+        };
+        return $mol_http_request;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_http_request.prototype, "response", null);
+    $.$mol_http_request = $mol_http_request;
+})($ || ($ = {}));
+//request.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1659,78 +1785,198 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var $;
 (function ($) {
-    var $mol_stack = (function (_super) {
-        __extends($mol_stack, _super);
-        function $mol_stack() {
+    var $mol_http_resource = (function (_super) {
+        __extends($mol_http_resource, _super);
+        function $mol_http_resource() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_stack.prototype.side = function () {
-            return false;
-        };
-        $mol_stack.prototype.attr = function () {
-            return (__assign({}, _super.prototype.attr.call(this), { "mol_stack_side": this.side() }));
-        };
-        $mol_stack.prototype.main = function () {
-            return [];
-        };
-        $mol_stack.prototype.Main = function () {
-            var _this = this;
-            return new $.$mol_view().setup(function (obj) {
-                obj.sub = function () { return _this.main(); };
+        $mol_http_resource.item = function (uri) {
+            return new $mol_http_resource().setup(function (obj) {
+                obj.uri = function () { return uri; };
             });
         };
-        $mol_stack.prototype.addon = function () {
-            return [];
+        $mol_http_resource.prototype.uri = function () { return ''; };
+        $mol_http_resource.prototype.credentials = function () {
+            return null;
         };
-        $mol_stack.prototype.Addon = function () {
+        $mol_http_resource.prototype.request = function () {
             var _this = this;
-            return new $.$mol_view().setup(function (obj) {
-                obj.sub = function () { return _this.addon(); };
+            var request = new $.$mol_http_request();
+            request.method = function () { return 'Put'; };
+            request.uri = function () { return _this.uri(); };
+            request.credentials = function () { return _this.credentials(); };
+            return request;
+        };
+        $mol_http_resource.prototype.text = function (next, force) {
+            return this.request().text(next, force);
+        };
+        return $mol_http_resource;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_http_resource.prototype, "request", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_http_resource.prototype, "text", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_http_resource, "item", null);
+    $.$mol_http_resource = $mol_http_resource;
+    var $mol_http_resource_json = (function (_super) {
+        __extends($mol_http_resource_json, _super);
+        function $mol_http_resource_json() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_http_resource_json.item = function (uri) {
+            return new $mol_http_resource_json().setup(function (obj) {
+                obj.uri = function () { return uri; };
             });
         };
-        $mol_stack.prototype.sub = function () {
-            return [].concat(this.Main(), this.Addon());
+        $mol_http_resource_json.prototype.json = function (next, force) {
+            return JSON.parse(this.text(next && JSON.stringify(next, null, '\t'), force));
         };
-        return $mol_stack;
-    }($.$mol_view));
+        return $mol_http_resource_json;
+    }($mol_http_resource));
     __decorate([
-        $.$mol_mem()
-    ], $mol_stack.prototype, "Main", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_stack.prototype, "Addon", null);
-    $.$mol_stack = $mol_stack;
+        $.$mol_mem_key()
+    ], $mol_http_resource_json, "item", null);
+    $.$mol_http_resource_json = $mol_http_resource_json;
 })($ || ($ = {}));
-//stack.view.tree.js.map
+//resource.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var $;
 (function ($) {
-    var $mol;
-    (function ($mol) {
-        var $mol_stack = (function (_super) {
-            __extends($mol_stack, _super);
-            function $mol_stack() {
-                return _super.apply(this, arguments) || this;
+    var $mol_file = (function (_super) {
+        __extends($mol_file, _super);
+        function $mol_file() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_file.absolute = function (path) {
+            return new $mol_file().setup(function (obj) {
+                obj.path = function () { return path; };
+            });
+        };
+        $mol_file.relative = function (path) {
+            if (/^\//.test(path)) {
+                return $mol_file.root().resolve(path.substring(1));
             }
-            $mol_stack.prototype.side = function (next) {
-                if (!this.main())
-                    return true;
-                if (this.main().length === 0)
-                    return true;
-                var arg = (next === void 0) ? void 0 : next ? '' : null;
-                return $.$mol_state_arg.value(this.state_key('side'), arg) != null;
-            };
-            return $mol_stack;
-        }($.$mol_stack));
-        $mol.$mol_stack = $mol_stack;
-    })($mol = $.$mol || ($.$mol = {}));
+            return $mol_file.base().resolve(path);
+        };
+        $mol_file.root = function () {
+            return $mol_file.absolute('');
+        };
+        $mol_file.base = function () {
+            var path = $.$mol_dom_context.document.location.pathname.replace(/\/[^\/]*$/, '');
+            return $mol_file.absolute(path);
+        };
+        $mol_file.prototype.path = function () {
+            return '.';
+        };
+        $mol_file.prototype.parent = function () {
+            return this.resolve('..');
+        };
+        $mol_file.prototype.name = function () {
+            return this.path().replace(/^.*\//, '');
+        };
+        $mol_file.prototype.ext = function () {
+            var match = /((?:\.\w+)+)$/.exec(this.path());
+            return match && match[1].substring(1);
+        };
+        $mol_file.prototype.content = function (next, force) {
+            return $.$mol_http_resource.item(this.path()).text(next);
+        };
+        $mol_file.prototype.resolve = function (path) {
+            var res = this.path() + '/' + path;
+            while (true) {
+                var prev = res;
+                res = res.replace(/\/[^\/]+\/\.\.\//, '/');
+                if (prev === res)
+                    break;
+            }
+            while (true) {
+                var prev = res;
+                res = res.replace(/\/\.\.\/[^\/]+\//, '/');
+                if (prev === res)
+                    break;
+            }
+            return this.Class().absolute(res);
+        };
+        $mol_file.prototype.relate = function (base) {
+            if (base === void 0) { base = this.Class().relative('.'); }
+            throw new Error('Not implemented yet');
+        };
+        return $mol_file;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_file.prototype, "content", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_file, "absolute", null);
+    $.$mol_file = $mol_file;
 })($ || ($ = {}));
-//stack.view.js.map
+//file.web.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_locale = (function (_super) {
+        __extends($mol_locale, _super);
+        function $mol_locale() {
+            return _super.apply(this, arguments) || this;
+        }
+        $mol_locale.lang = function (next) {
+            return $.$mol_state_local.value('locale', next) || $.$mol_state_arg.value('locale') || 'en';
+        };
+        $mol_locale.texts = function (next) {
+            if (next)
+                return next;
+            var path = "-/web.locale=" + this.lang() + ".json";
+            var content = $.$mol_file.relative(path).content();
+            return JSON.parse(content);
+        };
+        $mol_locale.text = function (contexts, key) {
+            var texts = this.texts();
+            for (var i = 0; i < contexts.length; ++i) {
+                var text = texts[contexts[i] + "_" + key];
+                if (text)
+                    return text;
+            }
+            console.warn('Locale tet not found: ', contexts, key);
+            return "<" + key + ">";
+        };
+        return $mol_locale;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_locale, "lang", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_locale, "texts", null);
+    $.$mol_locale = $mol_locale;
+})($ || ($ = {}));
+//locale.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -2251,6 +2497,7 @@ var $;
             }
             $mol_check.prototype.event_click = function (next) {
                 this.checked(!this.checked());
+                next.preventDefault();
             };
             return $mol_check;
         }($.$mol_check));
@@ -3783,343 +4030,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var localStorage = localStorage || {
-    getItem: function (key) {
-        return this[':' + key];
-    },
-    setItem: function (key, value) {
-        this[':' + key] = value;
-    },
-    removeItem: function (key) {
-        this[':' + key] = void 0;
-    }
-};
-var $;
-(function ($) {
-    var $mol_state_local = (function (_super) {
-        __extends($mol_state_local, _super);
-        function $mol_state_local() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_state_local.value = function (key, next, force) {
-            if (next === void 0)
-                return JSON.parse(localStorage.getItem(key) || 'null');
-            if (next === null)
-                localStorage.removeItem(key);
-            else
-                localStorage.setItem(key, JSON.stringify(next));
-            return next;
-        };
-        $mol_state_local.prototype.prefix = function () { return ''; };
-        $mol_state_local.prototype.value = function (key, next) {
-            return $mol_state_local.value(this.prefix() + '.' + key, next);
-        };
-        return $mol_state_local;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_state_local, "value", null);
-    $.$mol_state_local = $mol_state_local;
-})($ || ($ = {}));
-//local.js.map
-;
-var $;
-(function ($) {
-    window.addEventListener('storage', function (event) {
-        $.$mol_state_local.value(event.key, void 0, $.$mol_atom_force);
-    });
-})($ || ($ = {}));
-//local.web.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_http_request = (function (_super) {
-        __extends($mol_http_request, _super);
-        function $mol_http_request() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_http_request.prototype.uri = function () { return ''; };
-        $mol_http_request.prototype.method = function () { return 'Get'; };
-        $mol_http_request.prototype.credentials = function () {
-            return null;
-        };
-        $mol_http_request.prototype.body = function () { return null; };
-        $mol_http_request.prototype.native = function () {
-            var _this = this;
-            if (this['native()'])
-                return this['native()'];
-            var next = this['native()'] = new $.$mol_dom_context.XMLHttpRequest;
-            next.withCredentials = Boolean(this.credentials());
-            next.onload = function (event) {
-                if (Math.floor(next.status / 100) === 2) {
-                    _this.response(next.responseText, $.$mol_atom_force);
-                }
-                else {
-                    _this.response(new Error(next.responseText), $.$mol_atom_force);
-                }
-            };
-            next.onerror = function (event) {
-                _this.response(event.error || new Error('Unknown HTTP error'), $.$mol_atom_force);
-            };
-            return next;
-        };
-        $mol_http_request.prototype.destroyed = function (next) {
-            if (next) {
-                var native = this['native()'];
-                if (native)
-                    native.abort();
-            }
-            return _super.prototype.destroyed.call(this, next);
-        };
-        $mol_http_request.prototype.response = function (next, force) {
-            var creds = this.credentials();
-            var native = this.native();
-            var method = (next === void 0) ? 'Get' : this.method();
-            var uri = this.uri();
-            native.open(method, uri, true, creds && creds.login, creds && creds.password);
-            native.send(next);
-            throw new $.$mol_atom_wait(method + " " + uri);
-        };
-        $mol_http_request.prototype.text = function (next, force) {
-            return this.response(next, force);
-        };
-        return $mol_http_request;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_http_request.prototype, "response", null);
-    $.$mol_http_request = $mol_http_request;
-})($ || ($ = {}));
-//request.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_http_resource = (function (_super) {
-        __extends($mol_http_resource, _super);
-        function $mol_http_resource() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_http_resource.item = function (uri) {
-            return new $mol_http_resource().setup(function (obj) {
-                obj.uri = function () { return uri; };
-            });
-        };
-        $mol_http_resource.prototype.uri = function () { return ''; };
-        $mol_http_resource.prototype.credentials = function () {
-            return null;
-        };
-        $mol_http_resource.prototype.request = function () {
-            var _this = this;
-            var request = new $.$mol_http_request();
-            request.method = function () { return 'Put'; };
-            request.uri = function () { return _this.uri(); };
-            request.credentials = function () { return _this.credentials(); };
-            return request;
-        };
-        $mol_http_resource.prototype.text = function (next, force) {
-            return this.request().text(next, force);
-        };
-        return $mol_http_resource;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_http_resource.prototype, "request", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_http_resource.prototype, "text", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_http_resource, "item", null);
-    $.$mol_http_resource = $mol_http_resource;
-    var $mol_http_resource_json = (function (_super) {
-        __extends($mol_http_resource_json, _super);
-        function $mol_http_resource_json() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_http_resource_json.item = function (uri) {
-            return new $mol_http_resource_json().setup(function (obj) {
-                obj.uri = function () { return uri; };
-            });
-        };
-        $mol_http_resource_json.prototype.json = function (next, force) {
-            return JSON.parse(this.text(next && JSON.stringify(next, null, '\t'), force));
-        };
-        return $mol_http_resource_json;
-    }($mol_http_resource));
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_http_resource_json, "item", null);
-    $.$mol_http_resource_json = $mol_http_resource_json;
-})($ || ($ = {}));
-//resource.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_file = (function (_super) {
-        __extends($mol_file, _super);
-        function $mol_file() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_file.absolute = function (path) {
-            return new $mol_file().setup(function (obj) {
-                obj.path = function () { return path; };
-            });
-        };
-        $mol_file.relative = function (path) {
-            if (/^\//.test(path)) {
-                return $mol_file.root().resolve(path.substring(1));
-            }
-            return $mol_file.base().resolve(path);
-        };
-        $mol_file.root = function () {
-            return $mol_file.absolute('');
-        };
-        $mol_file.base = function () {
-            var path = $.$mol_dom_context.document.location.pathname.replace(/\/[^\/]*$/, '');
-            return $mol_file.absolute(path);
-        };
-        $mol_file.prototype.path = function () {
-            return '.';
-        };
-        $mol_file.prototype.parent = function () {
-            return this.resolve('..');
-        };
-        $mol_file.prototype.name = function () {
-            return this.path().replace(/^.*\//, '');
-        };
-        $mol_file.prototype.ext = function () {
-            var match = /((?:\.\w+)+)$/.exec(this.path());
-            return match && match[1].substring(1);
-        };
-        $mol_file.prototype.content = function (next, force) {
-            return $.$mol_http_resource.item(this.path()).text(next);
-        };
-        $mol_file.prototype.resolve = function (path) {
-            var res = this.path() + '/' + path;
-            while (true) {
-                var prev = res;
-                res = res.replace(/\/[^\/]+\/\.\.\//, '/');
-                if (prev === res)
-                    break;
-            }
-            while (true) {
-                var prev = res;
-                res = res.replace(/\/\.\.\/[^\/]+\//, '/');
-                if (prev === res)
-                    break;
-            }
-            return this.Class().absolute(res);
-        };
-        $mol_file.prototype.relate = function (base) {
-            if (base === void 0) { base = this.Class().relative('.'); }
-            throw new Error('Not implemented yet');
-        };
-        return $mol_file;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_file.prototype, "content", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_file, "absolute", null);
-    $.$mol_file = $mol_file;
-})($ || ($ = {}));
-//file.web.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_locale = (function (_super) {
-        __extends($mol_locale, _super);
-        function $mol_locale() {
-            return _super.apply(this, arguments) || this;
-        }
-        $mol_locale.lang = function (next) {
-            return $.$mol_state_local.value('locale', next) || $.$mol_state_arg.value('locale') || 'en';
-        };
-        $mol_locale.texts = function (next) {
-            if (next)
-                return next;
-            var path = "-/web.locale=" + this.lang() + ".json";
-            var content = $.$mol_file.relative(path).content();
-            return JSON.parse(content);
-        };
-        $mol_locale.text = function (contexts, key) {
-            var texts = this.texts();
-            for (var i = 0; i < contexts.length; ++i) {
-                var text = texts[contexts[i] + "_" + key];
-                if (text)
-                    return text;
-            }
-            console.warn('Locale tet not found: ', contexts, key);
-            return "<" + key + ">";
-        };
-        return $mol_locale;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_locale, "lang", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_locale, "texts", null);
-    $.$mol_locale = $mol_locale;
-})($ || ($ = {}));
-//locale.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -4354,6 +4264,25 @@ var $;
         function $mol_app_bench() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_app_bench.prototype.addon_title = function () {
+            return $.$mol_locale.text(this.locale_contexts(), "addon_title");
+        };
+        $mol_app_bench.prototype.menu_options = function () {
+            return [];
+        };
+        $mol_app_bench.prototype.Menu = function () {
+            var _this = this;
+            return new $.$mol_list().setup(function (obj) {
+                obj.rows = function () { return _this.menu_options(); };
+            });
+        };
+        $mol_app_bench.prototype.Addon_page = function () {
+            var _this = this;
+            return new $.$mol_page().setup(function (obj) {
+                obj.title = function () { return _this.addon_title(); };
+                obj.body = function () { return [].concat(_this.Menu()); };
+            });
+        };
         $mol_app_bench.prototype.description = function () {
             return "";
         };
@@ -4398,30 +4327,8 @@ var $;
                 obj.body = function () { return [].concat(_this.Inform(), _this.Sandbox()); };
             });
         };
-        $mol_app_bench.prototype.main = function () {
-            return [].concat(this.Main_page());
-        };
-        $mol_app_bench.prototype.addon_title = function () {
-            return $.$mol_locale.text(this.locale_contexts(), "addon_title");
-        };
-        $mol_app_bench.prototype.menu_options = function () {
-            return [];
-        };
-        $mol_app_bench.prototype.Menu = function () {
-            var _this = this;
-            return new $.$mol_list().setup(function (obj) {
-                obj.rows = function () { return _this.menu_options(); };
-            });
-        };
-        $mol_app_bench.prototype.Addon_page = function () {
-            var _this = this;
-            return new $.$mol_page().setup(function (obj) {
-                obj.title = function () { return _this.addon_title(); };
-                obj.body = function () { return [].concat(_this.Menu()); };
-            });
-        };
-        $mol_app_bench.prototype.addon = function () {
-            return [].concat(this.Addon_page());
+        $mol_app_bench.prototype.sub = function () {
+            return [].concat(this.Addon_page(), this.Main_page());
         };
         $mol_app_bench.prototype.menu_option_checked = function (id, val) {
             return (val !== void 0) ? val : false;
@@ -4441,7 +4348,13 @@ var $;
             return $.$mol_locale.text(this.locale_contexts(), "result_col_title_sample");
         };
         return $mol_app_bench;
-    }($.$mol_stack));
+    }($.$mol_view));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_bench.prototype, "Menu", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_bench.prototype, "Addon_page", null);
     __decorate([
         $.$mol_mem()
     ], $mol_app_bench.prototype, "Descr", null);
@@ -4460,12 +4373,6 @@ var $;
     __decorate([
         $.$mol_mem()
     ], $mol_app_bench.prototype, "Main_page", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_bench.prototype, "Menu", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_app_bench.prototype, "Addon_page", null);
     __decorate([
         $.$mol_mem_key()
     ], $mol_app_bench.prototype, "menu_option_checked", null);

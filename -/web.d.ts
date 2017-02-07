@@ -312,6 +312,7 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_page extends $mol_view {
         Title(): $mol_view;
+        tools(): any[];
         head(): any[];
         Head(): $mol_view;
         body(): any[];
@@ -320,6 +321,16 @@ declare namespace $ {
         Foot(): $mol_view;
         sub(): any[];
     }
+}
+declare var localStorage: Storage;
+declare namespace $ {
+    class $mol_state_local<Value> extends $mol_object {
+        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): Value;
+        prefix(): string;
+        value(key: string, next?: Value): Value;
+    }
+}
+declare namespace $ {
 }
 declare namespace $ {
     function $mol_merge_dict<Target, Source>(target: Target, source: Source): Target & Source;
@@ -349,21 +360,60 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_stack extends $mol_view {
-        side(): boolean;
-        attr(): {
-            "mol_stack_side": any;
+    class $mol_http_request extends $mol_object {
+        uri(): string;
+        method(): string;
+        credentials(): {
+            login?: string;
+            password?: string;
         };
-        main(): any[];
-        Main(): $mol_view;
-        addon(): any[];
-        Addon(): $mol_view;
-        sub(): any[];
+        body(): any;
+        'native()': XMLHttpRequest;
+        native(): XMLHttpRequest;
+        destroyed(next?: boolean): boolean;
+        response(next?: any, force?: $mol_atom_force): any;
+        text(next?: string, force?: $mol_atom_force): string;
     }
 }
-declare namespace $.$mol {
-    class $mol_stack extends $.$mol_stack {
-        side(next?: boolean): boolean;
+declare namespace $ {
+    class $mol_http_resource extends $mol_object {
+        static item(uri: string): $mol_http_resource;
+        uri(): string;
+        credentials(): {
+            login?: string;
+            password?: string;
+        };
+        request(): $mol_http_request;
+        text(next?: string, force?: $mol_atom_force): string;
+    }
+    class $mol_http_resource_json<Content> extends $mol_http_resource {
+        static item<Content>(uri: string): $mol_http_resource_json<Content>;
+        json(next?: Content, force?: $mol_atom_force): Content;
+    }
+}
+declare namespace $ {
+    class $mol_file extends $mol_object {
+        static absolute(path: string): $mol_file;
+        static relative(path: string): $mol_file;
+        static root(): $mol_file;
+        static base(): $mol_file;
+        path(): string;
+        parent(): $mol_file;
+        name(): string;
+        ext(): string;
+        content(next?: string, force?: $mol_atom_force): string;
+        resolve(path: string): $mol_file;
+        relate(base?: any): void;
+    }
+}
+declare namespace $ {
+    interface $mol_locale_dict {
+        [key: string]: string;
+    }
+    class $mol_locale extends $mol_object {
+        static lang(next?: string): any;
+        static texts(next?: $mol_locale_dict): $mol_locale_dict;
+        static text(contexts: string[], key: string): string;
     }
 }
 declare namespace $ {
@@ -955,73 +1005,6 @@ declare namespace $ {
         path(): string;
     }
 }
-declare var localStorage: Storage;
-declare namespace $ {
-    class $mol_state_local<Value> extends $mol_object {
-        static value<Value>(key: string, next?: Value, force?: $mol_atom_force): Value;
-        prefix(): string;
-        value(key: string, next?: Value): Value;
-    }
-}
-declare namespace $ {
-}
-declare namespace $ {
-    class $mol_http_request extends $mol_object {
-        uri(): string;
-        method(): string;
-        credentials(): {
-            login?: string;
-            password?: string;
-        };
-        body(): any;
-        'native()': XMLHttpRequest;
-        native(): XMLHttpRequest;
-        destroyed(next?: boolean): boolean;
-        response(next?: any, force?: $mol_atom_force): any;
-        text(next?: string, force?: $mol_atom_force): string;
-    }
-}
-declare namespace $ {
-    class $mol_http_resource extends $mol_object {
-        static item(uri: string): $mol_http_resource;
-        uri(): string;
-        credentials(): {
-            login?: string;
-            password?: string;
-        };
-        request(): $mol_http_request;
-        text(next?: string, force?: $mol_atom_force): string;
-    }
-    class $mol_http_resource_json<Content> extends $mol_http_resource {
-        static item<Content>(uri: string): $mol_http_resource_json<Content>;
-        json(next?: Content, force?: $mol_atom_force): Content;
-    }
-}
-declare namespace $ {
-    class $mol_file extends $mol_object {
-        static absolute(path: string): $mol_file;
-        static relative(path: string): $mol_file;
-        static root(): $mol_file;
-        static base(): $mol_file;
-        path(): string;
-        parent(): $mol_file;
-        name(): string;
-        ext(): string;
-        content(next?: string, force?: $mol_atom_force): string;
-        resolve(path: string): $mol_file;
-        relate(base?: any): void;
-    }
-}
-declare namespace $ {
-    interface $mol_locale_dict {
-        [key: string]: string;
-    }
-    class $mol_locale extends $mol_object {
-        static lang(next?: string): any;
-        static texts(next?: $mol_locale_dict): $mol_locale_dict;
-        static text(contexts: string[], key: string): string;
-    }
-}
 declare namespace $ {
     class $mol_bench extends $mol_grid {
         result(): any;
@@ -1080,7 +1063,11 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
-    class $mol_app_bench extends $mol_stack {
+    class $mol_app_bench extends $mol_view {
+        addon_title(): string;
+        menu_options(): any[];
+        Menu(): $mol_list;
+        Addon_page(): $mol_page;
         description(): string;
         Descr(): $mol_text;
         result(): any;
@@ -1090,12 +1077,7 @@ declare namespace $ {
         Inform(): $mol_view;
         Sandbox(): $mol_view;
         Main_page(): $mol_page;
-        main(): any[];
-        addon_title(): string;
-        menu_options(): any[];
-        Menu(): $mol_list;
-        Addon_page(): $mol_page;
-        addon(): any[];
+        sub(): any[];
         menu_option_checked(id: any, val?: any): any;
         menu_option_title(id: any): string;
         Menu_option(id: any): $mol_check_box;
@@ -1357,6 +1339,24 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_stack extends $mol_view {
+        side(): boolean;
+        attr(): {
+            "mol_stack_side": any;
+        };
+        main(): any[];
+        Main(): $mol_view;
+        addon(): any[];
+        Addon(): $mol_view;
+        sub(): any[];
+    }
+}
+declare namespace $.$mol {
+    class $mol_stack extends $.$mol_stack {
+        side(next?: boolean): boolean;
+    }
+}
+declare namespace $ {
     class $mol_string extends $mol_view {
         dom_name(): string;
         enabled(): boolean;
@@ -1413,6 +1413,11 @@ declare namespace $ {
 declare namespace $.$mol {
     class $mol_status extends $.$mol_status {
         message(): any;
+    }
+}
+declare namespace $ {
+    class $mol_icon_cross extends $mol_icon {
+        path(): string;
     }
 }
 declare namespace $ {
@@ -1496,12 +1501,12 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_app_demo_page extends $mol_page {
-        Back_icon(): $mol_icon_chevron;
-        back_arg(): {
+        Close_icon(): $mol_icon_cross;
+        close_arg(): {
             "demo": any;
         };
-        Back(): $mol_link;
-        head(): any[];
+        Close(): $mol_link;
+        tools(): any[];
     }
 }
 declare namespace $ {
@@ -1531,6 +1536,7 @@ declare namespace $.$mol {
         widget(name: string): $mol_view;
         detail_title(): string;
         names_demo(): string[];
+        main(): any[];
         main_content(): $.$mol_status[] | $mol_demo_large[] | $.$mol_row[];
         Samples(): $mol_demo_small[];
         Sample_small(name: string): $mol_demo_small;
@@ -2207,6 +2213,16 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    class $mol_image extends $mol_view {
+        dom_name(): string;
+        uri(): string;
+        field(): {
+            "src": any;
+            "alt": any;
+        };
+    }
+}
+declare namespace $ {
     function $mol_csv_parse(text: string, delimiter?: string): {
         [key: string]: any;
     }[];
@@ -2222,6 +2238,8 @@ declare namespace $ {
         addon_page(): $mol_page;
         addon(): any[];
         title(): string;
+        Close_icon(): $mol_icon_cross;
+        Close(): $mol_link;
         Temp_title(): string;
         temp(): string;
         Temp(): $mol_labeler;
@@ -2243,6 +2261,9 @@ declare namespace $ {
         Base(): $mol_labeler;
         Body(): $mol_row;
         Info(): $mol_row;
+        photo(): string;
+        Photo(): $mol_image;
+        Gallery(): $mol_row;
         main_page(): $mol_page;
         main(): any[];
         lamp_title(id: any): string;
@@ -2268,20 +2289,23 @@ declare namespace $.$mol {
             [key: string]: any;
         };
         lamp_rows(): $mol_lamps_lamp_row[];
-        lamp_title(id: string): string;
+        lamp_title(id: string): any;
+        filter(next?: string): any;
         lamp_arg(id: string): {
             'lamp': string;
         };
         id(next?: string): any;
         lamp(): any;
         main(): any[];
-        title(): string;
+        title(): any;
         cri(): string;
         angle(): string;
         shape(): string;
         base(): string;
         type(): string;
         temp(): string;
+        slug(): any;
+        photo(): string;
     }
 }
 declare namespace $ {
@@ -2333,11 +2357,6 @@ declare namespace $.$mol {
     class $mol_pop extends $.$mol_pop {
         sub(): any[];
         height_max(): number;
-    }
-}
-declare namespace $ {
-    class $mol_icon_cross extends $mol_icon {
-        path(): string;
     }
 }
 declare namespace $ {
@@ -3001,13 +3020,13 @@ declare namespace $ {
     class $mol_app_supplies_detail extends $mol_page {
         supply(): any;
         title(): string;
-        Back_icon(): $mol_icon_chevron;
-        backArg(): {
+        Close_icon(): $mol_icon_cross;
+        close_arg(): {
             "side": any;
             "supply": any;
         };
-        Back(): $mol_link;
-        head(): any[];
+        Close(): $mol_link;
+        tools(): any[];
         org_title(): string;
         provider_title(): string;
         provider_name(): string;
@@ -3063,8 +3082,8 @@ declare namespace $ {
         approved(val?: any): any;
         approved_title(): string;
         Approve(): $mol_check_box;
-        tools(): any[];
-        Tools(): $mol_row;
+        actions(): any[];
+        Actions(): $mol_row;
         foot(): any[];
     }
 }

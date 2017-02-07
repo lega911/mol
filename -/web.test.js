@@ -495,6 +495,21 @@ var $;
 ;
 var $;
 (function ($) {
+    $.$mol_test({
+        'local get set delete': function () {
+            var key = '$mol_state_local_test:' + Math.random();
+            $.$mol_assert_equal($.$mol_state_local.value(key), null);
+            $.$mol_state_local.value(key, 123);
+            $.$mol_assert_equal($.$mol_state_local.value(key), 123);
+            $.$mol_state_local.value(key, null);
+            $.$mol_assert_equal($.$mol_state_local.value(key), null);
+        },
+    });
+})($ || ($ = {}));
+//local.test.js.map
+;
+var $;
+(function ($) {
     var $mol;
     (function ($mol) {
         $.$mol_test({
@@ -586,21 +601,6 @@ var $;
     });
 })($ || ($ = {}));
 //md.test.js.map
-;
-var $;
-(function ($) {
-    $.$mol_test({
-        'local get set delete': function () {
-            var key = '$mol_state_local_test:' + Math.random();
-            $.$mol_assert_equal($.$mol_state_local.value(key), null);
-            $.$mol_state_local.value(key, 123);
-            $.$mol_assert_equal($.$mol_state_local.value(key), 123);
-            $.$mol_state_local.value(key, null);
-            $.$mol_assert_equal($.$mol_state_local.value(key), null);
-        },
-    });
-})($ || ($ = {}));
-//local.test.js.map
 ;
 var $;
 (function ($) {

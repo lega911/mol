@@ -655,11 +655,10 @@
 [mol_app_supplies_detail_positions] > * {
     margin: 1rem 0
 }
-[mol_app_supplies_detail_back] {
-    color: rgb(251, 252, 254);
-    display: flex;
+[mol_app_supplies_detail_close] {
+    color: inherit;
     align-items: center;
-    margin-right: -1rem
+    padding: 1rem
 }
 [mol_app_supplies_detail_back_icon] {
     transform: rotateZ(180deg)
@@ -685,7 +684,7 @@
     text-align: right;
     margin: 0
 }
-[mol_app_supplies_detail_tools] {
+[mol_app_supplies_detail_actions] {
     padding: 0
 }
 [mol_app_supplies_root] {

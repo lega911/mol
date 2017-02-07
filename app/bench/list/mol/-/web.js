@@ -1596,6 +1596,7 @@ var $;
             }
             $mol_check.prototype.event_click = function (next) {
                 this.checked(!this.checked());
+                next.preventDefault();
             };
             return $mol_check;
         }($.$mol_check));

@@ -1490,8 +1490,11 @@ var $;
                 obj.sub = function () { return [].concat(_this.title()); };
             });
         };
+        $mol_page.prototype.tools = function () {
+            return [];
+        };
         $mol_page.prototype.head = function () {
-            return [].concat(this.Title());
+            return [].concat(this.Title(), this.tools());
         };
         $mol_page.prototype.Head = function () {
             var _this = this;
@@ -2118,6 +2121,7 @@ var $;
             }
             $mol_check.prototype.event_click = function (next) {
                 this.checked(!this.checked());
+                next.preventDefault();
             };
             return $mol_check;
         }($.$mol_check));

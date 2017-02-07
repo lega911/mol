@@ -4687,8 +4687,11 @@ var $;
                 obj.sub = function () { return [].concat(_this.title()); };
             });
         };
+        $mol_page.prototype.tools = function () {
+            return [];
+        };
         $mol_page.prototype.head = function () {
-            return [].concat(this.Title());
+            return [].concat(this.Title(), this.tools());
         };
         $mol_page.prototype.Head = function () {
             var _this = this;
@@ -5133,19 +5136,19 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var $;
 (function ($) {
-    var $mol_icon_chevron = (function (_super) {
-        __extends($mol_icon_chevron, _super);
-        function $mol_icon_chevron() {
+    var $mol_icon_cross = (function (_super) {
+        __extends($mol_icon_cross, _super);
+        function $mol_icon_cross() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_icon_chevron.prototype.path = function () {
-            return "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z";
+        $mol_icon_cross.prototype.path = function () {
+            return "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z";
         };
-        return $mol_icon_chevron;
+        return $mol_icon_cross;
     }($.$mol_icon));
-    $.$mol_icon_chevron = $mol_icon_chevron;
+    $.$mol_icon_cross = $mol_icon_cross;
 })($ || ($ = {}));
-//chevron.view.tree.js.map
+//cross.view.tree.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -5222,6 +5225,7 @@ var $;
             }
             $mol_check.prototype.event_click = function (next) {
                 this.checked(!this.checked());
+                next.preventDefault();
             };
             return $mol_check;
         }($.$mol_check));
@@ -6238,24 +6242,24 @@ var $;
         $mol_app_supplies_detail.prototype.title = function () {
             return $.$mol_locale.text(this.locale_contexts(), "title");
         };
-        $mol_app_supplies_detail.prototype.Back_icon = function () {
-            return new $.$mol_icon_chevron();
+        $mol_app_supplies_detail.prototype.Close_icon = function () {
+            return new $.$mol_icon_cross();
         };
-        $mol_app_supplies_detail.prototype.backArg = function () {
+        $mol_app_supplies_detail.prototype.close_arg = function () {
             return ({
                 "side": "",
                 "supply": null,
             });
         };
-        $mol_app_supplies_detail.prototype.Back = function () {
+        $mol_app_supplies_detail.prototype.Close = function () {
             var _this = this;
             return new $.$mol_link().setup(function (obj) {
-                obj.sub = function () { return [].concat(_this.Back_icon()); };
-                obj.arg = function () { return _this.backArg(); };
+                obj.sub = function () { return [].concat(_this.Close_icon()); };
+                obj.arg = function () { return _this.close_arg(); };
             });
         };
-        $mol_app_supplies_detail.prototype.head = function () {
-            return [].concat(this.Back(), this.Title());
+        $mol_app_supplies_detail.prototype.tools = function () {
+            return [].concat(this.Close());
         };
         $mol_app_supplies_detail.prototype.org_title = function () {
             return $.$mol_locale.text(this.locale_contexts(), "org_title");
@@ -6508,26 +6512,26 @@ var $;
                 obj.label = function () { return [].concat(_this.approved_title()); };
             });
         };
-        $mol_app_supplies_detail.prototype.tools = function () {
+        $mol_app_supplies_detail.prototype.actions = function () {
             return [].concat(this.Approve());
         };
-        $mol_app_supplies_detail.prototype.Tools = function () {
+        $mol_app_supplies_detail.prototype.Actions = function () {
             var _this = this;
             return new $.$mol_row().setup(function (obj) {
-                obj.sub = function () { return _this.tools(); };
+                obj.sub = function () { return _this.actions(); };
             });
         };
         $mol_app_supplies_detail.prototype.foot = function () {
-            return [].concat(this.Tools());
+            return [].concat(this.Actions());
         };
         return $mol_app_supplies_detail;
     }($.$mol_page));
     __decorate([
         $.$mol_mem()
-    ], $mol_app_supplies_detail.prototype, "Back_icon", null);
+    ], $mol_app_supplies_detail.prototype, "Close_icon", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_supplies_detail.prototype, "Back", null);
+    ], $mol_app_supplies_detail.prototype, "Close", null);
     __decorate([
         $.$mol_mem()
     ], $mol_app_supplies_detail.prototype, "Provider", null);
@@ -6608,7 +6612,7 @@ var $;
     ], $mol_app_supplies_detail.prototype, "Approve", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_app_supplies_detail.prototype, "Tools", null);
+    ], $mol_app_supplies_detail.prototype, "Actions", null);
     $.$mol_app_supplies_detail = $mol_app_supplies_detail;
 })($ || ($ = {}));
 //detail.view.tree.js.map

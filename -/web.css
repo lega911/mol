@@ -107,53 +107,6 @@
     margin: 0;
     overflow: hidden
 }
-[mol_stack] {
-    position: relative;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    flex: 1 1 100%;
-    display: flex;
-    flex-direction: row-reverse;
-    align-self: stretch;
-    flex-wrap: wrap;
-    align-items: stretch;
-    align-content: flex-start;
-    overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    margin: 0
-}
-[mol_stack_main] {
-    height: 100%;
-    margin: 0 0 -100vh -150%;
-    position: relative;
-    z-index: 1;
-    display: flex;
-    background: #fcfcfc;
-    flex: 1000 1 640px;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    max-width: 100%
-}
-[mol_stack_addon] {
-    min-height: 100%;
-    max-height: 100%;
-    margin: 0 150% -100vh 0;
-    position: relative;
-    background: #fcfcfc;
-    flex: 1 1 auto;
-    display: flex;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    z-index: 0;
-    max-width: 100%
-}
-[mol_stack_side] > [mol_stack_main] {
-    margin-left: 0
-}
-[mol_stack_side] > [mol_stack_addon] {
-    margin-right: 0;
-    z-index: 2
-}
 [mol_list] {
     will-change: contents;
     display: block
@@ -454,7 +407,9 @@
     background: rgb(147, 70, 185)
 }
 [mol_app_bench] {
-    margin: 0
+    margin: 0;
+    display: flex;
+    align-self: stretch
 }
 [mol_app_bench_main_page] > [mol_page_body] {
     display: flex;
@@ -529,6 +484,53 @@
 }
 [mol_app_bench_list_mol_row_content] {
     display: block
+}
+[mol_stack] {
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: row-reverse;
+    align-self: stretch;
+    flex-wrap: wrap;
+    align-items: stretch;
+    align-content: flex-start;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
+    margin: 0
+}
+[mol_stack_main] {
+    height: 100%;
+    margin: 0 0 -100vh -150%;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    background: #fcfcfc;
+    flex: 1000 1 640px;
+    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
+    max-width: 100%
+}
+[mol_stack_addon] {
+    min-height: 100%;
+    max-height: 100%;
+    margin: 0 150% -100vh 0;
+    position: relative;
+    background: #fcfcfc;
+    flex: 1 1 auto;
+    display: flex;
+    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
+    z-index: 0;
+    max-width: 100%
+}
+[mol_stack_side] > [mol_stack_main] {
+    margin-left: 0
+}
+[mol_stack_side] > [mol_stack_addon] {
+    margin-right: 0;
+    z-index: 2
 }
 [mol_string] {
     box-sizing: border-box;
@@ -722,14 +724,10 @@
 [mol_app_demo_detail_row] > * {
     padding: .5rem
 }
-[mol_app_demo_page_back] {
-    color: rgb(252, 253, 252);
-    display: flex;
+[mol_app_demo_page_close] {
+    color: inherit;
     align-items: center;
-    margin-right: -1rem
-}
-[mol_app_demo_page_back_icon] {
-    transform: rotateZ(180deg)
+    padding: 1rem
 }
 [mol_app_demo_welcome] {
     flex: 1 1 auto
@@ -975,6 +973,13 @@
     color: darkgray;
     font-size: .75rem
 }
+[mol_image] {
+    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
+    border-radius: 2px;
+    overflow: hidden;
+    flex: 0 1 auto;
+    max-width: 100%
+}
 [mol_app_lamps_title] {
     flex: 0 1 auto
 }
@@ -991,6 +996,11 @@
 }
 [mol_app_lamps_body] {
     background: white
+}
+[mol_app_lamps_close] {
+    color: inherit;
+    padding: 1rem;
+    align-items: center
 }
 [mol_app_quine_texter] {
     margin: auto
@@ -1386,11 +1396,10 @@
 [mol_app_supplies_detail_positions] > * {
     margin: 1rem 0
 }
-[mol_app_supplies_detail_back] {
-    color: rgb(252, 253, 252);
-    display: flex;
+[mol_app_supplies_detail_close] {
+    color: inherit;
     align-items: center;
-    margin-right: -1rem
+    padding: 1rem
 }
 [mol_app_supplies_detail_back_icon] {
     transform: rotateZ(180deg)
@@ -1416,7 +1425,7 @@
     text-align: right;
     margin: 0
 }
-[mol_app_supplies_detail_tools] {
+[mol_app_supplies_detail_actions] {
     padding: 0
 }
 [mol_app_supplies_root] {

@@ -1074,6 +1074,7 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_page extends $mol_view {
         Title(): $mol_view;
+        tools(): any[];
         head(): any[];
         Head(): $mol_view;
         body(): any[];
@@ -1176,7 +1177,7 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_icon_chevron extends $mol_icon {
+    class $mol_icon_cross extends $mol_icon {
         path(): string;
     }
 }
@@ -1409,13 +1410,13 @@ declare namespace $ {
     class $mol_app_supplies_detail extends $mol_page {
         supply(): any;
         title(): string;
-        Back_icon(): $mol_icon_chevron;
-        backArg(): {
+        Close_icon(): $mol_icon_cross;
+        close_arg(): {
             "side": any;
             "supply": any;
         };
-        Back(): $mol_link;
-        head(): any[];
+        Close(): $mol_link;
+        tools(): any[];
         org_title(): string;
         provider_title(): string;
         provider_name(): string;
@@ -1471,8 +1472,8 @@ declare namespace $ {
         approved(val?: any): any;
         approved_title(): string;
         Approve(): $mol_check_box;
-        tools(): any[];
-        Tools(): $mol_row;
+        actions(): any[];
+        Actions(): $mol_row;
         foot(): any[];
     }
 }
