@@ -37,7 +37,15 @@ namespace $.$mol {
 		
 		lamp_title( id : string ) {
 			const row = this.lamps_dict()[ id ]
+			
+			const brand = row[ 'Бренд' ]
+			if( brand === 'noname' ) return row[ 'Модель' ]
+			
 			return `${ row[ 'Бренд' ] } ${ row[ 'Модель' ] }`
+		}
+		
+		filter( next? : string ) {
+			return $mol_state_arg.value( 'filter' , next ) || ''
 		}
 		
 		lamp_arg( id : string ) {
@@ -85,6 +93,54 @@ namespace $.$mol {
 		
 		temp() {
 			return `${ this.lamp()[ 'Цвет' ] }`
+		}
+		
+		slug() {
+			const trans = {
+				'а' : 'a' ,
+				'б' : 'b' ,
+				'в' : 'v' ,
+				'г' : 'g' ,
+				'д' : 'd' ,
+				'е' : 'e' ,
+				'ё' : 'yo' ,
+				'ж' : 'zh' ,
+				'з' : 'z' ,
+				'и' : 'i' ,
+				'й' : 'y' ,
+				'к' : 'k' ,
+				'л' : 'l' ,
+				'м' : 'm' ,
+				'н' : 'n' ,
+				'о' : 'o' ,
+				'п' : 'p' ,
+				'р' : 'r' ,
+				'с' : 's' ,
+				'т' : 't' ,
+				'у' : 'u' ,
+				'ф' : 'f' ,
+				'х' : 'h' ,
+				'ц' : 'ts' ,
+				'ч' : 'ch' ,
+				'ш' : 'sh' ,
+				'щ' : 'sch' ,
+				'ъ' : '\'' ,
+				'ы' : 'yi' ,
+				'ь' : '' ,
+				'э' : 'e' ,
+				'ю' : 'yu' ,
+				'я' : 'ya' ,
+			}
+			
+			return this.lamp_title( this.id() )
+				.replace( /[ \/]/g , '-' )
+				.replace( /[.,]/g , '' )
+				.toLowerCase()
+				.replace( /[а-я]/g , ( letter : string )=> trans[ letter ] )
+		}
+		
+		photo() {
+			return `//lamptest.ru/images/photo/${ this.slug() }.jpg`
 		}
 		
 	}
