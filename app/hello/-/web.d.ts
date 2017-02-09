@@ -250,6 +250,7 @@ declare namespace $ {
         };
         'locale_contexts()': string[];
         locale_contexts(): string[];
+        plugins(): $mol_view[];
     }
 }
 interface Window {

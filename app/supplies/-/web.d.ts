@@ -250,6 +250,7 @@ declare namespace $ {
         };
         'locale_contexts()': string[];
         locale_contexts(): string[];
+        plugins(): $mol_view[];
     }
 }
 interface Window {
@@ -1240,7 +1241,8 @@ declare namespace $ {
 declare namespace $ {
     class $mol_deck_item extends $mol_object {
         title(): string;
-        Content(): any;
+        content(): any[];
+        Content(): $mol_view;
     }
 }
 declare namespace $.$mol {

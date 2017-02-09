@@ -250,6 +250,7 @@ declare namespace $ {
         };
         'locale_contexts()': string[];
         locale_contexts(): string[];
+        plugins(): $mol_view[];
     }
 }
 interface Window {
@@ -2360,18 +2361,7 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
-    class $mol_view_ghost extends $mol_view {
-        Sub(): any;
-    }
-}
-declare namespace $.$mol {
-    class $mol_view_ghost extends $.$mol_view_ghost {
-        dom_node(next?: Element): any;
-        dom_tree(): any;
-    }
-}
-declare namespace $ {
-    class $mol_nav extends $mol_view_ghost {
+    class $mol_nav extends $mol_view {
         cycle(val?: any): any;
         keys_x(val?: any): any;
         keys_y(val?: any): any;
@@ -2426,6 +2416,8 @@ declare namespace $ {
         nav_components(): any[];
         option_focused(key?: any): any;
         nav_cycle(val?: any): any;
+        Nav(): $mol_nav;
+        plugins(): any[];
         options_showed(val?: any): any;
         options_align(val?: any): any;
         event_showed_toggle(event?: any): any;
@@ -2440,7 +2432,6 @@ declare namespace $ {
         bubble_content(): any[];
         Bubble_content(): $mol_list;
         Pop(): $mol_pop;
-        Nav(): $mol_nav;
         sub(): any[];
     }
 }
@@ -2860,7 +2851,8 @@ declare namespace $ {
 declare namespace $ {
     class $mol_deck_item extends $mol_object {
         title(): string;
-        Content(): any;
+        content(): any[];
+        Content(): $mol_view;
     }
 }
 declare namespace $.$mol {
@@ -3816,14 +3808,15 @@ declare namespace $ {
     class $mol_expander extends $mol_list {
         expanded(val?: any): any;
         label(): any[];
-        labeler(): $mol_check_expand;
-        content(): any;
+        Labeler(): $mol_check_expand;
+        content(): any[];
+        Content(): $mol_view;
         rows(): any[];
     }
 }
 declare namespace $.$mol {
     class $mol_expander extends $.$mol_expander {
-        rows(): any[];
+        rows(): ($mol_view | $.$mol_check_expand)[];
     }
 }
 declare namespace $ {
@@ -3833,7 +3826,7 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_expander_demo extends $mol_scroll {
-        expander(): $mol_expander;
+        Expander(): $mol_expander;
         sub(): any[];
     }
 }
@@ -4076,6 +4069,46 @@ declare namespace $.$mol {
 }
 declare namespace $ {
     function $mol_maybe<Value>(value: Value): Value[];
+}
+declare namespace $ {
+    class $mol_meter extends $mol_view {
+        width(val?: any): any;
+        height(val?: any): any;
+        left(val?: any): any;
+        right(val?: any): any;
+        bottom(val?: any): any;
+        top(val?: any): any;
+    }
+}
+declare namespace $.$mol {
+    class $mol_meter extends $.$mol_meter {
+        _request_id: number;
+        constructor();
+        defer_task(next?: $mol_defer, force?: $mol_atom_force): void;
+        destroyed(next?: boolean): boolean;
+    }
+}
+declare namespace $ {
+    class $mol_meter_demo extends $mol_card {
+        top(): any;
+        height(): any;
+        Meter(): $mol_meter;
+        plugins(): any[];
+        Top(): $mol_view;
+        Height(): $mol_view;
+        sub(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_nav_demo extends $mol_labeler {
+        title(): string;
+        selected_item(val?: any): any;
+        Button(): $mol_button;
+        content(): any[];
+        items(): any[];
+        Nav(): $mol_nav;
+        plugins(): any[];
+    }
 }
 declare namespace $ {
     class $mol_number_demo extends $mol_row {

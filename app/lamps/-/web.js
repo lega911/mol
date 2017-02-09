@@ -937,6 +937,9 @@ var $;
                     next2 = $.$mol_dom_context.document.createElementNS(this.dom_name_space(), this.dom_name());
                 }
             }
+            this.plugins().forEach(function (plugin) {
+                plugin.dom_node(next2);
+            });
             next2.id = path;
             void (next2['$mol_view'] = this);
             this['dom_node()'] = next2;
@@ -1061,6 +1064,9 @@ var $;
                 $mol_view.render_style(node, this.style());
                 $mol_view.render_sub(node, this.sub_visible());
                 $mol_view.render_field(node, this.field());
+                this.plugins().forEach(function (plugin) {
+                    plugin.dom_tree();
+                });
                 return node;
             }
             catch (error) {
@@ -1085,6 +1091,9 @@ var $;
         $mol_view.prototype.event = function () { return {}; };
         $mol_view.prototype.locale_contexts = function () {
             return this['locale_contexts()'] || (this['locale_contexts()'] = this.view_classes().map(String));
+        };
+        $mol_view.prototype.plugins = function () {
+            return [];
         };
         return $mol_view;
     }($.$mol_object));
@@ -2924,7 +2933,7 @@ var $;
         $mol.$mol_link = $mol_link;
     })($mol = $.$mol || ($.$mol = {}));
 })($ || ($ = {}));
-//linker.view.js.map
+//link.view.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
