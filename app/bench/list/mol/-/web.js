@@ -513,8 +513,6 @@ var $;
             var next_normal = this.normalize(next, this._next);
             if (next_normal === this._next)
                 return next_normal;
-            if (next_normal === this.host[this.field])
-                return next_normal;
             this._next = next_normal;
             this.obsolete();
             return this.get();
