@@ -1542,7 +1542,7 @@ declare namespace $ {
 declare namespace $.$mol {
     class $mol_app_supplies_root extends $.$mol_app_supplies_root {
         entered(next?: boolean): boolean;
-        pages(): $mol_view[];
+        pages(): $mol_view[] | $.$mol_app_supplies_enter[];
         domain(): $mol_app_supplies_domain_mock;
         supplies(): $mol_app_supplies_domain_supply[];
         supply_id(next?: string): any;

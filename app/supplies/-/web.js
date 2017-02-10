@@ -6996,8 +6996,10 @@ var $;
                 return $.$mol_state_session.value(this + ".entered()", next) || false;
             };
             $mol_app_supplies_root.prototype.pages = function () {
-                var sub = [];
-                sub.push(this.entered() ? this.lister() : this.enter());
+                if (!this.entered()) {
+                    return [this.enter()];
+                }
+                var sub = [this.lister()];
                 if (this.supply())
                     sub.push(this.detailer());
                 else
