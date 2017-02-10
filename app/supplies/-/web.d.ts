@@ -327,16 +327,18 @@ declare namespace $ {
 declare namespace $ {
     class $mol_http_request extends $mol_object {
         uri(): string;
-        method(): string;
+        method_get(): string;
+        method_put(): string;
         credentials(): {
             login?: string;
             password?: string;
         };
+        headers(): {};
         body(): any;
         'native()': XMLHttpRequest;
         native(): XMLHttpRequest;
         destroyed(next?: boolean): boolean;
-        response(next?: any, force?: $mol_atom_force): any;
+        response(next?: any, force?: $mol_atom_force): XMLHttpRequest;
         text(next?: string, force?: $mol_atom_force): string;
     }
 }
@@ -344,16 +346,15 @@ declare namespace $ {
     class $mol_http_resource extends $mol_object {
         static item(uri: string): $mol_http_resource;
         uri(): string;
+        method_get(): string;
+        method_put(): string;
         credentials(): {
             login?: string;
             password?: string;
         };
+        headers(): {};
         request(): $mol_http_request;
         text(next?: string, force?: $mol_atom_force): string;
-    }
-    class $mol_http_resource_json<Content> extends $mol_http_resource {
-        static item<Content>(uri: string): $mol_http_resource_json<Content>;
-        json(next?: Content, force?: $mol_atom_force): Content;
     }
 }
 declare namespace $ {
@@ -789,21 +790,44 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_stack extends $mol_view {
-        side(): boolean;
-        attr(): {
-            "mol_stack_side": any;
-        };
-        main(): any[];
-        Main(): $mol_view;
-        addon(): any[];
-        Addon(): $mol_view;
-        sub(): any[];
+    class $mol_meter extends $mol_view {
+        width(val?: any): any;
+        height(val?: any): any;
+        left(val?: any): any;
+        right(val?: any): any;
+        bottom(val?: any): any;
+        top(val?: any): any;
     }
 }
 declare namespace $.$mol {
-    class $mol_stack extends $.$mol_stack {
-        side(next?: boolean): boolean;
+    class $mol_meter extends $.$mol_meter {
+        _request_id: number;
+        dom_node(node?: Element): Element;
+        defer_task(): void;
+        destroyed(next?: boolean): boolean;
+        width(val?: any): any;
+        height(val?: any): any;
+    }
+}
+declare namespace $ {
+    class $mol_book extends $mol_view {
+        visible_pages(): any[];
+        sub(): any[];
+        width(): any;
+        Meter(): $mol_meter;
+        plugins(): any[];
+        pages(): any[];
+    }
+}
+declare namespace $ {
+    class $mol_book_placeholder extends $mol_view {
+        minimal_width(): number;
+    }
+}
+declare namespace $.$mol {
+    class $mol_book extends $.$mol_book {
+        visible_pages(): $mol_view[];
+        title(): string;
     }
 }
 declare namespace $ {
@@ -1504,7 +1528,7 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
-    class $mol_app_supplies_root extends $mol_stack {
+    class $mol_app_supplies_root extends $mol_book {
         entered(val?: any): any;
         enter(): $mol_app_supplies_enter;
         supplies(): any[];
@@ -1512,15 +1536,13 @@ declare namespace $ {
         lister(): $mol_app_supplies_list;
         supply(): any;
         detailer(): $mol_app_supplies_detail;
+        placeholder(): $mol_book_placeholder;
     }
 }
 declare namespace $.$mol {
     class $mol_app_supplies_root extends $.$mol_app_supplies_root {
         entered(next?: boolean): boolean;
-        sub(): $mol_view[];
-        main(): $.$mol_app_supplies_detail[];
-        addon(): $.$mol_app_supplies_list[] | $.$mol_app_supplies_enter[];
-        title(): string;
+        pages(): $mol_view[];
         domain(): $mol_app_supplies_domain_mock;
         supplies(): $mol_app_supplies_domain_supply[];
         supply_id(next?: string): any;

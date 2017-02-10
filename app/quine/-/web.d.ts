@@ -889,16 +889,18 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_http_request extends $mol_object {
         uri(): string;
-        method(): string;
+        method_get(): string;
+        method_put(): string;
         credentials(): {
             login?: string;
             password?: string;
         };
+        headers(): {};
         body(): any;
         'native()': XMLHttpRequest;
         native(): XMLHttpRequest;
         destroyed(next?: boolean): boolean;
-        response(next?: any, force?: $mol_atom_force): any;
+        response(next?: any, force?: $mol_atom_force): XMLHttpRequest;
         text(next?: string, force?: $mol_atom_force): string;
     }
 }
@@ -906,16 +908,15 @@ declare namespace $ {
     class $mol_http_resource extends $mol_object {
         static item(uri: string): $mol_http_resource;
         uri(): string;
+        method_get(): string;
+        method_put(): string;
         credentials(): {
             login?: string;
             password?: string;
         };
+        headers(): {};
         request(): $mol_http_request;
         text(next?: string, force?: $mol_atom_force): string;
-    }
-    class $mol_http_resource_json<Content> extends $mol_http_resource {
-        static item<Content>(uri: string): $mol_http_resource_json<Content>;
-        json(next?: Content, force?: $mol_atom_force): Content;
     }
 }
 declare namespace $ {

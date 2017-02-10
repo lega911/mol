@@ -178,52 +178,18 @@
 [mol_app_supplies_card_provider_item] {
     flex: 10 1 10rem
 }
-[mol_stack] {
-    position: relative;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    flex: 1 1 100%;
+[mol_book] {
     display: flex;
-    flex-direction: row-reverse;
-    align-self: stretch;
-    flex-wrap: wrap;
+    flex-flow: row nowrap;
     align-items: stretch;
-    align-content: flex-start;
+    justify-content: flex-start;
     overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    margin: 0
-}
-[mol_stack_main] {
-    height: 100%;
-    margin: 0 0 -100vh -150%;
-    position: relative;
-    z-index: 1;
-    display: flex;
-    background: #fcfcfc;
-    flex: 1000 1 640px;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    max-width: 100%
-}
-[mol_stack_addon] {
-    min-height: 100%;
-    max-height: 100%;
-    margin: 0 150% -100vh 0;
-    position: relative;
-    background: #fcfcfc;
     flex: 1 1 auto;
-    display: flex;
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    z-index: 0;
-    max-width: 100%
+    align-self: stretch
 }
-[mol_stack_side] > [mol_stack_main] {
-    margin-left: 0
-}
-[mol_stack_side] > [mol_stack_addon] {
-    margin-right: 0;
-    z-index: 2
+[mol_book_placeholder] {
+    flex: 1000 1 400px;
+    order: 1
 }
 [mol_string] {
     box-sizing: border-box;
@@ -695,8 +661,11 @@
     max-width: 100rem;
     margin: 0 auto
 }
-[mol_app_supplies_root_addon] {
-    flex: 1 1 24rem
+[mol_app_supplies_root_lister] {
+    flex: 1 1 400px
+}
+[mol_app_supplies_root_detailer] {
+    flex: 1000 1 400px
 }
 
 /*# sourceMappingURL=web.css.map */

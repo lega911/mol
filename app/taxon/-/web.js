@@ -512,7 +512,9 @@ var $;
         $mol_atom.prototype.set = function (next) {
             var next_normal = this.normalize(next, this._next);
             if (next_normal === this._next)
-                return this._next;
+                return next_normal;
+            if (next_normal === this.host[this.field])
+                return next_normal;
             this._next = next_normal;
             this.obsolete();
             return this.get();
@@ -2858,9 +2860,13 @@ var $;
             return _super.apply(this, arguments) || this;
         }
         $mol_http_request.prototype.uri = function () { return ''; };
-        $mol_http_request.prototype.method = function () { return 'Get'; };
+        $mol_http_request.prototype.method_get = function () { return 'Get'; };
+        $mol_http_request.prototype.method_put = function () { return 'Put'; };
         $mol_http_request.prototype.credentials = function () {
             return null;
+        };
+        $mol_http_request.prototype.headers = function () {
+            return {};
         };
         $mol_http_request.prototype.body = function () { return null; };
         $mol_http_request.prototype.native = function () {
@@ -2871,7 +2877,7 @@ var $;
             next.withCredentials = Boolean(this.credentials());
             next.onload = function (event) {
                 if (Math.floor(next.status / 100) === 2) {
-                    _this.response(next.responseText, $.$mol_atom_force);
+                    _this.response(next, $.$mol_atom_force);
                 }
                 else {
                     _this.response(new Error(next.responseText), $.$mol_atom_force);
@@ -2893,14 +2899,17 @@ var $;
         $mol_http_request.prototype.response = function (next, force) {
             var creds = this.credentials();
             var native = this.native();
-            var method = (next === void 0) ? 'Get' : this.method();
+            var method = (next === void 0) ? this.method_get() : this.method_put();
             var uri = this.uri();
             native.open(method, uri, true, creds && creds.login, creds && creds.password);
+            var headers = this.headers();
+            for (var name_1 in headers)
+                native.setRequestHeader(name_1, headers[name_1]);
             native.send(next);
             throw new $.$mol_atom_wait(method + " " + uri);
         };
         $mol_http_request.prototype.text = function (next, force) {
-            return this.response(next, force);
+            return this.response(next, force).responseText;
         };
         return $mol_http_request;
     }($.$mol_object));
@@ -2935,15 +2944,22 @@ var $;
             });
         };
         $mol_http_resource.prototype.uri = function () { return ''; };
+        $mol_http_resource.prototype.method_get = function () { return 'Get'; };
+        $mol_http_resource.prototype.method_put = function () { return 'Put'; };
         $mol_http_resource.prototype.credentials = function () {
             return null;
+        };
+        $mol_http_resource.prototype.headers = function () {
+            return {};
         };
         $mol_http_resource.prototype.request = function () {
             var _this = this;
             var request = new $.$mol_http_request();
-            request.method = function () { return 'Put'; };
             request.uri = function () { return _this.uri(); };
+            request.method_get = function () { return _this.method_get(); };
+            request.method_put = function () { return _this.method_put(); };
             request.credentials = function () { return _this.credentials(); };
+            request.headers = function () { return _this.headers(); };
             return request;
         };
         $mol_http_resource.prototype.text = function (next, force) {
@@ -2961,6 +2977,22 @@ var $;
         $.$mol_mem_key()
     ], $mol_http_resource, "item", null);
     $.$mol_http_resource = $mol_http_resource;
+})($ || ($ = {}));
+//resource.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
     var $mol_http_resource_json = (function (_super) {
         __extends($mol_http_resource_json, _super);
         function $mol_http_resource_json() {
@@ -2975,13 +3007,13 @@ var $;
             return JSON.parse(this.text(next && JSON.stringify(next, null, '\t'), force));
         };
         return $mol_http_resource_json;
-    }($mol_http_resource));
+    }($.$mol_http_resource));
     __decorate([
         $.$mol_mem_key()
     ], $mol_http_resource_json, "item", null);
     $.$mol_http_resource_json = $mol_http_resource_json;
 })($ || ($ = {}));
-//resource.js.map
+//json.js.map
 ;
 var $;
 (function ($) {
