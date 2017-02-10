@@ -513,6 +513,8 @@ var $;
             var next_normal = this.normalize(next, this._next);
             if (next_normal === this._next)
                 return next_normal;
+            if (next_normal === this.host[this.field])
+                return next_normal;
             this._next = next_normal;
             this.obsolete();
             return this.get();
@@ -3615,7 +3617,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_lamps.prototype.lamps_all = function () {
-                return $.$mol_csv_parse($.$mol_file.relative('/mol/app/lamps/lamps.csv').content());
+                return $.$mol_csv_parse($.$mol_http_resource.item('//lamptest.ru/led.php').text());
             };
             $mol_app_lamps.prototype.lamps = function () {
                 var filter = this.filter().toLowerCase();
@@ -3632,20 +3634,20 @@ var $;
             $mol_app_lamps.prototype.lamps_dict = function () {
                 var dict = {};
                 this.lamps_all().forEach(function (lamp) {
-                    dict[lamp['№']] = lamp;
+                    dict[lamp['no']] = lamp;
                 });
                 return dict;
             };
             $mol_app_lamps.prototype.lamp_rows = function () {
                 var _this = this;
-                return this.lamps().map(function (lamp) { return _this.Lamp_row(lamp['№']); });
+                return this.lamps().map(function (lamp) { return _this.Lamp_row(lamp['no']); });
             };
             $mol_app_lamps.prototype.lamp_title = function (id) {
                 var row = this.lamps_dict()[id];
-                var brand = row['Бренд'];
+                var brand = row['brand'];
                 if (brand === 'noname')
-                    return row['Модель'];
-                return row['Бренд'] + " " + row['Модель'];
+                    return row['model'];
+                return row['brand'] + " " + row['model'];
             };
             $mol_app_lamps.prototype.filter = function (next) {
                 return $.$mol_state_arg.value('filter', next) || '';
@@ -3675,24 +3677,27 @@ var $;
                 return this.lamp_title(id);
             };
             $mol_app_lamps.prototype.cri = function () {
-                return this.lamp()['CRI'] + "%";
+                return this.lamp()['cri'] + "%";
             };
             $mol_app_lamps.prototype.angle = function () {
-                return this.lamp()['Угол'] + "\u00B0";
+                return this.lamp()['angle'] + "\u00B0";
             };
             $mol_app_lamps.prototype.shape = function () {
-                return "" + this.lamp()['Вид'];
+                return "" + this.lamp()['shape'];
             };
             $mol_app_lamps.prototype.base = function () {
-                return "" + this.lamp()['Цок.'];
+                return "" + this.lamp()['base'];
             };
             $mol_app_lamps.prototype.type = function () {
-                return "" + this.lamp()['Тип'];
+                return "" + this.lamp()['type'];
             };
             $mol_app_lamps.prototype.temp = function () {
-                return "" + this.lamp()['Цвет'];
+                return "" + this.lamp()['color_l'];
             };
-            $mol_app_lamps.prototype.slug = function () {
+            $mol_app_lamps.prototype.matt = function () {
+                return this.lamp()['matt'] == 1;
+            };
+            $mol_app_lamps.prototype.slug = function (id) {
                 var trans = {
                     'а': 'a',
                     'б': 'b',
@@ -3728,14 +3733,17 @@ var $;
                     'ю': 'yu',
                     'я': 'ya',
                 };
-                return this.lamp_title(this.id())
+                return this.lamp_title(id)
                     .replace(/[ \/]/g, '-')
                     .replace(/[.,]/g, '')
                     .toLowerCase()
                     .replace(/[а-я]/g, function (letter) { return trans[letter]; });
             };
             $mol_app_lamps.prototype.photo = function () {
-                return "//lamptest.ru/images/photo/" + this.slug() + ".jpg";
+                return "//lamptest.ru/images/photo/" + this.slug(this.id()) + ".jpg";
+            };
+            $mol_app_lamps.prototype.thumb = function (id) {
+                return "//lamptest.ru/images/photo/" + this.slug(id) + "-med.jpg";
             };
             return $mol_app_lamps;
         }($.$mol_app_lamps));

@@ -1382,6 +1382,16 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
+    class $mol_image extends $mol_view {
+        dom_name(): string;
+        uri(): string;
+        field(): {
+            "src": any;
+            "alt": any;
+        };
+    }
+}
+declare namespace $ {
     class $mol_string extends $mol_view {
         dom_name(): string;
         enabled(): boolean;
@@ -1500,6 +1510,8 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_app_demo extends $mol_book {
+        logo_uri(): string;
+        Logo(): $mol_image;
         Placeholder(): $mol_book_placeholder;
         filter_hint(): string;
         filter_string(val?: any): any;
@@ -1567,6 +1579,7 @@ declare namespace $.$mol {
         Samples(): $mol_demo_small[];
         Sample_small(name: string): $mol_demo_small;
         Sample_large(name: string): $mol_demo_large;
+        logo_uri(): string;
     }
     class $mol_app_demo_nav extends $.$mol_app_demo_nav {
         Cell(id: {
@@ -2245,16 +2258,6 @@ declare namespace $ {
     }
 }
 declare namespace $ {
-    class $mol_image extends $mol_view {
-        dom_name(): string;
-        uri(): string;
-        field(): {
-            "src": any;
-            "alt": any;
-        };
-    }
-}
-declare namespace $ {
     function $mol_csv_parse(text: string, delimiter?: string): {
         [key: string]: any;
     }[];
@@ -2336,8 +2339,10 @@ declare namespace $.$mol {
         base(): string;
         type(): string;
         temp(): string;
-        slug(): any;
+        matt(): boolean;
+        slug(id: string): any;
         photo(): string;
+        thumb(id: string): string;
     }
 }
 declare namespace $ {

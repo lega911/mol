@@ -498,8 +498,16 @@
     align-self: stretch
 }
 [mol_book_placeholder] {
+    display: flex;
     flex: 1000 1 400px;
     order: 1
+}
+[mol_image] {
+    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
+    border-radius: 2px;
+    overflow: hidden;
+    flex: 0 1 auto;
+    max-width: 100%
 }
 [mol_string] {
     box-sizing: border-box;
@@ -640,10 +648,17 @@
     -ms-grid-row-align: stretch;
         align-self: stretch
 }
+[mol_app_demo_logo] {
+    width: 30%;
+    margin: auto;
+    box-shadow: none
+}
 [mol_app_demo_menu] {
     flex: 1 1 200px
 }
-[mol_app_demo_detail] {
+[mol_app_demo_detail], 
+[mol_app_demo_detail_row],
+[mol_app_empty_message] {
     flex: 1000 1 400px
 }
 [mol_app_demo_nav] {
@@ -948,13 +963,6 @@
     color: darkgray;
     font-size: .75rem
 }
-[mol_image] {
-    box-shadow: 0 0 0 1px rgba(230, 230, 230, 1);
-    border-radius: 2px;
-    overflow: hidden;
-    flex: 0 1 auto;
-    max-width: 100%
-}
 [mol_app_lamps_title] {
     flex: 0 1 auto
 }
@@ -965,6 +973,18 @@
 [mol_app_lamps_lamp_row] {
     display: flex;
     flex: 0 0 auto
+}
+[mol_app_lamps_lamp_row_link] {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: flex-start
+}
+[mol_app_lamps_lamp_row_title] {
+    flex: 1000 1 auto
+}
+[mol_app_lamps_lamp_row_thumb] {
+    height: 3rem;
+    display: block
 }
 [mol_app_lamps_light] {
     background: white
@@ -1624,10 +1644,10 @@
     background-color: hsl(132, 56%, 96%);
     order: 1
 }
-[mol_book_demo_page2] {
+[mol_book_demo_addon] {
     background-color: hsl(216, 56%, 96%)
 }
-[mol_book_demo_page3] {
+[mol_book_demo_main] {
     background-color: hsl(0, 56%, 96%)
 }
 [mol_demo_medium] {
