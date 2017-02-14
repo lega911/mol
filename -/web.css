@@ -640,8 +640,10 @@
     flex: 0 0 auto
 }
 [mol_demo_small_screener] {
-    width: 500px;
-    height: 280px
+    width: 340px;
+    height: 340px;
+    max-width: 85vw;
+    max-height: 85vh
 }
 [mol_demo_large] {
     flex: 1 1 100%;
@@ -701,8 +703,7 @@
     display: flex;
     align-items: stretch;
     justify-content: flex-start;
-    flex-wrap: wrap;
-    padding: 1rem
+    flex-wrap: wrap
 }
 [mol_app_demo_detail_row] {
     align-items: flex-start;
@@ -724,6 +725,10 @@
 }
 [mol_app_demo_option_link] {
     padding: 0
+}
+[mol_app_demo_sample_large] {
+    padding: 1rem;
+    box-sizing: border-box
 }
 [mol_app_habhub] {
     margin: 0
@@ -858,7 +863,7 @@
     align-items: flex-start
 }
 [mol_app_inventory_position_product] {
-    flex: 1000 1000 10rem
+    flex: 1000 1000 8rem
 }
 [mol_app_inventory_position_status] {
     flex: 1 1 auto
@@ -1369,15 +1374,15 @@
 }
 [mol_app_supplies_position_price_item] {
     flex: 1 0 3rem;
-    text-align: right
+    align-items: flex-end
 }
 [mol_app_supplies_position_quantity_item] {
     flex: 1 0 2rem;
-    text-align: right
+    align-items: flex-end
 }
 [mol_app_supplies_position_cost_item] {
     flex: 1 0 3rem;
-    text-align: right
+    align-items: flex-end
 }
 [mol_app_supplies_position_supply_date_item] {
     flex: 0 0 6rem

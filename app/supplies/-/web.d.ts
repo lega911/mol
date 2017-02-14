@@ -1328,7 +1328,6 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_attach_add extends $mol_button {
-        dom_name(): string;
         file_new(val?: any): any;
         Icon(): $mol_icon_attach;
         event_capture(val?: any): any;

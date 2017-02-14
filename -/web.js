@@ -5677,13 +5677,13 @@ var $;
             return _super.apply(this, arguments) || this;
         }
         $mol_demo_small.prototype.height = function () {
-            return 240;
+            return 340;
         };
         $mol_demo_small.prototype.minimal_height = function () {
             return this.height();
         };
         $mol_demo_small.prototype.width = function () {
-            return 440;
+            return 340;
         };
         $mol_demo_small.prototype.minimal_width = function () {
             return this.width();
@@ -8259,10 +8259,10 @@ var $;
             return $.$mol_hyperhive.authentificated(creds);
         };
         $mol_app_inventory_domain.prototype.can_write_off = function () {
-            return Boolean(this.credentials().login.match('keeper'));
+            return !this.credentials().login.match('controller');
         };
         $mol_app_inventory_domain.prototype.can_approve = function () {
-            return Boolean(this.credentials().login.match('controller'));
+            return !this.credentials().login.match('keeper');
         };
         $mol_app_inventory_domain.prototype.message = function () {
             return void 0;
@@ -9856,7 +9856,7 @@ var $;
             return _super.apply(this, arguments) || this;
         }
         $mol_lamps_lamp_row.prototype.minimal_height = function () {
-            return 40;
+            return 33;
         };
         $mol_lamps_lamp_row.prototype.sub = function () {
             return [].concat(this.title());
@@ -9888,7 +9888,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_lamps.prototype.lamps_all = function () {
-                return $.$mol_csv_parse($.$mol_http_resource.item('//lamptest.ru/led.php').text());
+                return $.$mol_csv_parse($.$mol_http_resource.item('http://lamptest.ru/led.php').text());
             };
             $mol_app_lamps.prototype.lamps = function () {
                 var filter = this.filter().toLowerCase();
@@ -10011,10 +10011,10 @@ var $;
                     .replace(/[а-я]/g, function (letter) { return trans[letter]; });
             };
             $mol_app_lamps.prototype.photo = function () {
-                return "//lamptest.ru/images/photo/" + this.slug(this.id()) + ".jpg";
+                return "http://lamptest.ru/images/photo/" + this.slug(this.id()) + ".jpg";
             };
             $mol_app_lamps.prototype.thumb = function (id) {
-                return "//lamptest.ru/images/photo/" + this.slug(id) + "-med.jpg";
+                return "http://lamptest.ru/images/photo/" + this.slug(id) + "-med.jpg";
             };
             return $mol_app_lamps;
         }($.$mol_app_lamps));
@@ -11601,6 +11601,12 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var $;
 (function ($) {
     var $mol_app_signup_demo = (function (_super) {
@@ -11608,8 +11614,17 @@ var $;
         function $mol_app_signup_demo() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_app_signup_demo.prototype.Signup = function () {
+            return new $.$mol_app_signup();
+        };
+        $mol_app_signup_demo.prototype.sub = function () {
+            return [].concat(this.Signup());
+        };
         return $mol_app_signup_demo;
-    }($.$mol_app_signup));
+    }($.$mol_scroll));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_app_signup_demo.prototype, "Signup", null);
     $.$mol_app_signup_demo = $mol_app_signup_demo;
 })($ || ($ = {}));
 //demo.view.tree.js.map
@@ -13019,9 +13034,6 @@ var $;
         function $mol_attach_add() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_attach_add.prototype.dom_name = function () {
-            return "div";
-        };
         $mol_attach_add.prototype.file_new = function (val) {
             return (val !== void 0) ? val : "";
         };
@@ -15755,20 +15767,20 @@ var $;
                 obj.sub = function () { return [].concat(" Placeholder"); };
             });
         };
-        $mol_book_demo.prototype.Main = function () {
-            return new $.$mol_view().setup(function (obj) {
-                obj.minimal_width = function () { return 400; };
-                obj.sub = function () { return [].concat(" Main"); };
-            });
-        };
         $mol_book_demo.prototype.Addon = function () {
             return new $.$mol_view().setup(function (obj) {
                 obj.minimal_width = function () { return 250; };
                 obj.sub = function () { return [].concat(" Addon"); };
             });
         };
+        $mol_book_demo.prototype.Main = function () {
+            return new $.$mol_view().setup(function (obj) {
+                obj.minimal_width = function () { return 400; };
+                obj.sub = function () { return [].concat(" Main"); };
+            });
+        };
         $mol_book_demo.prototype.pages = function () {
-            return [].concat(this.Placeholder(), this.Main(), this.Addon());
+            return [].concat(this.Placeholder(), this.Addon(), this.Main());
         };
         return $mol_book_demo;
     }($.$mol_book));
@@ -15777,10 +15789,10 @@ var $;
     ], $mol_book_demo.prototype, "Placeholder", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_book_demo.prototype, "Main", null);
+    ], $mol_book_demo.prototype, "Addon", null);
     __decorate([
         $.$mol_mem()
-    ], $mol_book_demo.prototype, "Addon", null);
+    ], $mol_book_demo.prototype, "Main", null);
     $.$mol_book_demo = $mol_book_demo;
 })($ || ($ = {}));
 //demo.view.tree.js.map

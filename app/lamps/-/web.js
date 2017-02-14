@@ -3585,7 +3585,7 @@ var $;
             return _super.apply(this, arguments) || this;
         }
         $mol_lamps_lamp_row.prototype.minimal_height = function () {
-            return 40;
+            return 33;
         };
         $mol_lamps_lamp_row.prototype.sub = function () {
             return [].concat(this.title());
@@ -3617,7 +3617,7 @@ var $;
                 return _super.apply(this, arguments) || this;
             }
             $mol_app_lamps.prototype.lamps_all = function () {
-                return $.$mol_csv_parse($.$mol_http_resource.item('//lamptest.ru/led.php').text());
+                return $.$mol_csv_parse($.$mol_http_resource.item('http://lamptest.ru/led.php').text());
             };
             $mol_app_lamps.prototype.lamps = function () {
                 var filter = this.filter().toLowerCase();
@@ -3740,10 +3740,10 @@ var $;
                     .replace(/[а-я]/g, function (letter) { return trans[letter]; });
             };
             $mol_app_lamps.prototype.photo = function () {
-                return "//lamptest.ru/images/photo/" + this.slug(this.id()) + ".jpg";
+                return "http://lamptest.ru/images/photo/" + this.slug(this.id()) + ".jpg";
             };
             $mol_app_lamps.prototype.thumb = function (id) {
-                return "//lamptest.ru/images/photo/" + this.slug(id) + "-med.jpg";
+                return "http://lamptest.ru/images/photo/" + this.slug(id) + "-med.jpg";
             };
             return $mol_app_lamps;
         }($.$mol_app_lamps));

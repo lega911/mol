@@ -5868,9 +5868,6 @@ var $;
         function $mol_attach_add() {
             return _super.apply(this, arguments) || this;
         }
-        $mol_attach_add.prototype.dom_name = function () {
-            return "div";
-        };
         $mol_attach_add.prototype.file_new = function (val) {
             return (val !== void 0) ? val : "";
         };

@@ -2642,7 +2642,9 @@ declare namespace $.$mol {
     }
 }
 declare namespace $ {
-    class $mol_app_signup_demo extends $mol_app_signup {
+    class $mol_app_signup_demo extends $mol_scroll {
+        Signup(): $mol_app_signup;
+        sub(): any[];
     }
 }
 declare namespace $ {
@@ -2950,7 +2952,6 @@ declare namespace $ {
 }
 declare namespace $ {
     class $mol_attach_add extends $mol_button {
-        dom_name(): string;
         file_new(val?: any): any;
         Icon(): $mol_icon_attach;
         event_capture(val?: any): any;
@@ -3483,8 +3484,8 @@ declare namespace $.$mol {
 declare namespace $ {
     class $mol_book_demo extends $mol_book {
         Placeholder(): $mol_view;
-        Main(): $mol_view;
         Addon(): $mol_view;
+        Main(): $mol_view;
         pages(): any[];
     }
 }
