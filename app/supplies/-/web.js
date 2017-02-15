@@ -5800,8 +5800,14 @@ var $;
                 obj.items = function () { return _this.content(); };
             });
         };
+        $mol_attach.prototype.attach_title = function () {
+            return "";
+        };
         $mol_attach.prototype.Item = function (id) {
-            return new $.$mol_attach_item();
+            var _this = this;
+            return new $.$mol_attach_item().setup(function (obj) {
+                obj.title = function () { return _this.attach_title(); };
+            });
         };
         return $mol_attach;
     }($.$mol_card));
@@ -5843,11 +5849,11 @@ var $;
         $mol_attach_item.prototype.style = function () {
             return (__assign({}, _super.prototype.style.call(this), { "backgroundImage": this.style_bg() }));
         };
-        $mol_attach_item.prototype.loadable = function () {
-            return true;
+        $mol_attach_item.prototype.title = function () {
+            return "";
         };
         $mol_attach_item.prototype.attr = function () {
-            return (__assign({}, _super.prototype.attr.call(this), { "download": this.loadable() }));
+            return (__assign({}, _super.prototype.attr.call(this), { "download": this.title() }));
         };
         return $mol_attach_item;
     }($.$mol_link));

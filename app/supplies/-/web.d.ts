@@ -1306,6 +1306,7 @@ declare namespace $ {
         Add(): $mol_attach_add;
         content(): any[];
         Content(): $mol_tiler;
+        attach_title(): string;
         Item(id: any): $mol_attach_item;
     }
 }
@@ -1318,7 +1319,7 @@ declare namespace $ {
         style(): {
             "backgroundImage": any;
         };
-        loadable(): boolean;
+        title(): string;
         attr(): {
             "download": any;
             "href": any;
