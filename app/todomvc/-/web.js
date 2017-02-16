@@ -2399,15 +2399,28 @@ var $;
         function $mol_locale() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_locale.lang_default = function () {
+            return 'en';
+        };
         $mol_locale.lang = function (next) {
-            return $.$mol_state_local.value('locale', next) || $.$mol_state_arg.value('locale') || 'en';
+            return $.$mol_state_local.value('locale', next) || $.$mol_dom_context.navigator.language || this.lang_default();
+        };
+        $mol_locale.source = function (lang) {
+            return JSON.parse($.$mol_file.relative("-/web.locale=" + lang + ".json").content());
         };
         $mol_locale.texts = function (next) {
             if (next)
                 return next;
-            var path = "-/web.locale=" + this.lang() + ".json";
-            var content = $.$mol_file.relative(path).content();
-            return JSON.parse(content);
+            var lang = this.lang();
+            try {
+                return this.source(lang).valueOf();
+            }
+            catch (error) {
+                var def = this.lang_default();
+                if (lang === def)
+                    throw error;
+                return this.source(def);
+            }
         };
         $mol_locale.text = function (contexts, key) {
             var texts = this.texts();
@@ -2423,7 +2436,13 @@ var $;
     }($.$mol_object));
     __decorate([
         $.$mol_mem()
+    ], $mol_locale, "lang_default", null);
+    __decorate([
+        $.$mol_mem()
     ], $mol_locale, "lang", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_locale, "source", null);
     __decorate([
         $.$mol_mem()
     ], $mol_locale, "texts", null);

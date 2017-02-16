@@ -1611,106 +1611,6 @@ var $;
 })($ || ($ = {}));
 //local.web.js.map
 ;
-var $;
-(function ($) {
-    function $mol_merge_dict(target, source) {
-        var result = {};
-        for (var key in target)
-            result[key] = target[key];
-        for (var key in source)
-            result[key] = source[key];
-        return result;
-    }
-    $.$mol_merge_dict = $mol_merge_dict;
-})($ || ($ = {}));
-//dict.js.map
-;
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var $;
-(function ($) {
-    var $mol_state_arg = (function (_super) {
-        __extends($mol_state_arg, _super);
-        function $mol_state_arg(prefix) {
-            if (prefix === void 0) { prefix = ''; }
-            var _this = _super.call(this) || this;
-            _this.prefix = prefix;
-            return _this;
-        }
-        $mol_state_arg.href = function (next) {
-            if (next)
-                history.replaceState(history.state, $.$mol_dom_context.document.title, "" + next);
-            return window.location.search + window.location.hash;
-        };
-        $mol_state_arg.dict = function (next) {
-            var href = this.href(next && this.make(next));
-            var chunks = href.split(/[\/\?#!&;]/g);
-            var params = {};
-            chunks.forEach(function (chunk) {
-                if (!chunk)
-                    return;
-                var vals = chunk.split('=').map(decodeURIComponent);
-                params[vals.shift()] = vals.join('=');
-            });
-            return params;
-        };
-        $mol_state_arg.value = function (key, next) {
-            var nextDict = (next === void 0) ? void 0 : $.$mol_merge_dict(this.dict(), (_a = {}, _a[key] = next, _a));
-            return this.dict(nextDict)[key] || null;
-            var _a;
-        };
-        $mol_state_arg.link = function (next) {
-            return this.make($.$mol_merge_dict(this.dict(), next));
-        };
-        $mol_state_arg.make = function (next) {
-            var chunks = [];
-            for (var key in next) {
-                if (null == next[key])
-                    continue;
-                chunks.push([key].concat(next[key]).map(encodeURIComponent).join('='));
-            }
-            var hash = chunks.join('#');
-            return hash ? '#' + hash + '#' : '#';
-        };
-        $mol_state_arg.prototype.value = function (key, next) {
-            return $mol_state_arg.value(this.prefix + key, next);
-        };
-        $mol_state_arg.prototype.sub = function (postfix) {
-            return new $mol_state_arg(this.prefix + postfix + '.');
-        };
-        $mol_state_arg.prototype.link = function (next) {
-            var prefix = this.prefix;
-            var dict = {};
-            for (var key in next) {
-                dict[prefix + key] = next[key];
-            }
-            return $mol_state_arg.link(dict);
-        };
-        return $mol_state_arg;
-    }($.$mol_object));
-    __decorate([
-        $.$mol_mem()
-    ], $mol_state_arg, "href", null);
-    __decorate([
-        $.$mol_mem()
-    ], $mol_state_arg, "dict", null);
-    __decorate([
-        $.$mol_mem_key()
-    ], $mol_state_arg, "value", null);
-    $.$mol_state_arg = $mol_state_arg;
-    window.addEventListener('hashchange', function (event) { return $mol_state_arg.href(null); });
-})($ || ($ = {}));
-//arg.web.js.map
-;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1952,15 +1852,28 @@ var $;
         function $mol_locale() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_locale.lang_default = function () {
+            return 'en';
+        };
         $mol_locale.lang = function (next) {
-            return $.$mol_state_local.value('locale', next) || $.$mol_state_arg.value('locale') || 'en';
+            return $.$mol_state_local.value('locale', next) || $.$mol_dom_context.navigator.language || this.lang_default();
+        };
+        $mol_locale.source = function (lang) {
+            return JSON.parse($.$mol_file.relative("-/web.locale=" + lang + ".json").content());
         };
         $mol_locale.texts = function (next) {
             if (next)
                 return next;
-            var path = "-/web.locale=" + this.lang() + ".json";
-            var content = $.$mol_file.relative(path).content();
-            return JSON.parse(content);
+            var lang = this.lang();
+            try {
+                return this.source(lang).valueOf();
+            }
+            catch (error) {
+                var def = this.lang_default();
+                if (lang === def)
+                    throw error;
+                return this.source(def);
+            }
         };
         $mol_locale.text = function (contexts, key) {
             var texts = this.texts();
@@ -1976,7 +1889,13 @@ var $;
     }($.$mol_object));
     __decorate([
         $.$mol_mem()
+    ], $mol_locale, "lang_default", null);
+    __decorate([
+        $.$mol_mem()
     ], $mol_locale, "lang", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_locale, "source", null);
     __decorate([
         $.$mol_mem()
     ], $mol_locale, "texts", null);
@@ -4030,6 +3949,106 @@ var $;
     $.$mol_icon_sort_asc = $mol_icon_sort_asc;
 })($ || ($ = {}));
 //asc.view.tree.js.map
+;
+var $;
+(function ($) {
+    function $mol_merge_dict(target, source) {
+        var result = {};
+        for (var key in target)
+            result[key] = target[key];
+        for (var key in source)
+            result[key] = source[key];
+        return result;
+    }
+    $.$mol_merge_dict = $mol_merge_dict;
+})($ || ($ = {}));
+//dict.js.map
+;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var $;
+(function ($) {
+    var $mol_state_arg = (function (_super) {
+        __extends($mol_state_arg, _super);
+        function $mol_state_arg(prefix) {
+            if (prefix === void 0) { prefix = ''; }
+            var _this = _super.call(this) || this;
+            _this.prefix = prefix;
+            return _this;
+        }
+        $mol_state_arg.href = function (next) {
+            if (next)
+                history.replaceState(history.state, $.$mol_dom_context.document.title, "" + next);
+            return window.location.search + window.location.hash;
+        };
+        $mol_state_arg.dict = function (next) {
+            var href = this.href(next && this.make(next));
+            var chunks = href.split(/[\/\?#!&;]/g);
+            var params = {};
+            chunks.forEach(function (chunk) {
+                if (!chunk)
+                    return;
+                var vals = chunk.split('=').map(decodeURIComponent);
+                params[vals.shift()] = vals.join('=');
+            });
+            return params;
+        };
+        $mol_state_arg.value = function (key, next) {
+            var nextDict = (next === void 0) ? void 0 : $.$mol_merge_dict(this.dict(), (_a = {}, _a[key] = next, _a));
+            return this.dict(nextDict)[key] || null;
+            var _a;
+        };
+        $mol_state_arg.link = function (next) {
+            return this.make($.$mol_merge_dict(this.dict(), next));
+        };
+        $mol_state_arg.make = function (next) {
+            var chunks = [];
+            for (var key in next) {
+                if (null == next[key])
+                    continue;
+                chunks.push([key].concat(next[key]).map(encodeURIComponent).join('='));
+            }
+            var hash = chunks.join('#');
+            return hash ? '#' + hash + '#' : '#';
+        };
+        $mol_state_arg.prototype.value = function (key, next) {
+            return $mol_state_arg.value(this.prefix + key, next);
+        };
+        $mol_state_arg.prototype.sub = function (postfix) {
+            return new $mol_state_arg(this.prefix + postfix + '.');
+        };
+        $mol_state_arg.prototype.link = function (next) {
+            var prefix = this.prefix;
+            var dict = {};
+            for (var key in next) {
+                dict[prefix + key] = next[key];
+            }
+            return $mol_state_arg.link(dict);
+        };
+        return $mol_state_arg;
+    }($.$mol_object));
+    __decorate([
+        $.$mol_mem()
+    ], $mol_state_arg, "href", null);
+    __decorate([
+        $.$mol_mem()
+    ], $mol_state_arg, "dict", null);
+    __decorate([
+        $.$mol_mem_key()
+    ], $mol_state_arg, "value", null);
+    $.$mol_state_arg = $mol_state_arg;
+    window.addEventListener('hashchange', function (event) { return $mol_state_arg.href(null); });
+})($ || ($ = {}));
+//arg.web.js.map
 ;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];

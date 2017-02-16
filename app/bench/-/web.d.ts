@@ -334,33 +334,6 @@ declare namespace $ {
 declare namespace $ {
 }
 declare namespace $ {
-    function $mol_merge_dict<Target, Source>(target: Target, source: Source): Target & Source;
-}
-declare namespace $ {
-    class $mol_state_arg<Value> extends $mol_object {
-        prefix: string;
-        static href(next?: string): string;
-        static dict(next?: {
-            [key: string]: string;
-        }): {
-            [key: string]: string;
-        };
-        static value(key: string, next?: string): string;
-        static link(next: {
-            [key: string]: string;
-        }): string;
-        static make(next: {
-            [key: string]: string;
-        }): string;
-        constructor(prefix?: string);
-        value(key: string, next?: string): string;
-        sub(postfix: string): $mol_state_arg<{}>;
-        link(next: {
-            [key: string]: string;
-        }): string;
-    }
-}
-declare namespace $ {
     class $mol_http_request extends $mol_object {
         uri(): string;
         method_get(): string;
@@ -413,7 +386,9 @@ declare namespace $ {
         [key: string]: string;
     }
     class $mol_locale extends $mol_object {
-        static lang(next?: string): any;
+        static lang_default(): string;
+        static lang(next?: string): string;
+        static source(lang: string): any;
         static texts(next?: $mol_locale_dict): $mol_locale_dict;
         static text(contexts: string[], key: string): string;
     }
@@ -1008,6 +983,33 @@ declare namespace $ {
     }
 }
 declare namespace $ {
+    function $mol_merge_dict<Target, Source>(target: Target, source: Source): Target & Source;
+}
+declare namespace $ {
+    class $mol_state_arg<Value> extends $mol_object {
+        prefix: string;
+        static href(next?: string): string;
+        static dict(next?: {
+            [key: string]: string;
+        }): {
+            [key: string]: string;
+        };
+        static value(key: string, next?: string): string;
+        static link(next: {
+            [key: string]: string;
+        }): string;
+        static make(next: {
+            [key: string]: string;
+        }): string;
+        constructor(prefix?: string);
+        value(key: string, next?: string): string;
+        sub(postfix: string): $mol_state_arg<{}>;
+        link(next: {
+            [key: string]: string;
+        }): string;
+    }
+}
+declare namespace $ {
     class $mol_bench extends $mol_grid {
         result(): any;
         result_sorted(): any;
@@ -1039,7 +1041,7 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_bench extends $.$mol_bench {
-        col_sort(next?: string): any;
+        col_sort(next?: string): string;
         result_sorted(): any;
         result_value(id: {
             row: string[];
@@ -1088,7 +1090,7 @@ declare namespace $ {
 }
 declare namespace $.$mol {
     class $mol_app_bench extends $.$mol_app_bench {
-        bench(next?: string): any;
+        bench(next?: string): string;
         sandbox(next?: HTMLIFrameElement, force?: $mol_atom_force): HTMLIFrameElement;
         'command_current()': any[];
         command_current(next?: any[], force?: $mol_atom_force): any[];
@@ -1129,7 +1131,7 @@ declare namespace $.$mol {
             };
         };
         result_col_title(col_id: string): string[];
-        result_col_sort(next?: string): any;
+        result_col_sort(next?: string): string;
         menu_options(): $mol_check_box[];
         menu_option_title(sample: string): string;
         menu_option_checked(sample: string, next?: boolean): boolean;

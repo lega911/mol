@@ -377,7 +377,9 @@ declare namespace $ {
         [key: string]: string;
     }
     class $mol_locale extends $mol_object {
-        static lang(next?: string): any;
+        static lang_default(): string;
+        static lang(next?: string): string;
+        static source(lang: string): any;
         static texts(next?: $mol_locale_dict): $mol_locale_dict;
         static text(contexts: string[], key: string): string;
     }
@@ -1545,7 +1547,7 @@ declare namespace $.$mol {
         pages(): $mol_view[] | $.$mol_app_supplies_enter[];
         domain(): $mol_app_supplies_domain_mock;
         supplies(): $mol_app_supplies_domain_supply[];
-        supply_id(next?: string): any;
+        supply_id(next?: string): string;
         search_query(next?: string): string;
         supply(): $mol_app_supplies_domain_supply;
     }
