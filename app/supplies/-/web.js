@@ -5893,6 +5893,9 @@ var $;
         function $mol_attach_add() {
             return _super.apply(this, arguments) || this;
         }
+        $mol_attach_add.prototype.minimal_height = function () {
+            return 80;
+        };
         $mol_attach_add.prototype.file_new = function (val) {
             return (val !== void 0) ? val : "";
         };
@@ -6166,7 +6169,7 @@ var $;
             return _super.apply(this, arguments) || this;
         }
         $mol_app_supplies_position.prototype.minimal_height = function () {
-            return 51;
+            return 70;
         };
         $mol_app_supplies_position.prototype.product_title = function () {
             return $.$mol_locale.text(this.locale_contexts(), "product_title");
